@@ -6,27 +6,12 @@ module is fully testable offline, with no real network calls.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from .base import AccountSnapshot, BrokerClient, OrderResult
 
 
-@dataclass
-class AccountSnapshot:
-    equity: float
-    cash: float
-    buying_power: float
-
-
-@dataclass
-class OrderResult:
-    symbol: str
-    notional: float
-    side: str
-    status: str
-
-
-class AlpacaClient:
-    """Paper-trading-only client. `base_url` is never read from anywhere but
-    the paper endpoint by default — this repo does not place live trades."""
+class AlpacaClient(BrokerClient):
+    """Paper-trading-only client. Always constructed against Alpaca's paper
+    endpoint — this repo does not place live trades."""
 
     def __init__(
         self,
