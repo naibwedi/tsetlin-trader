@@ -173,7 +173,7 @@ a{color:var(--accent)}
   <div class="strip" aria-label="Account state at the last run">
     <div><span>Account</span><b>Alpaca paper</b></div>
     <div><span>Equity</span><b>&asymp; $99,936</b></div>
-    <div><span>Holding</span><b>SPY &asymp; $24,997</b></div>
+    <div><span>Holding</span><b>SPY &asymp; $25,030</b></div>
     <div><span>Last signal</span><b>cash &middot; 2026-09-17</b></div>
   </div>
 </header>
@@ -346,7 +346,7 @@ a{color:var(--accent)}
 <section>
   <h2>Why the test failed, and the plan</h2>
   <div class="prose" style="margin-top:14px">
-    <p>The Tsetlin Machine was trained and it works. The test failed because of the question we asked and the data we gave it, not because of the machine. All four models failed the same way, which points at the task.</p>
+    <p>The Tsetlin Machine was trained and it works. All four models failed the same way, which points at the question and the data rather than the machine, but it does not prove it: the labels, the features, the model, or simply too little predictable signal in four price series could each be the cause.</p>
   </div>
 
   <div class="rules" style="margin-top:24px">
@@ -361,26 +361,45 @@ a{color:var(--accent)}
     <p>In research it matches simpler models on accuracy; it does not beat them. What it gives you that they cannot is <b>rules a person can read and check</b>. So the plan aims it at a job where that matters: a risk filter you can trust, not a market-beating oracle.</p>
   </div>
 
-  <h3 style="margin-top:40px">The plan, staying with the 4 ETFs</h3>
+  <h3 style="margin-top:40px">One more result, found after the plan was written</h3>
+  <div class="prose" style="margin-top:10px">
+    <p>Your research repo already ran the "yes/no risk filter" idea (v0.3, August 2026) on 2008&ndash;2020. The Tsetlin Machine passed <b>0 of 9</b> seed and cost scenarios. A hand-written stress rule (halve the blend when SPY is down over 60 days and getting jumpier) did better than all three machine seeds. So that step is done, and it failed too.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th class="num">Yearly return</th><th class="num">Sharpe</th><th class="num">Worst fall</th></tr></thead>
+      <tbody>
+        <tr><td>Equal mix (blend)</td><td class="num">9.9%</td><td class="num">0.78</td><td class="num">&minus;20.6%</td></tr>
+        <tr class="hl"><td>Blend + hand-written stress rule</td><td class="num">9.2%</td><td class="num">0.78</td><td class="num">&minus;14.4%</td></tr>
+        <tr><td>Blend + Tsetlin Machine filter, best seed</td><td class="num">7.3%</td><td class="num">0.75</td><td class="num">&minus;17.3%</td></tr>
+        <tr><td>Blend + Tsetlin Machine filter, worst seed</td><td class="num">5.9%</td><td class="num">0.61</td><td class="num">&minus;17.3%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:40px">The corrected plan</h3>
   <ol class="steps">
-    <li><span class="n">1</span><div class="step-body"><h3>Ask a yes/no question</h3><p>"Should we cut risk for the next 20 days?" Two balanced classes instead of four lopsided ones. The bot uses the answer as a dial: full position when calm, half when not.</p><span class="today">your repo's v0.3 experiment already frames it this way</span></div></li>
-    <li><span class="n">2</span><div class="step-body"><h3>Many more facts from the same 4 prices</h3><p>More time windows (10, 40, 120, 200 days), classic signals (50-day above 200-day, new 52-week high or low), stock&ndash;bond correlation, fear spikes (5-day vs 60-day volatility), relative strength both ways, streaks, and finer cut-offs.</p><span class="today">about 300&ndash;400 facts instead of 100</span></div></li>
-    <li><span class="n">3</span><div class="step-body"><h3>More history</h3><p>Start in 2002, TLT's first full year, instead of 2008. That adds the 2002 bear market and the 2007 top, exactly the "cut risk" examples we lack.</p><span class="today">about 1,500 more days</span></div></li>
-    <li><span class="n">4</span><div class="step-body"><h3>A smaller, tidier machine</h3><p>200&ndash;300 clauses instead of 1,000, a cap on rule length so rules stay short and readable, dropout to fight memorising, balanced classes, and 5 fixed seeds averaged.</p><span class="today">fewer, shorter, steadier rules</span></div></li>
-    <li><span class="n">5</span><div class="step-body"><h3>Keep the rules that survive</h3><p>After the walk-forward, keep only clauses that show up in most rounds. Those 10&ndash;20 stable rules become a readable regime rulebook. That is the real product of a Tsetlin Machine.</p><span class="today">uses the repo's rule_stability output</span></div></li>
-    <li><span class="n">6</span><div class="step-body"><h3>Judge it honestly</h3><p>Development period only (through 2020), against logistic regression and the equal mix, reporting ranges across seeds. 2021&ndash;2025 stays locked until something passes.</p><span class="today">status: not started</span></div></li>
+    <li><span class="n">1</span><div class="step-body"><h3>Make execution trustworthy</h3><p>Safety checks now run before any data or model. The bot refuses to run without its saved risk state, only ever trades the four ETFs, waits for sells to fill before buying, cannot place the same order twice, and allows one run at a time. Bad signals (negative, infinite, or unknown symbols) are rejected.</p><span class="today">done: 80 tests pass</span></div></li>
+    <li><span class="n">2</span><div class="step-body"><h3>Run three portfolios side by side</h3><p>On every real run the bot now books three paper portfolios on the same prices with the same costs: the plain blend, the blend with the hand-written stress rule, and the Tsetlin Machine. This compares returns, not just signals, on data nobody could have tuned against.</p><span class="today">done: starts with the next executed run</span></div></li>
+    <li><span class="n">3</span><div class="step-body"><h3>An 8&ndash;12 week paper trial</h3><p>Weekly runs. This tests that the machinery is reliable, not whether the strategy is profitable. Alpaca's paper account leaves out dividends and some costs, so the virtual portfolios are the fair scoreboard.</p><span class="today">status: not started</span></div></li>
+    <li><span class="n">4</span><div class="step-body"><h3>One small, predefined feature test</h3><p>Add only trend strength, changing volatility and stock&ndash;bond correlation as new facts, decided in advance, and test on 2002&ndash;2020 with every seed reported. More clauses, more features or a GPU are not automatically improvements.</p><span class="today">status: not started</span></div></li>
+    <li><span class="n">5</span><div class="step-body"><h3>Be honest about the machine's role</h3><p>On the evidence so far the Tsetlin Machine's value is rules a person can read, and a hand-written rule currently beats it on returns. That is a legitimate project. The 2021&ndash;2025 period stays locked.</p><span class="today">this page says so</span></div></li>
   </ol>
   <div class="prose" style="margin-top:22px">
-    <p class="muted">What to expect: a modest, real improvement on the risk-filter task, and rules you can read. Not a strategy that beats holding SPY through a bull market. Nothing cautious does.</p>
+    <p class="muted">What to expect: reliable machinery and a fair scoreboard within three months. Not a strategy that beats holding SPY through a bull market. Nothing cautious does.</p>
   </div>
 </section>
 
 <section>
   <h2>The safety rules</h2>
   <div class="rules">
+    <div><b>First</b><p>Account and drawdown are checked before any data download or training. A broken feed cannot stop the breaker.</p></div>
     <div><b>25%</b><p>of the account is the most the bot will put in the market.</p></div>
-    <div><b>15%</b><p>fall from the account's best value trips the breaker. It sells everything to cash.</p></div>
-    <div><b>Manual reset</b><p>Once tripped, it stays off until you delete <code>results\state.json</code>. It never restarts by itself.</p></div>
+    <div><b>15%</b><p>fall from the account's best value trips the breaker. It sells everything to cash, without needing a model.</p></div>
+    <div><b>Manual reset</b><p>Once tripped, it stays off until you delete <code>results\state.json</code>. If that file is missing, it refuses to trade.</p></div>
+    <div><b>4 ETFs only</b><p>Anything else in the account is reported and left alone. The bot cannot sell what it did not buy.</p></div>
+    <div><b>Sells, then wait</b><p>Buys are placed only after the sells have filled. Every order has an id tied to the run, so a retry cannot double it.</p></div>
+    <div><b>One at a time</b><p>A lock file stops two runs overlapping. A stale lock from a crash is replaced after 2 hours.</p></div>
     <div><b>0.5%</b><p>gaps between target and holdings are ignored, so it does not trade on tiny drift.</p></div>
   </div>
 </section>
