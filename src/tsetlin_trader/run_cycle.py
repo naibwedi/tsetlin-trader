@@ -57,8 +57,9 @@ def build_signal_provider(provider: str) -> SignalProvider:
         from .signal.logic_alpha_provider import LogicAlphaProvider
 
         return LogicAlphaProvider(
-            model=os.environ.get("SIGNAL_MODEL", "bernoulli"),
+            model=os.environ.get("SIGNAL_MODEL", "tmu"),
             tiingo_token=os.environ.get("TIINGO_API_TOKEN"),
+            history_start=os.environ.get("SIGNAL_HISTORY_START", "2008-01-01"),
         )
     raise ValueError(f"Unknown SIGNAL_PROVIDER: {provider!r} (expected 'logic_alpha' or 'mock')")
 
@@ -125,7 +126,8 @@ def main() -> None:
     print(f"status:   {result['status']}")
     if "signal" in result:
         s = result["signal"]
-        print(f"signal:   {s['strategy']} (confidence {s['confidence']:.2f}, as of {s['as_of']})")
+        conf = "n/a" if s["confidence"] is None else f"{s['confidence']:.2f}"
+        print(f"signal:   {s['strategy']} (confidence {conf}, as of {s['as_of']})")
         for line in s["rule_trace"]:
             print(f"          - {line}")
         print(f"risk:     {result['risk_decision']} - {result['risk_reason']}")

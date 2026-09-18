@@ -22,11 +22,11 @@ class Signal(BaseModel):
     as_of: str | None = None
     strategy: str
     target_weights: dict[str, float]
-    confidence: float
+    confidence: float | None = None
     rule_trace: list[str]
 
     def model_post_init(self, __context) -> None:
-        if not 0.0 <= self.confidence <= 1.0:
+        if self.confidence is not None and not 0.0 <= self.confidence <= 1.0:
             raise ValueError("confidence must be in [0, 1]")
         total = sum(self.target_weights.values())
         if total > 1.0 + 1e-6:

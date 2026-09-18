@@ -71,3 +71,19 @@ def test_strategy_weights_follow_the_research_rules():
     assert strategy_target_weights("cash", prices)[0] == {}
     with pytest.raises(ValueError):
         strategy_target_weights("nonsense", prices)
+
+
+def test_tmu_model_gives_a_seeded_explained_signal(prices_csv):
+    pytest.importorskip("tmu")
+    params = dict(clauses=60, threshold=20, epochs=3, seeds=(1, 2))
+
+    first = make_provider(prices_csv, model="tmu", tm_params=params).get_current_signal()
+    second = make_provider(prices_csv, model="tmu", tm_params=params).get_current_signal()
+
+    assert first.strategy in STRATEGIES
+    assert first.confidence is None  # votes are not probabilities
+    assert first.strategy == second.strategy
+    assert first.target_weights == second.target_weights
+    text = "\n".join(first.rule_trace)
+    assert "clauses that fired FOR" in text
+    assert "seeds agree" in text

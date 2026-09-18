@@ -57,10 +57,12 @@ class LogicAlphaProvider(SignalProvider):
         prices_csv: str | Path = "data/tiingo-prices.csv",
         model: str = "bernoulli",
         tiingo_token: str | None = None,
-        history_start: str = "2021-01-01",
+        history_start: str = "2008-01-01",
         top_rules: int = 5,
         max_data_age_days: int = MAX_DATA_AGE_DAYS,
+        tm_params: dict | None = None,
     ) -> None:
+        self.tm_params = tm_params or {}
         self.max_data_age_days = max_data_age_days
         self.prices_csv = Path(prices_csv)
         self.model = model
@@ -113,6 +115,42 @@ class LogicAlphaProvider(SignalProvider):
             lines.append(f"  {model.feature_names_[i]} is {state} -> {contribution[i]:+.2f}")
         return lines
 
+    def _predict_other(self, train_x, train_y, today, cfg):
+        model = _selector(self.model, cfg).fit(train_x, train_y)
+        predicted, margin = model.predict_with_margin(today)
+        strategy = str(predicted[0])
+        margin_value = float(margin[0])
+        # Pairwise probability of the winner over the runner-up; None when the model has no margin.
+        confidence = None if math.isnan(margin_value) else 1.0 / (1.0 + math.exp(-margin_value))
+        headline = f"selected strategy '{strategy}' (margin over runner-up {margin_value:+.2f})"
+        return strategy, confidence, headline, self._explain(model, today, strategy)
+
+    def _predict_tmu(self, train_x, train_y, today):
+        from .tm_model import TsetlinEnsemble
+
+        ensemble = TsetlinEnsemble(**self.tm_params).fit(train_x, train_y)
+        sums = ensemble.class_sums(today)
+        order = np.argsort(sums)
+        strategy = str(ensemble.classes_[order[-1]])
+        runner = str(ensemble.classes_[order[-2]])
+        margin = float(sums[order[-1]] - sums[order[-2]])
+        seed_winners = ensemble.seed_votes(today)
+        agree = sum(1 for w in seed_winners if w == strategy)
+
+        headline = (
+            f"selected strategy '{strategy}' (vote margin over '{runner}' {margin:+.0f}; "
+            f"{agree}/{len(seed_winners)} seeds agree)"
+        )
+        votes = ", ".join(f"{c} {v:+.0f}" for c, v in zip(ensemble.classes_, sums))
+        detail = [f"average votes over {len(seed_winners)} seeds: {votes} (votes are not probabilities)"]
+
+        pro, con = ensemble.explain(today, strategy, self.top_rules)
+        detail.append(f"clauses that fired FOR '{strategy}' (strongest first):")
+        detail += [f"  {v.vote:+.1f}  IF " + " AND ".join(v.literals) for v in pro] or ["  (none)"]
+        detail.append(f"clauses that fired AGAINST '{strategy}':")
+        detail += [f"  {v.vote:+.1f}  IF " + " AND ".join(v.literals) for v in con] or ["  (none)"]
+        return strategy, None, headline, detail
+
     def get_current_signal(self) -> Signal:
         cfg = self.config
         prices = self._load_prices()
@@ -131,16 +169,14 @@ class LogicAlphaProvider(SignalProvider):
             )
 
         encoder = QuantileBooleanEncoder(cfg.quantiles).fit(x.loc[train_index])
-        model = _selector(self.model, cfg).fit(
-            encoder.transform(x.loc[train_index]), labels.loc[train_index]
-        )
+        train_x = encoder.transform(x.loc[train_index])
+        train_y = labels.loc[train_index]
         today = encoder.transform(x.iloc[[-1]])
-        predicted, margin = model.predict_with_margin(today)
-        strategy = str(predicted[0])
-        margin_value = float(margin[0])
 
-        # Pairwise probability of the winner over the runner-up; 0.5 when the model has no margin.
-        confidence = 0.5 if math.isnan(margin_value) else 1.0 / (1.0 + math.exp(-margin_value))
+        if self.model == "tmu":
+            strategy, confidence, headline, detail = self._predict_tmu(train_x, train_y, today)
+        else:
+            strategy, confidence, headline, detail = self._predict_other(train_x, train_y, today, cfg)
 
         weights, holding_note = strategy_target_weights(strategy, prices)
         as_of = x.index[-1].date().isoformat()
@@ -149,10 +185,10 @@ class LogicAlphaProvider(SignalProvider):
             f"model={self.model} trained on {len(train_index)} labelled days "
             f"(through {train_index[-1].date()}), predicting {as_of}",
             f"regime today: {features.regime.iloc[-1]}",
-            f"selected strategy '{strategy}' (margin over runner-up {margin_value:+.2f})",
+            headline,
             holding_note,
+            *detail,
         ]
-        trace.extend(self._explain(model, today, strategy))
 
         return Signal(
             as_of=as_of,
