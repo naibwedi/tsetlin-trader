@@ -12,3 +12,4 @@ data/
 .ruff_cache/
 .vscode/
 .idea/
+results/dev-benchmark/
