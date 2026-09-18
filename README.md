@@ -8,6 +8,8 @@ This repo is the **execution layer**. Signal generation (leakage-aware walk-forw
 
 > **Status: paper trading only.** Not investment advice. The research repo itself states that its backtests are not evidence of tradable alpha, and that applies here too. Treat this as an engineering and forward-testing exercise.
 
+**Visual explainer:** [docs/index.html](docs/index.html) walks through one trading cycle, how the Tsetlin Machine votes, the 2010-2020 test results and the improvement plan.
+
 ## How it works
 
 ```

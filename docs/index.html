@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inside Tsetlin Trader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F3; --surface:#FFFFFF; --surface2:#E7EEEA; --ink:#12201A; --muted:#55665E; --line:#CFD9D3;
+  --accent:#0B7A5E; --accent-soft:#D5EEE4; --warn:#94560A; --warn-soft:#F7E8CB; --bad:#B3261E;
+  --c-trend:#2F63C8; --c-momentum:#0B7A5E; --c-defensive:#A86400; --c-cash:#66746E;
+  --pos:#0B7A5E; --neg:#B3261E; --code-bg:#12201A; --code-ink:#DDEBE3;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1512; --surface:#151F1A; --surface2:#1C2924; --ink:#E4EEE8; --muted:#94A79D; --line:#2A3932;
+    --accent:#3FCF9F; --accent-soft:#12352A; --warn:#E6A94B; --warn-soft:#38290F; --bad:#FF8A80;
+    --c-trend:#7BA6FF; --c-momentum:#3FCF9F; --c-defensive:#E6A94B; --c-cash:#9AA8A2;
+    --pos:#3FCF9F; --neg:#FF8A80; --code-bg:#0A100D; --code-ink:#DDEBE3;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1512; --surface:#151F1A; --surface2:#1C2924; --ink:#E4EEE8; --muted:#94A79D; --line:#2A3932;
+  --accent:#3FCF9F; --accent-soft:#12352A; --warn:#E6A94B; --warn-soft:#38290F; --bad:#FF8A80;
+  --c-trend:#7BA6FF; --c-momentum:#3FCF9F; --c-defensive:#E6A94B; --c-cash:#9AA8A2;
+  --pos:#3FCF9F; --neg:#FF8A80; --code-bg:#0A100D; --code-ink:#DDEBE3;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 72px}
+.wrap{max-width:860px;margin-inline:auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.3rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(1.45rem,3.6vw,1.9rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+code,.mono{font-family:var(--mono);font-size:.88em}
+section{padding-block:52px 4px}
+.lede{font-size:1.15rem;max-width:62ch}
+.prose{max-width:66ch;display:flex;flex-direction:column;gap:14px}
+.muted{color:var(--muted)}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+/* header */
+header{padding-block:44px 8px;display:flex;flex-direction:column;gap:18px}
+.strip{display:flex;flex-wrap:wrap;gap:8px 22px;padding-block:14px;border-block:1px solid var(--line);font-size:.86rem}
+.strip div{display:flex;flex-direction:column}
+.strip b{font-family:var(--mono);font-weight:500;font-size:.95rem}
+.strip span{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.07em}
+
+/* callouts */
+.note{background:var(--warn-soft);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+.note b{color:var(--warn)}
+.note.good{background:var(--accent-soft)}
+.note.good b{color:var(--accent)}
+
+/* steps */
+ol.steps{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column}
+ol.steps li{display:grid;grid-template-columns:44px 1fr;gap:0 14px;padding-block:18px;border-top:1px solid var(--line)}
+ol.steps li:last-child{border-bottom:1px solid var(--line)}
+.n{font-family:var(--display);font-weight:700;font-size:1.5rem;color:var(--accent);line-height:1}
+.step-body{display:flex;flex-direction:column;gap:8px}
+.today{align-self:flex-start;font-family:var(--mono);font-size:.82rem;background:var(--surface2);border-radius:6px;padding:5px 9px}
+
+/* strategies */
+.strats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:26px 24px;margin-top:26px}
+.strat{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:3px solid var(--c)}
+.strat h3{display:flex;align-items:center;gap:8px}
+.chosen{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--bg);padding:2px 7px;border-radius:4px}
+.strat .hold{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+
+/* bars */
+.chart{margin-top:22px;display:flex;flex-direction:column;gap:9px;max-width:720px}
+.brow{display:grid;grid-template-columns:96px 1fr 120px;gap:12px;align-items:center;font-size:.9rem}
+.btrack{height:22px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bfill{height:100%;background:var(--c)}
+.bval{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.drow{display:grid;grid-template-columns:minmax(0,17rem) 1fr 3.6rem;gap:14px;align-items:center;padding-block:7px}
+.dlabel{font-size:.9rem;line-height:1.35;display:flex;flex-direction:column}
+.dlabel small{color:var(--muted);font-size:.78rem}
+.dtrack{position:relative;height:22px}
+.dtrack .zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--muted)}
+.dbar{position:absolute;top:2px;bottom:2px;border-radius:3px}
+.dbar.pos{background:var(--pos)} .dbar.neg{background:var(--neg)}
+.dbar.total{background:var(--accent);top:0;bottom:0}
+.dval{font-family:var(--mono);font-size:.86rem;text-align:right}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* toy */
+.toy{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:26px;display:flex;flex-direction:column;gap:22px}
+.toy-tag{align-self:flex-start;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;background:var(--warn-soft);color:var(--warn);padding:3px 8px;border-radius:4px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.fact{font:inherit;text-align:left;cursor:pointer;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.fact[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.fact .st{font-family:var(--mono);font-size:.74rem;font-weight:500;color:var(--muted)}
+.fact[aria-pressed="true"] .st{color:var(--accent)}
+.clauses{display:flex;flex-direction:column;gap:6px}
+.clause{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:9px 12px;border-radius:8px;background:var(--bg);opacity:.5;font-size:.9rem}
+.clause.on{opacity:1;background:var(--surface2)}
+.vote{font-family:var(--mono);font-size:.78rem;padding:2px 8px;border-radius:4px;border:1.5px solid var(--c);color:var(--c);white-space:nowrap}
+.clause.on .vote{background:var(--c);color:var(--bg)}
+.tally{display:flex;flex-direction:column;gap:8px}
+.trow{display:grid;grid-template-columns:96px 1fr 28px;gap:12px;align-items:center;font-size:.9rem}
+.trow.win{font-weight:600}
+.pips{display:flex;gap:5px;min-height:20px}
+.pip{width:26px;height:20px;border-radius:4px;background:var(--c)}
+.verdict{font-family:var(--display);font-size:1.2rem;font-weight:600}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* clauses */
+.clauselist{margin-top:14px;display:flex;flex-direction:column;gap:8px;max-width:760px}
+.cl{display:grid;grid-template-columns:3.6rem 1fr;gap:12px;align-items:start;padding:10px 12px;border-radius:8px;background:var(--surface2)}
+.cl code{display:block;word-break:break-word;line-height:1.5}
+.cl small{display:block;color:var(--muted);margin-top:4px;font-size:.82rem;line-height:1.4}
+.cv{font-family:var(--mono);font-weight:500;text-align:right}
+.cl.for .cv{color:var(--pos)} .cl.against .cv{color:var(--neg)}
+/* results */
+.lgrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lg{font:inherit;font-size:.84rem;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px}
+.lg[aria-pressed="true"]{border-color:var(--ink)}
+.lg[aria-pressed="false"]{opacity:.55}
+.lg i{width:18px;height:0;border-top:3px solid var(--c)}
+.lg small{font-family:var(--mono);color:var(--muted);font-size:.76rem}
+.eqwrap{margin-top:12px;max-width:760px}
+.eqwrap svg{width:100%;height:auto;display:block}
+.eqwrap .grid{stroke:var(--line);stroke-width:1}
+.eqwrap .ax{fill:var(--muted);font:11px var(--mono)}
+td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
+tr.hl td{font-weight:600;background:var(--accent-soft)}
+.grid7 td.ok{color:var(--pos)} .grid7 td.bad{color:var(--neg)}
+.grid7{min-width:640px}
+.grid7 th{white-space:normal}
+/* compare */
+.tablewrap{overflow-x:auto;margin-top:22px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{text-align:left;padding:11px 14px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-weight:500;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td:first-child{font-weight:600;white-space:nowrap}
+
+/* risk list */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px 28px;margin-top:24px}
+.rules div{display:flex;flex-direction:column;gap:4px}
+.rules b{font-family:var(--mono);font-weight:500;font-size:1.3rem;color:var(--accent)}
+
+/* code */
+pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:0;font-family:var(--mono);font-size:.84rem;line-height:1.6}
+.cmds{display:flex;flex-direction:column;gap:18px;margin-top:22px;max-width:720px}
+.cmd{display:flex;flex-direction:column;gap:7px}
+ul.plain{margin:0;padding-left:1.15em;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+a{color:var(--accent)}
+@media (max-width:560px){
+  .brow{grid-template-columns:78px 1fr;} .brow .bval{grid-column:2}
+  .drow{grid-template-columns:1fr 3.6rem} .drow .dlabel{grid-column:1 / -1}
+  .trow{grid-template-columns:80px 1fr 24px}
+  ol.steps li{grid-template-columns:34px 1fr}
+}
+@media (prefers-reduced-motion:no-preference){ .bfill,.dbar{transition:width .4s ease} }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="eyebrow">tsetlin-trader &middot; paper trading</p>
+  <h1>Inside Tsetlin Trader</h1>
+  <p class="lede">Once a week the bot looks at four ETFs, asks a Tsetlin Machine which of four simple strategies looks best right now, and moves a fake-money Alpaca account to match. This page shows each step, using the numbers from the latest real run.</p>
+  <div class="strip" aria-label="Account state at the last run">
+    <div><span>Account</span><b>Alpaca paper</b></div>
+    <div><span>Equity</span><b>&asymp; $99,936</b></div>
+    <div><span>Holding</span><b>SPY &asymp; $24,997</b></div>
+    <div><span>Last signal</span><b>cash &middot; 2026-09-17</b></div>
+  </div>
+</header>
+
+<section>
+  <h2>Two things to know first</h2>
+  <div class="prose" style="margin-top:18px">
+    <div class="note good"><b>The money is fake, the prices are real.</b><span>Alpaca's paper account shows real market prices and simulates the fills. Nothing you do here can lose real money.</span></div>
+    <div class="note"><b>The Tsetlin Machine is running, and the test says it has not earned trust.</b><span>On 2010&ndash;2020 data, none of the 4 models beat a plain equal mix of the strategies in any of the 7 variations (0 of 28). See "How the test went" below. Treat every signal as unproven.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>One cycle, step by step</h2>
+  <p class="prose muted" style="margin-top:12px">This is the order things happen every time you run the bot. Each step shows what it did on the last run.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="step-body"><h3>Download prices</h3><p>Daily closing prices for four ETFs from Tiingo: SPY (US large companies), QQQ (tech), IWM (small companies) and TLT (long-term bonds). Data more than 5 days old is refused, so the bot never trades on old news.</p><span class="today">4,707 trading days, 2008-01-02 to 2026-09-17</span></div></li>
+    <li><span class="n">2</span><div class="step-body"><h3>Turn numbers into yes/no facts</h3><p>The model can only read true/false facts, such as "SPY's 60-day return is above its 40th percentile." The bot measures 25 things (returns, volatility, trend gaps) and asks 4 questions about each, which gives 100 facts. The cut-offs come from past days only.</p><span class="today">100 true/false facts per day</span></div></li>
+    <li><span class="n">3</span><div class="step-body"><h3>Learn from history</h3><p>For every past day, the "right answer" is the strategy that earned the most over the next 20 days, after a penalty for bumpy rides. If none clearly wins, the answer is cash. Five Tsetlin Machines, each started from a fixed seed, train on those answers. The last 20 days are left out because their outcome is not known yet.</p><span class="today">5 machines, 1,000 clauses each, trained on 4,587 days through 2026-08-19</span></div></li>
+    <li><span class="n">4</span><div class="step-body"><h3>Vote on today</h3><p>Every clause that is true today casts a weighted vote for or against a strategy. The five machines' votes are averaged and the top strategy wins.</p><span class="today">winner: cash, +386 votes ahead of momentum, 5 of 5 machines agree</span></div></li>
+    <li><span class="n">5</span><div class="step-body"><h3>Turn the strategy into a holding</h3><p>Each strategy has a fixed rule for what to hold. Cash means hold nothing.</p><span class="today">target: no position</span></div></li>
+    <li><span class="n">6</span><div class="step-body"><h3>Check the risk limits</h3><p>The bot only uses 25% of the account at most, and it checks that the account has not fallen too far from its best value.</p><span class="today">drawdown 0.00%, limit not hit</span></div></li>
+    <li><span class="n">7</span><div class="step-body"><h3>Trade only the difference</h3><p>It compares the target with what you hold, sells first and buys second, and ignores gaps under 0.5% of the account. If any order is still waiting to fill, it skips the whole cycle.</p><span class="today">preview: sell all SPY (&asymp; $24,997). Not placed yet.</span></div></li>
+  </ol>
+</section>
+
+<section>
+  <h2>The four strategies the model chooses between</h2>
+  <p class="prose muted" style="margin-top:12px">The model never picks stocks. It picks one of these four fixed rules, which come from your <code>logic-alpha-tm</code> research.</p>
+  <div class="strats">
+    <div class="strat" style="--c:var(--c-trend)"><h3>Trend</h3><p>Hold SPY while its 20-day average is above its 100-day average. Otherwise hold cash.</p><span class="hold">SPY or cash</span></div>
+    <div class="strat" style="--c:var(--c-momentum)"><h3>Momentum</h3><p>Hold whichever of SPY, QQQ or IWM has risen most over the last 60 days.</p><span class="hold">SPY, QQQ or IWM</span></div>
+    <div class="strat" style="--c:var(--c-defensive)"><h3>Defensive</h3><p>Hold SPY while it is above its 100-day average. If it falls below, switch to long bonds.</p><span class="hold">SPY or TLT</span></div>
+    <div class="strat" style="--c:var(--c-cash)"><h3>Cash <span class="chosen">today</span></h3><p>Hold nothing. The model picks this when no strategy clearly beats the others.</p><span class="hold">no position</span></div>
+  </div>
+
+  <h3 style="margin-top:44px">What the history says the "right answer" usually was</h3>
+  <p class="prose muted" style="margin-top:8px">Across 4,587 labelled days since 2008, cash was the best answer on about seven days out of ten. That is why the model leans toward cash, and a model that leans this way will often say cash.</p>
+  <div class="chart" id="labels" role="img" aria-label="Bar chart of how often each strategy was the best answer: cash 3161 days, momentum 1135, defensive 220, trend 71."></div>
+</section>
+
+<section>
+  <h2>Where a Tsetlin Machine fits</h2>
+  <div class="prose" style="margin-top:14px">
+    <p>A Tsetlin Machine learns a set of small rules called <b>clauses</b>. Each clause is a few facts joined by AND, for example "SPY is rising AND volatility is not high." When a clause is true today, it casts a vote for a strategy. The strategy with the most votes wins. Because you can read every clause, you can see why it decided.</p>
+    <p>Try it below. Switch facts on and off and watch which clauses light up.</p>
+  </div>
+
+  <div class="toy" id="toy">
+    <span class="toy-tag">Toy example &middot; invented clauses, not your trained model</span>
+    <div>
+      <p class="eyebrow" style="margin-bottom:10px">1 &middot; Set today's facts</p>
+      <div class="facts" id="facts"></div>
+    </div>
+    <div>
+      <p class="eyebrow" style="margin-bottom:10px">2 &middot; Clauses that are true cast a vote</p>
+      <div class="clauses" id="clauses"></div>
+    </div>
+    <div>
+      <p class="eyebrow" style="margin-bottom:10px">3 &middot; Count the votes</p>
+      <div class="tally" id="tally"></div>
+      <p class="verdict" id="verdict" style="margin-top:14px" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:46px">What runs today</h3>
+  <div class="prose" style="margin-top:10px">
+    <p>The real model works like the toy, only larger. Each Tsetlin Machine has 1,000 clauses for each strategy, learned from 18 years of history, and the bot trains five of them from fixed seeds and averages their votes. Fixed seeds matter: your research code starts each run from a random seed, so the same data could give a different signal every time. With fixed seeds it cannot.</p>
+    <p>Bernoulli Naive Bayes, the simpler model from earlier, is still available as a baseline (<code>SIGNAL_MODEL=bernoulli</code>).</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>Tsetlin Machine (running today)</th><th>Bernoulli (baseline)</th></tr></thead>
+      <tbody>
+        <tr><td>What it learns</td><td>Combined rules: fact AND fact AND fact</td><td>Each fact on its own</td></tr>
+        <tr><td>How it decides</td><td>Clauses vote, most votes wins</td><td>Adds up per-fact evidence</td></tr>
+        <tr><td>Explanation</td><td>The clauses that fired, with their votes</td><td>Per-fact evidence</td></tr>
+        <tr><td>Confidence figure</td><td>None. Votes are not probabilities</td><td>Yes, but only relative to the runner-up</td></tr>
+        <tr><td>Run time</td><td>About a minute</td><td>Under a second</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Today's decision in numbers</h2>
+  <div class="prose" style="margin-top:14px">
+    <p>Each strategy's score is the sum of the weighted votes of every clause that is true today, averaged over the five machines. Positive means "yes, this fits today", and negative means "no".</p>
+  </div>
+  <h3 style="margin-top:28px;font-size:1rem">Average votes on 2026-09-17</h3>
+  <div id="votes" role="img" aria-label="Average votes per strategy: cash plus 189, momentum minus 197, defensive minus 421, trend minus 429."></div>
+  <div class="prose" style="margin-top:16px">
+    <p>Cash wins by 386 votes over momentum, and all five machines agree. These numbers are <b>not probabilities</b>, so there is no confidence percentage. They only rank the four strategies against each other.</p>
+  </div>
+
+  <h3 style="margin-top:36px;font-size:1rem">The real clauses behind it</h3>
+  <p class="prose muted" style="margin-top:8px">These are read straight out of the trained machines. Each one is a rule that was true today, and the number is its vote. <code>q20</code> means the 20th percentile of history, and <code>NOT</code> means the opposite.</p>
+  <div class="clauselist">
+    <p class="eyebrow">For cash</p>
+    <div class="cl for"><span class="cv">+9.2</span><div><code>NOT IWM_vol_20 &gt; q20</code><small>Small-company volatility is at the calm end of its history.</small></div></div>
+    <div class="cl for"><span class="cv">+9.8</span><div><code>IWM_ret_60 &gt; q20 AND NOT TLT_ret_20 &gt; q40 AND NOT TLT_vol_20 &gt; q80 AND NOT IWM_vs_SPY_60 &gt; q80</code><small>Small caps are not at their worst, bonds are not rallying, bond volatility is not extreme, and small caps are not far ahead of SPY.</small></div></div>
+    <p class="eyebrow" style="margin-top:18px">Against cash</p>
+    <div class="cl against"><span class="cv">&minus;10.0</span><div><code>NOT IWM_ret_60 &gt; q80 AND NOT IWM_ret_100 &gt; q60 AND NOT TLT_ret_100 &gt; q40 AND NOT QQQ_vs_SPY_60 &gt; q60</code><small>Small caps and bonds have both been weak, and tech is not clearly beating SPY.</small></div></div>
+    <div class="cl against"><span class="cv">&minus;7.4</span><div><code>NOT SPY_ret_60 &gt; q60 AND NOT QQQ_ret_60 &gt; q60 AND NOT TLT_ret_5 &gt; q80 AND NOT TLT_ret_20 &gt; q60 AND NOT TLT_vol_20 &gt; q40</code><small>Neither SPY nor QQQ has been strong over 60 days, and bonds are quiet.</small></div></div>
+  </div>
+  <div class="prose" style="margin-top:16px">
+    <p class="muted">The plain-English notes are mine, added to help you read the rules. The bot itself prints only the raw rule text. These are patterns in past data, not reasons the market will rise or fall.</p>
+    <div class="note"><b>The two models disagree.</b><span>The earlier Bernoulli run, trained on 2021&ndash;2026 only, said momentum and bought SPY. The Tsetlin Machine, trained on 2008&ndash;2026, says cash. They use different models and different history, so this is not surprising, but it is a good reminder that neither answer is proven.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>How the test went</h2>
+  <div class="prose" style="margin-top:14px">
+    <p>This is the walk-forward test from your research repo. The model learned from the past only, predicted the next six months, then rolled forward and repeated. That happened 22 times over 2,650 days, from May 2010 to December 2020. The predicted strategies were turned into a portfolio, costs included, and compared with simple alternatives.</p>
+  </div>
+
+  <h3 style="margin-top:28px;font-size:1rem">What $1 would have become</h3>
+  <p class="muted" style="font-size:.88rem;margin-top:4px">Base settings. Click a name to show or hide its line.</p>
+  <div class="lgrow" id="eqlegend"></div>
+  <div class="eqwrap" id="eq"></div>
+
+  <h3 style="margin-top:34px;font-size:1rem">The numbers, base settings</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th class="num">Yearly return</th><th class="num">Sharpe</th><th class="num">Worst fall</th></tr></thead>
+      <tbody>
+        <tr><td>Just holding SPY</td><td class="num">14.6%</td><td class="num">0.85</td><td class="num">&minus;33.7%</td></tr>
+        <tr><td>Equal mix of the 3 strategies</td><td class="num">11.7%</td><td class="num">0.95</td><td class="num">&minus;17.9%</td></tr>
+        <tr class=hl><td>Tsetlin Machine picks</td><td class="num">3.0%</td><td class="num">0.29</td><td class="num">&minus;22.0%</td></tr>
+        <tr><td>Bernoulli picks</td><td class="num">4.2%</td><td class="num">0.36</td><td class="num">&minus;29.6%</td></tr>
+        <tr><td>Logistic picks</td><td class="num">11.2%</td><td class="num">0.88</td><td class="num">&minus;15.7%</td></tr>
+        <tr><td>Boosted-tree picks</td><td class="num">2.6%</td><td class="num">0.31</td><td class="num">&minus;14.9%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="font-size:.86rem;margin-top:10px;max-width:66ch"><b>Sharpe</b> is return per unit of risk. Higher is better, and 1 is generally considered good. <b>Worst fall</b> is the biggest drop from a peak.</p>
+
+  <h3 style="margin-top:34px;font-size:1rem">The pass/fail test, across 7 variations</h3>
+  <div class="prose" style="margin-top:8px">
+    <p>Your research repo set one test in advance: a model's picks must beat the equal mix on Sharpe, after costs. Each cell shows how far ahead (+) or behind (&minus;) the model was. The variations change costs, how often it rebalances, how much history it starts with, and how far ahead it looks.</p>
+  </div>
+  <div class="tablewrap">
+    <table class="grid7">
+      <thead><tr><th></th><th>Base</th><th>5 bps costs</th><th>10 bps costs</th><th>Monthly</th><th>3-year start</th><th>10-day look</th><th>40-day look</th><th class="num">Passed</th></tr></thead>
+      <tbody>
+        <tr><td>Tsetlin Machine</td><td class="num bad">&minus;0.66</td><td class="num bad">&minus;0.11</td><td class="num bad">&minus;0.41</td><td class="num bad">&minus;0.22</td><td class="num bad">&minus;0.41</td><td class="num bad">&minus;0.05</td><td class="num bad">&minus;0.33</td><td class="num">0 of 7</td></tr>
+        <tr><td>Bernoulli</td><td class="num bad">&minus;0.59</td><td class="num bad">&minus;0.57</td><td class="num bad">&minus;0.56</td><td class="num bad">&minus;0.59</td><td class="num bad">&minus;0.38</td><td class="num bad">&minus;0.34</td><td class="num bad">&minus;0.43</td><td class="num">0 of 7</td></tr>
+        <tr><td>Logistic</td><td class="num bad">&minus;0.07</td><td class="num bad">&minus;0.09</td><td class="num bad">&minus;0.21</td><td class="num bad">&minus;0.84</td><td class="num bad">&minus;0.36</td><td class="num bad">&minus;0.02</td><td class="num bad">&minus;0.51</td><td class="num">0 of 7</td></tr>
+        <tr><td>Boosted trees</td><td class="num bad">&minus;0.64</td><td class="num bad">&minus;0.62</td><td class="num bad">&minus;0.48</td><td class="num bad">&minus;0.40</td><td class="num bad">&minus;0.53</td><td class="num bad">&minus;0.55</td><td class="num bad">&minus;0.65</td><td class="num">0 of 7</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="verdict" style="margin-top:18px">0 of 28 runs passed.</p>
+
+  <div class="prose" style="margin-top:22px">
+    <h3 style="font-size:1rem">What this means</h3>
+    <ul class="plain">
+      <li>The Tsetlin Machine did <b>not</b> pick strategies better than a plain equal mix. Neither did the three simpler models. So the problem is not the Tsetlin Machine in particular. Picking strategies did not work on this data.</li>
+      <li>Logistic regression came closest on base settings (Sharpe 0.88 against 0.95), and still came second.</li>
+      <li>The Tsetlin Machine's result swings a lot between variations, from a Sharpe of 0.29 to 0.92. Your research code does not fix its random seed, so repeat runs differ. That is one more reason not to lean on any single number.</li>
+      <li>2010&ndash;2020 was a very strong stretch for US stocks, with SPY gaining about 14.6% a year. That makes any cautious strategy look weak.</li>
+      <li>The locked 2021&ndash;2025 period is still untouched. Because the development test failed, your own rules say the right move is not to open it yet.</li>
+    </ul>
+    <div class="note"><b>What this means for the bot</b><span>Today's "cash" signal has no proven edge. Keep paper trading to test the machinery, and use the shadow signals to collect real-time evidence. Nothing here is a reason to use real money.</span></div>
+    <p class="muted">This does not prove that no strategy could work, and it says nothing certain about the future. Your research repo's next experiment (v0.3) asks a different question: can a model reduce risk in bad periods, instead of picking a strategy? That fits this result better.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Why the test failed, and the plan</h2>
+  <div class="prose" style="margin-top:14px">
+    <p>The Tsetlin Machine was trained and it works. The test failed because of the question we asked and the data we gave it, not because of the machine. All four models failed the same way, which points at the task.</p>
+  </div>
+
+  <div class="rules" style="margin-top:24px">
+    <div><b>4-way</b><p>The question, "which of 4 strategies wins next month?", is close to unpredictable from prices alone.</p></div>
+    <div><b>69%</b><p>of days have the answer "cash". A model that always says cash scores 69%. The machine scored 57%.</p></div>
+    <div><b>4,000 rules</b><p>per machine, but the first test round had only 504 days to learn from. More rules than examples means memorising noise.</p></div>
+    <div><b>25 facts</b><p>All from prices: returns, volatility, averages. Nothing about fear, interest rates or credit stress.</p></div>
+  </div>
+
+  <h3 style="margin-top:40px">Where a Tsetlin Machine really helps</h3>
+  <div class="prose" style="margin-top:10px">
+    <p>In research it matches simpler models on accuracy; it does not beat them. What it gives you that they cannot is <b>rules a person can read and check</b>. So the plan aims it at a job where that matters: a risk filter you can trust, not a market-beating oracle.</p>
+  </div>
+
+  <h3 style="margin-top:40px">The plan, staying with the 4 ETFs</h3>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="step-body"><h3>Ask a yes/no question</h3><p>"Should we cut risk for the next 20 days?" Two balanced classes instead of four lopsided ones. The bot uses the answer as a dial: full position when calm, half when not.</p><span class="today">your repo's v0.3 experiment already frames it this way</span></div></li>
+    <li><span class="n">2</span><div class="step-body"><h3>Many more facts from the same 4 prices</h3><p>More time windows (10, 40, 120, 200 days), classic signals (50-day above 200-day, new 52-week high or low), stock&ndash;bond correlation, fear spikes (5-day vs 60-day volatility), relative strength both ways, streaks, and finer cut-offs.</p><span class="today">about 300&ndash;400 facts instead of 100</span></div></li>
+    <li><span class="n">3</span><div class="step-body"><h3>More history</h3><p>Start in 2002, TLT's first full year, instead of 2008. That adds the 2002 bear market and the 2007 top, exactly the "cut risk" examples we lack.</p><span class="today">about 1,500 more days</span></div></li>
+    <li><span class="n">4</span><div class="step-body"><h3>A smaller, tidier machine</h3><p>200&ndash;300 clauses instead of 1,000, a cap on rule length so rules stay short and readable, dropout to fight memorising, balanced classes, and 5 fixed seeds averaged.</p><span class="today">fewer, shorter, steadier rules</span></div></li>
+    <li><span class="n">5</span><div class="step-body"><h3>Keep the rules that survive</h3><p>After the walk-forward, keep only clauses that show up in most rounds. Those 10&ndash;20 stable rules become a readable regime rulebook. That is the real product of a Tsetlin Machine.</p><span class="today">uses the repo's rule_stability output</span></div></li>
+    <li><span class="n">6</span><div class="step-body"><h3>Judge it honestly</h3><p>Development period only (through 2020), against logistic regression and the equal mix, reporting ranges across seeds. 2021&ndash;2025 stays locked until something passes.</p><span class="today">status: not started</span></div></li>
+  </ol>
+  <div class="prose" style="margin-top:22px">
+    <p class="muted">What to expect: a modest, real improvement on the risk-filter task, and rules you can read. Not a strategy that beats holding SPY through a bull market. Nothing cautious does.</p>
+  </div>
+</section>
+
+<section>
+  <h2>The safety rules</h2>
+  <div class="rules">
+    <div><b>25%</b><p>of the account is the most the bot will put in the market.</p></div>
+    <div><b>15%</b><p>fall from the account's best value trips the breaker. It sells everything to cash.</p></div>
+    <div><b>Manual reset</b><p>Once tripped, it stays off until you delete <code>results\state.json</code>. It never restarts by itself.</p></div>
+    <div><b>0.5%</b><p>gaps between target and holdings are ignored, so it does not trade on tiny drift.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Can we trade live?</h2>
+  <div class="prose" style="margin-top:14px">
+    <p>"Live" can mean two things. Running on live market prices is already happening. Trading with real money is not set up, and the code is written to refuse it: the Alpaca connection is fixed to the paper account.</p>
+    <p><b>My recommendation is to stay on paper for now.</b> The reasons:</p>
+    <ul class="plain">
+      <li>The bot rebalances about once a week, so a few days of results tell you nothing about whether the strategy works. Give it at least a couple of months.</li>
+      <li>Your research repo says its own backtests are not evidence of profit, and the Tsetlin Machine here has not been shown to beat the simpler baseline.</li>
+      <li>The safety breaker does not yet survive on an automatic schedule, so every run is manual.</li>
+      <li>Real-money accounts have their own eligibility rules by country. Check Alpaca's before planning anything.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>What to do now</h2>
+  <div class="cmds">
+    <div class="cmd"><p><b>Preview</b> what it would trade. This places nothing.</p><pre>cd C:\Users\naibm\tsetlin-trader
+.\.venv\Scripts\python.exe -m tsetlin_trader.run_cycle --plan-only</pre></div>
+    <div class="cmd"><p><b>Trade</b> for real on the paper account.</p><pre>.\.venv\Scripts\python.exe -m tsetlin_trader.run_cycle</pre></div>
+    <div class="cmd"><p><b>Check the results</b> on the <a href="https://app.alpaca.markets/paper/dashboard/overview">Alpaca paper dashboard</a> and in <code>results\decisions.jsonl</code>, which keeps the reason for every decision.</p></div>
+  </div>
+  <ul class="plain" style="margin-top:26px">
+    <li>Read "How the test went" before you give the signal any weight.</li>
+    <li>Run it about once a week. Running it more often is harmless.</li>
+    <li>Regenerate your Alpaca keys when you finish testing, since they appeared in a chat.</li>
+    <li>A run now takes about a minute, because it trains five Tsetlin Machines each time.</li>
+  </ul>
+</section>
+</div>
+
+<script>
+/* ---- data from the real run (2026-09-17) ---- */
+var LABELS=[
+  {k:"Cash",v:3161,c:"var(--c-cash)"},
+  {k:"Momentum",v:1135,c:"var(--c-momentum)"},
+  {k:"Defensive",v:220,c:"var(--c-defensive)"},
+  {k:"Trend",v:71,c:"var(--c-trend)"}
+];
+var TOTAL=LABELS.reduce(function(a,r){return a+r.v},0), MAXV=LABELS[0].v;
+document.getElementById("labels").innerHTML=LABELS.map(function(r){
+  return '<div class="brow" style="--c:'+r.c+'"><span>'+r.k+'</span><div class="btrack"><div class="bfill" style="width:'+(r.v/MAXV*100)+'%"></div></div><span class="bval">'+r.v.toLocaleString()+' days &middot; '+(r.v/TOTAL*100).toFixed(0)+'%</span></div>';
+}).join("");
+
+function sign(v,whole){var t=whole?Math.abs(v).toFixed(0):Math.abs(v).toFixed(2);return (v>0?"+":"\u2212")+t}
+function diverging(id,rows,min,max,whole){
+  var span=max-min, zero=(0-min)/span*100;
+  document.getElementById(id).innerHTML=rows.map(function(r){
+    var left=r.v>=0?zero:zero+r.v/span*100, w=Math.abs(r.v)/span*100;
+    var cls=r.total?"total":(r.v>=0?"pos":"neg");
+    return '<div class="drow"><div class="dlabel">'+r.label+(r.sub?'<small>'+r.sub+'</small>':'')+'</div>'+
+      '<div class="dtrack"><span class="zero" style="left:'+zero+'%"></span><span class="dbar '+cls+'" style="left:'+left+'%;width:'+w+'%"></span></div>'+
+      '<div class="dval">'+sign(r.v,whole)+'</div></div>';
+  }).join("");
+}
+diverging("votes",[
+  {label:"Cash",sub:"Wins",v:189,total:true},
+  {label:"Momentum",v:-197},
+  {label:"Defensive",v:-421},
+  {label:"Trend",v:-429}
+],-450,250,true);
+
+/* ---- toy Tsetlin Machine ---- */
+var FACTS=[
+  {id:"up",text:"SPY has been rising"},
+  {id:"vol",text:"Volatility is high"},
+  {id:"bonds",text:"Bonds are beating stocks"},
+  {id:"above",text:"SPY is above its 100-day average"}
+];
+var STRATS={momentum:"var(--c-momentum)",trend:"var(--c-trend)",defensive:"var(--c-defensive)",cash:"var(--c-cash)"};
+var CLAUSES=[
+  {t:"SPY rising AND volatility not high",vote:"momentum",f:function(s){return s.up&&!s.vol}},
+  {t:"SPY rising AND above its 100-day average",vote:"trend",f:function(s){return s.up&&s.above}},
+  {t:"SPY rising AND bonds not winning",vote:"momentum",f:function(s){return s.up&&!s.bonds}},
+  {t:"Volatility high AND bonds winning",vote:"defensive",f:function(s){return s.vol&&s.bonds}},
+  {t:"SPY below its 100-day average",vote:"defensive",f:function(s){return !s.above}},
+  {t:"Volatility high AND SPY not rising",vote:"cash",f:function(s){return s.vol&&!s.up}}
+];
+var state={up:true,vol:false,bonds:false,above:true};
+
+function renderToy(){
+  document.getElementById("facts").innerHTML=FACTS.map(function(f){
+    return '<button type="button" class="fact" id="fact-'+f.id+'" data-id="'+f.id+'" aria-pressed="'+state[f.id]+'"><span>'+f.text+'</span><span class="st">'+(state[f.id]?"YES":"NO")+'</span></button>';
+  }).join("");
+  var votes={momentum:0,trend:0,defensive:0,cash:0};
+  document.getElementById("clauses").innerHTML=CLAUSES.map(function(c){
+    var on=c.f(state); if(on) votes[c.vote]++;
+    return '<div class="clause'+(on?' on':'')+'" style="--c:'+STRATS[c.vote]+'"><span>IF '+c.t+'</span><span class="vote">'+(on?'votes ':'would vote ')+c.vote+'</span></div>';
+  }).join("");
+  var max=Math.max.apply(null,Object.keys(votes).map(function(k){return votes[k]}));
+  var leaders=Object.keys(votes).filter(function(k){return votes[k]===max});
+  var winner=(max>0&&leaders.length===1)?leaders[0]:"cash";
+  document.getElementById("tally").innerHTML=Object.keys(STRATS).map(function(k){
+    var pips="";for(var i=0;i<votes[k];i++)pips+='<span class="pip"></span>';
+    return '<div class="trow'+(k===winner?' win':'')+'" style="--c:'+STRATS[k]+'"><span>'+k+'</span><div class="pips">'+pips+'</div><span class="mono">'+votes[k]+'</span></div>';
+  }).join("");
+  document.getElementById("verdict").textContent=(max>0&&leaders.length===1)
+    ? "Winner: "+winner+" ("+votes[winner]+" vote"+(votes[winner]===1?"":"s")+")"
+    : (max===0?"No clause fired, so the toy falls back to cash.":"Tie, so the toy falls back to cash.");
+}
+document.getElementById("facts").addEventListener("click",function(e){
+  var b=e.target.closest(".fact"); if(!b) return;
+  state[b.dataset.id]=!state[b.dataset.id]; renderToy();
+  var again=document.getElementById("fact-"+b.dataset.id); if(again) again.focus();
+});
+renderToy();
+
+/* ---- test results ---- */
+var EQ={"t":[2010.397,2010.419,2010.438,2010.457,2010.476,2010.496,2010.517,2010.537,2010.556,2010.575,2010.594,2010.613,2010.632,2010.652,2010.671,2010.698,2010.717,2010.736,2010.756,2010.775,2010.794,2010.813,2010.832,2010.851,2010.871,2010.89,2010.912,2010.931,2010.95,2010.969,2010.991,2011.011,2011.03,2011.052,2011.071,2011.09,2011.11,2011.129,2011.151,2011.17,2011.189,2011.208,2011.227,2011.246,2011.266,2011.285,2011.312,2011.331,2011.35,2011.37,2011.389,2011.411,2011.43,2011.449,2011.468,2011.487,2011.509,2011.528,2011.548,2011.567,2011.586,2011.605,2011.624,2011.643,2011.663,2011.684,2011.704,2011.723,2011.742,2011.761,2011.78,2011.799,2011.819,2011.838,2011.857,2011.876,2011.898,2011.917,2011.936,2011.956,2011.975,2012.005,2012.025,2012.047,2012.066,2012.085,2012.104,2012.123,2012.145,2012.164,2012.183,2012.203,2012.222,2012.241,2012.26,2012.282,2012.301,2012.32,2012.339,2012.359,2012.378,2012.397,2012.424,2012.444,2012.463,2012.482,2012.501,2012.523,2012.542,2012.561,2012.58,2012.6,2012.619,2012.638,2012.657,2012.679,2012.698,2012.717,2012.736,2012.756,2012.775,2012.794,2012.813,2012.838,2012.857,2012.876,2012.903,2012.923,2012.942,2012.961,2012.98,2013.003,2013.022,2013.041,2013.063,2013.082,2013.101,2013.12,2013.142,2013.162,2013.181,2013.2,2013.219,2013.246,2013.266,2013.285,2013.304,2013.323,2013.342,2013.361,2013.381,2013.402,2013.422,2013.441,2013.46,2013.479,2013.498,2013.52,2013.539,2013.559,2013.578,2013.597,2013.616,2013.635,2013.654,2013.676,2013.695,2013.715,2013.734,2013.753,2013.772,2013.791,2013.81,2013.83,2013.849,2013.868,2013.887,2013.909,2013.928,2013.947,2013.966,2013.994,2014.016,2014.036,2014.057,2014.077,2014.096,2014.115,2014.137,2014.156,2014.175,2014.194,2014.214,2014.233,2014.252,2014.271,2014.29,2014.312,2014.331,2014.35,2014.37,2014.389,2014.416,2014.435,2014.454,2014.474,2014.493,2014.515,2014.534,2014.553,2014.572,2014.591,2014.611,2014.63,2014.649,2014.671,2014.69,2014.709,2014.728,2014.747,2014.767,2014.786,2014.805,2014.824,2014.843,2014.862,2014.882,2014.901,2014.923,2014.942,2014.961,2014.983,2015.011,2015.03,2015.052,2015.071,2015.09,2015.11,2015.131,2015.151,2015.17,2015.189,2015.208,2015.227,2015.246,2015.268,2015.287,2015.307,2015.326,2015.345,2015.364,2015.383,2015.405,2015.424,2015.444,2015.463,2015.482,2015.509,2015.528,2015.548,2015.567,2015.586,2015.605,2015.624,2015.643,2015.663,2015.684,2015.704,2015.723,2015.742,2015.761,2015.78,2015.799,2015.819,2015.838,2015.857,2015.876,2015.895,2015.917,2015.936,2015.956,2015.975,2015.997,2016.019,2016.038,2016.066,2016.085,2016.104,2016.126,2016.145,2016.164,2016.183,2016.203,2016.222,2016.244,2016.263,2016.282,2016.301,2016.32,2016.339,2016.359,2016.378,2016.397,2016.419,2016.438,2016.457,2016.476,2016.496,2016.517,2016.537,2016.556,2016.575,2016.594,2016.613,2016.632,2016.652,2016.671,2016.698,2016.717,2016.736,2016.756,2016.775,2016.794,2016.813,2016.832,2016.851,2016.871,2016.89,2016.912,2016.931,2016.95,2016.969,2016.991,2017.011,2017.03,2017.052,2017.071,2017.09,2017.11,2017.129,2017.156,2017.175,2017.194,2017.214,2017.233,2017.252,2017.271,2017.293,2017.312,2017.331,2017.35,2017.37,2017.389,2017.411,2017.43,2017.449,2017.468,2017.487,2017.509,2017.528,2017.548,2017.567,2017.586,2017.605,2017.624,2017.643,2017.663,2017.684,2017.704,2017.723,2017.742,2017.761,2017.78,2017.799,2017.819,2017.838,2017.857,2017.876,2017.903,2017.923,2017.942,2017.961,2017.983,2018.005,2018.025,2018.047,2018.066,2018.085,2018.104,2018.123,2018.145,2018.164,2018.183,2018.203,2018.222,2018.249,2018.268,2018.287,2018.307,2018.326,2018.345,2018.364,2018.383,2018.405,2018.424,2018.444,2018.463,2018.482,2018.501,2018.523,2018.542,2018.561,2018.58,2018.6,2018.619,2018.638,2018.657,2018.679,2018.698,2018.717,2018.736,2018.756,2018.775,2018.794,2018.813,2018.832,2018.851,2018.871,2018.893,2018.912,2018.939,2018.958,2018.977,2019.003,2019.022,2019.041,2019.063,2019.082,2019.101,2019.12,2019.142,2019.162,2019.181,2019.2,2019.219,2019.238,2019.257,2019.277,2019.304,2019.323,2019.342,2019.361,2019.381,2019.402,2019.422,2019.441,2019.46,2019.479,2019.498,2019.52,2019.539,2019.559,2019.578,2019.597,2019.616,2019.635,2019.654,2019.676,2019.695,2019.715,2019.734,2019.753,2019.772,2019.791,2019.81,2019.83,2019.849,2019.868,2019.887,2019.909,2019.928,2019.947,2019.966,2019.994,2020.016,2020.036,2020.057,2020.077,2020.096,2020.115,2020.137,2020.156,2020.175,2020.194,2020.214,2020.233,2020.252,2020.271,2020.293,2020.312,2020.331,2020.35,2020.37,2020.389,2020.416,2020.435,2020.454,2020.474,2020.493,2020.515,2020.534,2020.553,2020.572,2020.591,2020.611,2020.63,2020.649,2020.668,2020.69,2020.709,2020.728,2020.747,2020.767,2020.786,2020.805,2020.824,2020.843,2020.862,2020.882,2020.901,2020.92],"SPY":[0.994,1.027,1.012,1.04,1.001,0.958,1.006,0.994,1.029,1.028,1.047,1.009,1.002,0.996,1.033,1.05,1.07,1.071,1.066,1.093,1.108,1.112,1.11,1.148,1.125,1.126,1.11,1.151,1.168,1.181,1.186,1.202,1.211,1.206,1.224,1.232,1.246,1.264,1.246,1.248,1.232,1.208,1.242,1.259,1.257,1.249,1.264,1.288,1.274,1.26,1.249,1.276,1.22,1.223,1.23,1.232,1.273,1.253,1.261,1.241,1.199,1.067,1.138,1.122,1.162,1.132,1.154,1.078,1.109,1.113,1.151,1.162,1.229,1.206,1.188,1.167,1.112,1.193,1.204,1.169,1.215,1.226,1.242,1.257,1.275,1.274,1.3,1.294,1.314,1.324,1.318,1.353,1.344,1.354,1.35,1.324,1.332,1.356,1.323,1.31,1.253,1.276,1.237,1.269,1.305,1.275,1.325,1.302,1.324,1.3,1.337,1.362,1.367,1.376,1.372,1.368,1.402,1.424,1.398,1.416,1.398,1.427,1.376,1.381,1.348,1.331,1.376,1.38,1.39,1.403,1.399,1.435,1.434,1.445,1.468,1.471,1.484,1.497,1.493,1.495,1.528,1.538,1.536,1.541,1.542,1.531,1.542,1.573,1.597,1.614,1.648,1.642,1.615,1.61,1.636,1.574,1.6,1.639,1.667,1.672,1.674,1.679,1.675,1.633,1.627,1.647,1.677,1.714,1.692,1.672,1.687,1.727,1.747,1.753,1.745,1.788,1.794,1.805,1.804,1.776,1.82,1.843,1.84,1.842,1.848,1.778,1.756,1.826,1.846,1.863,1.887,1.857,1.882,1.859,1.9,1.845,1.877,1.876,1.894,1.893,1.894,1.917,1.943,1.97,1.957,1.982,1.981,1.986,1.996,2.006,1.993,1.943,1.958,2.008,2.027,2.029,2.025,2.031,2.029,1.976,1.999,1.895,1.959,2.014,2.057,2.074,2.086,2.111,2.111,2.076,2.102,2.131,2.062,2.072,2.066,2.072,2.094,2.114,2.148,2.163,2.149,2.09,2.151,2.113,2.112,2.145,2.16,2.168,2.14,2.145,2.179,2.192,2.168,2.154,2.155,2.175,2.166,2.132,2.164,2.194,2.133,2.164,2.173,2.172,1.955,2.038,2.037,2.048,2.011,1.951,2.052,2.077,2.107,2.143,2.189,2.163,2.131,2.171,2.163,2.13,2.158,2.15,2.127,2.003,1.96,1.958,2.021,1.935,1.98,2.007,2.067,2.07,2.11,2.146,2.161,2.165,2.182,2.204,2.196,2.15,2.166,2.149,2.195,2.212,2.224,2.186,2.223,2.209,2.242,2.276,2.29,2.289,2.3,2.303,2.304,2.291,2.302,2.281,2.261,2.27,2.287,2.291,2.251,2.277,2.252,2.259,2.295,2.333,2.341,2.349,2.414,2.413,2.392,2.413,2.415,2.417,2.441,2.445,2.468,2.506,2.527,2.534,2.535,2.535,2.501,2.519,2.52,2.504,2.554,2.556,2.563,2.57,2.57,2.585,2.609,2.615,2.614,2.62,2.588,2.63,2.658,2.659,2.657,2.622,2.615,2.625,2.663,2.653,2.694,2.697,2.716,2.75,2.756,2.78,2.786,2.794,2.79,2.788,2.813,2.856,2.879,2.914,2.903,2.939,2.979,3.033,3.078,3.06,2.799,2.967,2.985,2.924,3.03,2.991,2.815,2.809,2.847,2.916,2.908,2.886,2.912,2.978,2.982,2.935,3.001,3.043,3.019,2.976,2.969,3.034,3.08,3.112,3.078,3.128,3.088,3.136,3.194,3.158,3.187,3.217,3.2,3.186,2.996,3.043,2.973,3.011,3.088,3.006,2.898,3.034,2.907,2.811,2.595,2.771,2.857,2.89,2.919,2.989,2.992,3.038,3.091,3.105,3.039,3.129,3.106,3.142,3.21,3.227,3.229,3.269,3.257,3.124,3.158,3.116,3.12,3.213,3.252,3.25,3.313,3.337,3.328,3.369,3.324,3.219,3.173,3.269,3.229,3.329,3.367,3.365,3.335,3.261,3.293,3.36,3.373,3.406,3.46,3.476,3.484,3.529,3.536,3.563,3.619,3.623,3.642,3.695,3.739,3.685,3.756,3.807,3.802,3.357,3.413,2.8,2.714,2.965,2.859,3.158,3.254,3.213,3.21,3.32,3.25,3.354,3.469,3.669,3.486,3.542,3.472,3.578,3.637,3.706,3.662,3.764,3.795,3.862,3.924,4.021,3.875,3.864,3.694,3.834,3.901,3.984,3.924,3.74,3.933,4.084,4.079,4.152,4.199],"equal":[0.998,0.999,0.986,1.003,0.989,0.979,0.986,0.988,0.996,0.998,0.994,0.984,0.995,0.989,0.998,0.998,1.014,1.019,1.009,1.036,1.049,1.055,1.056,1.089,1.063,1.068,1.053,1.097,1.111,1.128,1.132,1.144,1.153,1.139,1.158,1.165,1.181,1.203,1.178,1.179,1.163,1.141,1.173,1.193,1.189,1.182,1.195,1.216,1.201,1.183,1.17,1.202,1.147,1.138,1.146,1.14,1.158,1.148,1.155,1.14,1.143,1.112,1.13,1.118,1.138,1.154,1.163,1.185,1.17,1.18,1.188,1.18,1.206,1.182,1.161,1.141,1.107,1.147,1.155,1.12,1.163,1.172,1.189,1.207,1.226,1.233,1.26,1.248,1.269,1.275,1.269,1.305,1.302,1.313,1.31,1.284,1.286,1.311,1.273,1.261,1.226,1.24,1.247,1.245,1.261,1.236,1.248,1.239,1.239,1.228,1.246,1.271,1.274,1.287,1.286,1.281,1.312,1.332,1.303,1.319,1.293,1.318,1.269,1.272,1.254,1.242,1.254,1.252,1.258,1.265,1.267,1.289,1.291,1.298,1.321,1.324,1.335,1.35,1.344,1.345,1.379,1.39,1.386,1.385,1.381,1.371,1.381,1.408,1.431,1.444,1.47,1.465,1.44,1.435,1.456,1.399,1.43,1.469,1.496,1.5,1.502,1.505,1.504,1.467,1.455,1.473,1.498,1.532,1.518,1.503,1.512,1.55,1.571,1.577,1.564,1.605,1.607,1.624,1.625,1.601,1.64,1.659,1.655,1.66,1.67,1.604,1.576,1.634,1.653,1.668,1.684,1.653,1.679,1.653,1.684,1.635,1.658,1.657,1.673,1.672,1.672,1.693,1.716,1.739,1.728,1.751,1.757,1.762,1.776,1.788,1.781,1.739,1.753,1.802,1.819,1.82,1.821,1.822,1.823,1.776,1.778,1.715,1.731,1.752,1.773,1.784,1.796,1.824,1.823,1.794,1.796,1.824,1.769,1.774,1.748,1.765,1.758,1.774,1.807,1.82,1.809,1.77,1.822,1.791,1.801,1.822,1.838,1.841,1.818,1.818,1.849,1.858,1.842,1.832,1.83,1.848,1.839,1.809,1.809,1.85,1.802,1.815,1.814,1.807,1.716,1.722,1.725,1.726,1.727,1.711,1.741,1.747,1.757,1.785,1.816,1.793,1.756,1.792,1.789,1.763,1.773,1.758,1.742,1.653,1.647,1.651,1.673,1.67,1.677,1.691,1.696,1.697,1.709,1.728,1.74,1.744,1.764,1.783,1.785,1.739,1.749,1.734,1.779,1.804,1.816,1.778,1.81,1.784,1.814,1.847,1.859,1.864,1.878,1.879,1.884,1.877,1.888,1.868,1.861,1.868,1.883,1.889,1.855,1.882,1.858,1.845,1.869,1.891,1.897,1.913,1.958,1.964,1.942,1.958,1.954,1.952,1.973,1.978,1.986,2.019,2.034,2.039,2.044,2.047,2.023,2.041,2.039,2.027,2.074,2.087,2.095,2.106,2.103,2.122,2.146,2.131,2.137,2.137,2.104,2.151,2.183,2.182,2.178,2.147,2.14,2.149,2.179,2.165,2.197,2.191,2.207,2.226,2.226,2.242,2.245,2.243,2.231,2.238,2.262,2.295,2.302,2.336,2.319,2.356,2.387,2.434,2.471,2.459,2.249,2.369,2.39,2.347,2.438,2.407,2.271,2.268,2.298,2.318,2.307,2.301,2.32,2.33,2.349,2.33,2.358,2.389,2.381,2.342,2.323,2.37,2.409,2.439,2.396,2.444,2.41,2.444,2.499,2.458,2.481,2.504,2.491,2.478,2.358,2.376,2.33,2.329,2.341,2.331,2.31,2.347,2.34,2.316,2.271,2.327,2.348,2.35,2.365,2.389,2.392,2.418,2.454,2.47,2.399,2.463,2.446,2.47,2.528,2.543,2.553,2.588,2.577,2.455,2.48,2.446,2.417,2.49,2.518,2.511,2.559,2.578,2.569,2.601,2.566,2.479,2.413,2.454,2.412,2.452,2.477,2.468,2.44,2.387,2.393,2.444,2.453,2.481,2.522,2.534,2.539,2.573,2.58,2.603,2.649,2.655,2.678,2.723,2.76,2.725,2.786,2.836,2.836,2.544,2.625,2.4,2.368,2.517,2.518,2.571,2.645,2.656,2.639,2.667,2.676,2.687,2.734,2.848,2.727,2.772,2.721,2.803,2.847,2.865,2.817,2.918,2.943,3.003,3.064,3.165,3.01,2.993,2.831,2.951,3.019,3.074,3.018,2.866,2.972,3.072,3.089,3.171,3.191],"tmu":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.99,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,1.003,1.003,1.003,1.003,1.003,1.024,1.024,1.024,1.024,1.024,1.023,1.023,1.003,1.031,1.056,1.049,1.044,1.054,1.054,1.054,1.054,1.054,1.054,1.054,1.049,1.053,1.054,1.099,1.098,1.098,1.089,1.088,0.974,0.966,0.949,0.956,0.956,0.956,0.913,0.918,0.928,0.973,0.964,0.99,0.989,0.989,0.989,0.989,0.989,0.99,0.96,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.959,0.933,0.933,0.933,0.933,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.926,0.938,0.938,0.938,0.938,0.938,0.938,0.97,1.002,1.001,1.001,1.001,1.001,1.001,1.001,0.998,0.998,1.013,1.012,1.012,1.012,1.012,1.012,1.012,1.012,1.012,1.012,1.012,1.012,1.012,0.999,0.998,0.998,0.998,0.998,0.998,0.998,0.998,0.998,0.998,0.998,1.001,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.992,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.991,0.989,0.975,0.974,0.974,0.974,0.974,0.974,0.974,0.975,0.975,0.999,1.006,1.005,1.005,1.005,1.005,1.021,1.026,1.026,1.024,1.024,1.024,1.042,1.049,1.043,1.043,1.043,1.043,1.043,1.043,1.043,1.085,1.085,1.085,1.085,1.073,1.073,1.127,1.124,1.109,1.132,1.153,1.15,1.149,1.149,1.149,1.149,1.149,1.149,1.149,1.149,1.149,1.16,1.15,1.15,1.15,1.114,1.12,1.156,1.107,1.133,1.133,1.133,1.134,1.134,1.134,1.141,1.144,1.143,1.143,1.143,1.143,1.143,1.143,1.143,1.143,1.143,1.113,1.113,1.113,1.113,1.113,1.119,1.129,1.129,1.129,1.129,1.129,1.129,1.129,1.129,1.133,1.133,1.133,1.133,1.133,1.133,1.133,1.133,1.133,1.133,1.152,1.172,1.172,1.172,1.179,1.172,1.171,1.171,1.171,1.163,1.185,1.185,1.185,1.185,1.185,1.185,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.198,1.215,1.199,1.199,1.187,1.197,1.196,1.191,1.196,1.194,1.194,1.194,1.194,1.194,1.209,1.209,1.209,1.209,1.209,1.225,1.225,1.225,1.225,1.225,1.225,1.225,1.225,1.225,1.225,1.225,1.225,1.241,1.277,1.272,1.256,1.286,1.286,1.316,1.315,1.315,1.333,1.323,1.323,1.323,1.344,1.343,1.343,1.343,1.343,1.343,1.357,1.357,1.32,1.332,1.345,1.345,1.345,1.345,1.365,1.312,1.305,1.338,1.302,1.256,1.315,1.26,1.26,1.26,1.26,1.26,1.26,1.26,1.26,1.26,1.28,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.293,1.302,1.302,1.302,1.285,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.284,1.312,1.312,1.312,1.339,1.339,1.339,1.339,1.339,1.339,1.339,1.399,1.399,1.401,1.401,1.444,1.421,1.42,1.42,1.42,1.42,1.42,1.42,1.42,1.42,1.42,1.42,1.42,1.42,1.441,1.414,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.392,1.358,1.358,1.358,1.358,1.358,1.358,1.358],"bernoulli":[1.0,0.972,0.982,0.999,1.007,1.04,1.016,1.032,1.021,1.029,1.028,1.028,1.066,1.059,1.044,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.02,1.048,1.047,1.047,1.047,1.047,1.047,1.047,1.047,1.032,1.07,1.069,1.064,1.069,1.07,1.115,1.115,1.131,1.121,1.096,0.981,0.973,0.957,0.963,1.016,1.006,1.111,1.064,1.078,1.046,1.035,1.062,1.062,1.062,1.043,0.987,0.962,0.963,0.934,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.968,0.96,0.96,0.978,0.946,0.92,0.929,0.895,0.886,0.88,0.885,0.862,0.866,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.885,0.868,0.851,0.851,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.857,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.875,0.919,0.919,0.919,0.919,0.919,0.919,0.919,0.939,0.938,0.955,0.954,0.963,0.963,0.963,0.975,0.975,0.975,0.975,0.975,0.975,0.975,0.975,0.975,0.975,0.975,0.983,0.983,0.983,0.983,0.983,0.983,0.983,0.983,0.995,0.934,0.919,0.92,0.919,0.919,0.919,0.919,0.919,0.919,0.931,0.931,0.931,0.929,0.919,0.938,0.948,0.957,0.981,0.981,0.981,0.981,0.981,0.981,0.98,0.985,0.984,0.984,0.984,0.984,1.002,1.002,1.002,1.002,1.002,1.013,1.013,1.013,1.017,1.058,1.023,1.037,1.037,1.035,0.912,0.876,0.874,0.863,0.881,0.897,0.894,0.895,0.897,0.899,0.914,0.914,0.899,0.899,0.899,0.887,0.895,0.887,0.881,0.819,0.835,0.837,0.843,0.875,0.866,0.875,0.856,0.857,0.859,0.874,0.88,0.881,0.881,0.881,0.881,0.881,0.883,0.883,0.913,0.913,0.913,0.913,0.913,0.913,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.932,0.953,0.953,0.948,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.978,0.973,0.978,0.992,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,0.979,1.051,1.051,1.051,1.096,1.096,1.096,1.114,1.108,1.105,1.093,1.079,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.105,1.122,1.125,1.119,1.108,1.078,1.088,1.09,1.127,1.129,1.152,1.16,1.151,1.141,1.15,1.158,1.159,1.178,1.19,1.19,1.19,1.19,1.19,1.19,1.19,1.19,1.19,1.19,1.19,1.19,1.199,1.182,1.184,1.219,1.231,1.23,1.254,1.254,1.254,1.254,1.254,1.213,1.196,1.232,1.209,1.225,1.239,1.239,1.239,1.211,1.223,1.248,1.253,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.252,1.273,1.265,1.191,1.312,1.352,1.33,1.349,1.374,1.352,1.32,1.342,1.32,1.365,1.408,1.408,1.408,1.408,1.448,1.47,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.469,1.545,1.545,1.545,1.545,1.545],"logistic":[1.0,1.0,1.0,1.032,1.032,1.032,1.079,1.068,1.105,1.101,1.124,1.075,1.074,1.061,1.061,1.086,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.119,1.146,1.145,1.145,1.145,1.113,1.136,1.136,1.157,1.156,1.156,1.156,1.156,1.134,1.165,1.195,1.187,1.18,1.192,1.191,1.191,1.191,1.191,1.191,1.191,1.186,1.191,1.192,1.242,1.242,1.26,1.249,1.221,1.093,1.152,1.132,1.14,1.202,1.242,1.372,1.379,1.393,1.462,1.448,1.486,1.417,1.417,1.417,1.342,1.341,1.341,1.341,1.39,1.39,1.39,1.39,1.39,1.39,1.39,1.39,1.39,1.39,1.39,1.39,1.398,1.398,1.398,1.398,1.387,1.42,1.42,1.42,1.42,1.41,1.481,1.44,1.48,1.426,1.483,1.472,1.479,1.442,1.448,1.48,1.48,1.48,1.485,1.484,1.519,1.518,1.475,1.491,1.491,1.514,1.514,1.514,1.48,1.48,1.451,1.451,1.461,1.474,1.474,1.512,1.512,1.512,1.512,1.512,1.512,1.538,1.537,1.537,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.585,1.639,1.638,1.638,1.638,1.639,1.64,1.645,1.645,1.645,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.664,1.659,1.694,1.693,1.693,1.693,1.693,1.693,1.693,1.73,1.73,1.76,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.759,1.776,1.853,1.853,1.892,1.892,1.906,1.905,1.905,1.876,1.9,1.899,1.899,1.896,1.875,1.915,1.918,1.936,1.984,1.983,1.983,1.983,1.983,1.983,2.015,2.024,2.048,2.045,2.018,2.021,2.058,2.065,2.055,2.049,2.05,2.069,2.057,2.025,2.059,2.142,2.071,2.097,2.097,2.094,2.094,2.012,2.007,1.98,2.022,2.059,2.053,2.054,2.06,2.152,2.198,2.165,2.13,2.13,2.13,2.13,2.13,2.11,2.096,1.949,1.987,1.996,2.01,2.086,2.064,2.086,2.086,2.088,2.088,2.123,2.138,2.141,2.185,2.209,2.233,2.153,2.158,2.136,2.21,2.269,2.269,2.208,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.245,2.297,2.248,2.217,2.287,2.331,2.342,2.342,2.381,2.38,2.38,2.396,2.38,2.38,2.38,2.38,2.38,2.425,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.424,2.413,2.413,2.413,2.413,2.413,2.389,2.388,2.388,2.388,2.388,2.388,2.388,2.388,2.388,2.388,2.388,2.371,2.37,2.37,2.37,2.37,2.37,2.37,2.37,2.37,2.37,2.405,2.374,2.476,2.446,2.445,2.485,2.473,2.466,2.439,2.452,2.451,2.451,2.454,2.453,2.453,2.487,2.467,2.467,2.467,2.467,2.467,2.467,2.467,2.467,2.467,2.467,2.467,2.467,2.489,2.488,2.488,2.488,2.488,2.526,2.533,2.52,2.584,2.515,2.425,2.428,2.326,2.331,2.378,2.394,2.377,2.376,2.399,2.399,2.406,2.447,2.471,2.471,2.364,2.412,2.397,2.397,2.397,2.397,2.397,2.397,2.397,2.397,2.415,2.414,2.417,2.492,2.516,2.516,2.564,2.563,2.55,2.581,2.547,2.465,2.431,2.504,2.456,2.49,2.489,2.489,2.489,2.434,2.457,2.513,2.523,2.561,2.56,2.56,2.56,2.56,2.56,2.56,2.616,2.615,2.615,2.615,2.615,2.615,2.615,2.615,2.615,2.615,2.658,2.641,2.486,2.738,2.822,2.777,2.817,2.868,2.823,2.757,2.803,2.756,2.85,3.014,2.932,2.931,2.885,2.884,2.884,2.83,2.752,2.898,2.897,2.897,2.897,2.897,2.897,2.897,2.897,2.897,2.897,2.897,2.897,2.897,3.046,3.046,3.046,3.046,3.046],"boosted":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.009,1.034,1.034,1.039,1.047,1.018,1.039,1.039,1.058,1.085,1.085,1.085,1.085,1.085,1.114,1.142,1.142,1.142,1.142,1.142,1.142,1.142,1.142,1.142,1.142,1.137,1.141,1.141,1.189,1.189,1.206,1.205,1.205,1.205,1.205,1.185,1.193,1.193,1.193,1.193,1.2,1.212,1.212,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.207,1.207,1.207,1.207,1.197,1.197,1.152,1.151,1.151,1.172,1.231,1.197,1.197,1.197,1.197,1.197,1.197,1.197,1.197,1.197,1.197,1.197,1.201,1.194,1.222,1.238,1.238,1.238,1.238,1.238,1.189,1.188,1.162,1.14,1.118,1.118,1.126,1.126,1.126,1.126,1.126,1.126,1.126,1.126,1.126,1.145,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.144,1.184,1.222,1.248,1.248,1.249,1.248,1.248,1.218,1.213,1.228,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.246,1.242,1.242,1.242,1.242,1.242,1.242,1.242,1.242,1.257,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.256,1.178,1.229,1.273,1.273,1.273,1.273,1.273,1.273,1.273,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.289,1.295,1.31,1.308,1.307,1.304,1.328,1.327,1.327,1.323,1.323,1.338,1.338,1.338,1.361,1.416,1.368,1.386,1.386,1.384,1.384,1.33,1.326,1.309,1.336,1.36,1.36,1.36,1.379,1.441,1.441,1.419,1.397,1.396,1.396,1.396,1.396,1.384,1.383,1.383,1.341,1.348,1.347,1.347,1.347,1.347,1.347,1.347,1.347,1.37,1.37,1.372,1.372,1.372,1.372,1.372,1.372,1.372,1.372,1.372,1.372,1.372,1.395,1.395,1.395,1.395,1.395,1.395,1.401,1.401,1.401,1.401,1.401,1.401,1.401,1.401,1.401,1.401,1.401,1.401,1.37,1.363,1.363,1.363,1.363,1.363,1.363,1.363,1.341,1.35,1.341,1.333,1.35,1.35,1.35,1.376,1.375,1.378,1.388,1.393,1.392,1.392,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.389,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.375,1.405,1.405,1.405,1.405,1.405,1.426,1.425,1.425,1.407,1.407,1.43,1.423,1.419,1.404,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.403,1.425,1.37,1.369,1.404,1.367,1.318,1.38,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.322,1.323,1.343,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.342,1.263,1.263,1.302,1.281,1.299,1.323,1.323,1.291,1.313,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312,1.312]};
+var SERIES=[
+  {id:"SPY",label:"Just holding SPY",c:"var(--muted)",w:1.6,dash:"5 4",on:true},
+  {id:"equal",label:"Equal mix of the 3 strategies",c:"var(--ink)",w:1.9,on:true},
+  {id:"tmu",label:"Tsetlin Machine picks",c:"var(--accent)",w:3,on:true},
+  {id:"bernoulli",label:"Bernoulli picks",c:"var(--c-trend)",w:1.6,on:true},
+  {id:"logistic",label:"Logistic picks",c:"var(--c-defensive)",w:1.6,on:false},
+  {id:"boosted",label:"Boosted-tree picks",c:"var(--c-cash)",w:1.6,on:false}
+];
+function drawEquity(){
+  var W=760,H=340,L=40,R=12,T=12,B=28,t=EQ.t,t0=t[0],t1=t[t.length-1],y0=0.8,y1=4.6;
+  function X(v){return L+(v-t0)/(t1-t0)*(W-L-R)}
+  function Y(v){return T+(1-(v-y0)/(y1-y0))*(H-T-B)}
+  var g="";
+  [1,2,3,4].forEach(function(v){g+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text class="ax" x="'+(L-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'x</text>'});
+  [2011,2013,2015,2017,2019].forEach(function(yr){g+='<text class="ax" x="'+X(yr)+'" y="'+(H-8)+'" text-anchor="middle">'+yr+'</text>'});
+  SERIES.forEach(function(s){
+    if(!s.on) return;
+    var pts=EQ[s.id].map(function(v,i){return X(t[i]).toFixed(1)+","+Y(v).toFixed(1)}).join(" ");
+    g+='<polyline points="'+pts+'" fill="none" style="stroke:'+s.c+'" stroke-width="'+s.w+'" stroke-linejoin="round" stroke-linecap="round"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>';
+  });
+  document.getElementById("eq").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Growth of one dollar from May 2010 to December 2020 for holding SPY, an equal mix, and each model\'s strategy picks. SPY ends near 4.2 times, the equal mix near 3.2 times, and the Tsetlin Machine near 1.4 times.">'+g+'</svg>';
+  document.getElementById("eqlegend").innerHTML=SERIES.map(function(s){
+    var a=EQ[s.id];return '<button type="button" class="lg" data-id="'+s.id+'" aria-pressed="'+s.on+'" style="--c:'+s.c+'"><i></i>'+s.label+' <small>'+a[a.length-1].toFixed(2)+'x</small></button>';
+  }).join("");
+}
+document.getElementById("eqlegend").addEventListener("click",function(e){
+  var b=e.target.closest(".lg"); if(!b) return;
+  SERIES.forEach(function(s){ if(s.id===b.dataset.id) s.on=!s.on; });
+  drawEquity();
+  var again=document.querySelector('.lg[data-id="'+b.dataset.id+'"]'); if(again) again.focus();
+});
+drawEquity();
+</script>
+
+</body>
+</html>
