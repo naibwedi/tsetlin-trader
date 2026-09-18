@@ -51,3 +51,22 @@ def test_skips_when_orders_are_pending(monkeypatch):
 
     assert result["status"] == "skipped_open_orders_pending"
     assert result["pending_symbols"] == ["SPY"]
+
+
+def test_load_dotenv_reads_values_but_never_overrides(tmp_path, monkeypatch):
+    from tsetlin_trader.run_cycle import load_dotenv
+
+    (tmp_path / ".env").write_text(
+        "# comment\nNEW_KEY=abc\nEXISTING=from_file\nQUOTED='hello'\n\nBAD LINE\n", encoding="utf-8"
+    )
+    monkeypatch.delenv("NEW_KEY", raising=False)
+    monkeypatch.delenv("QUOTED", raising=False)
+    monkeypatch.setenv("EXISTING", "from_shell")
+
+    load_dotenv(tmp_path / ".env")
+
+    import os
+
+    assert os.environ["NEW_KEY"] == "abc"
+    assert os.environ["QUOTED"] == "hello"
+    assert os.environ["EXISTING"] == "from_shell"
