@@ -1,0 +1,22 @@
+[project]
+name = "tsetlin-trader"
+version = "0.1.0"
+description = "Interpretable ML trading engine — Tsetlin Machine rule-based signals executed as paper trades via Alpaca."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "alpaca-py>=0.30",
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
