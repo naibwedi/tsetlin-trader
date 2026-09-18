@@ -1,12 +1,13 @@
 """The seam between signal generation (research) and execution (this repo).
 
-Anything that can produce a `Signal` — a mock, or eventually the real
-Tsetlin Machine model from logic-alpha-tm — can be plugged into
-`run_cycle.py` without changing risk, broker, or logging code.
+Anything that can produce a `Signal` — a mock, or the real model from
+logic-alpha-tm — can be plugged into `run_cycle.py` without changing risk,
+broker, or logging code.
 """
 
 from __future__ import annotations
 
+import math
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 
@@ -28,6 +29,11 @@ class Signal(BaseModel):
     def model_post_init(self, __context) -> None:
         if self.confidence is not None and not 0.0 <= self.confidence <= 1.0:
             raise ValueError("confidence must be in [0, 1]")
+        for symbol, weight in self.target_weights.items():
+            if symbol not in UNIVERSE:
+                raise ValueError(f"symbol {symbol!r} is outside the universe {UNIVERSE}")
+            if not math.isfinite(weight) or weight < 0.0:
+                raise ValueError(f"weight for {symbol} must be finite and >= 0, got {weight}")
         total = sum(self.target_weights.values())
         if total > 1.0 + 1e-6:
             raise ValueError(f"target_weights must sum to <= 1.0, got {total}")

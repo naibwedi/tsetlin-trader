@@ -22,6 +22,8 @@ class OrderResult:
     notional: float
     side: str
     status: str
+    order_id: str | None = None
+    client_order_id: str | None = None
 
 
 class BrokerClient(ABC):
@@ -42,8 +44,19 @@ class BrokerClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def submit_order(self, symbol: str, notional: float, side: str) -> OrderResult:
-        """Place a market order for `notional` dollars. `side` is 'buy' or 'sell'."""
+    def wait_for_open_orders(self, timeout_s: float) -> bool:
+        """Block until no orders are open. Returns False if the timeout passed first."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def submit_order(
+        self, symbol: str, notional: float, side: str, client_order_id: str | None = None
+    ) -> OrderResult:
+        """Place a market order for `notional` dollars. `side` is 'buy' or 'sell'.
+
+        `client_order_id` makes the order idempotent: resubmitting the same id
+        must not create a second order.
+        """
         raise NotImplementedError
 
     @abstractmethod

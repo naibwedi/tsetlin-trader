@@ -6,6 +6,8 @@ module is fully testable offline, with no real network calls.
 
 from __future__ import annotations
 
+import time
+
 from .base import AccountSnapshot, BrokerClient, OrderResult
 
 
@@ -13,7 +15,8 @@ class AlpacaClient(BrokerClient):
     """Paper-trading-only client. Always constructed against Alpaca's paper
     endpoint — this repo does not place live trades."""
 
-    def __init__(self, api_key: str, secret_key: str, trading_client=None) -> None:
+    def __init__(self, api_key: str, secret_key: str, trading_client=None, poll_s: float = 2.0) -> None:
+        self._poll_s = poll_s
         if trading_client is not None:
             self._client = trading_client
         else:
@@ -39,12 +42,22 @@ class AlpacaClient(BrokerClient):
         orders = self._client.get_orders(GetOrdersRequest(status=QueryOrderStatus.OPEN))
         return {o.symbol for o in orders}
 
-    def submit_order(self, symbol: str, notional: float, side: str) -> OrderResult:
+    def wait_for_open_orders(self, timeout_s: float) -> bool:
+        deadline = time.monotonic() + timeout_s
+        while self.open_order_symbols():
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(self._poll_s)
+        return True
+
+    def submit_order(
+        self, symbol: str, notional: float, side: str, client_order_id: str | None = None
+    ) -> OrderResult:
         if side not in ("buy", "sell"):
             raise ValueError("side must be 'buy' or 'sell'")
         notional = round(notional, 2)
         if notional < 1.0:
-            return OrderResult(symbol, 0.0, side, "skipped_below_minimum_notional")
+            return OrderResult(symbol, 0.0, side, "skipped_below_minimum_notional", None, client_order_id)
 
         from alpaca.trading.enums import OrderSide, TimeInForce
         from alpaca.trading.requests import MarketOrderRequest
@@ -54,10 +67,22 @@ class AlpacaClient(BrokerClient):
             notional=notional,
             side=OrderSide.BUY if side == "buy" else OrderSide.SELL,
             time_in_force=TimeInForce.DAY,
+            client_order_id=client_order_id,
         )
-        order = self._client.submit_order(request)
-        return OrderResult(symbol, notional, side, str(getattr(order, "status", "submitted")))
+        try:
+            order = self._client.submit_order(request)
+        except Exception as exc:  # Alpaca rejects a reused client_order_id with an API error
+            if client_order_id and "client_order_id" in str(exc):
+                return OrderResult(symbol, 0.0, side, "duplicate_client_order_id", None, client_order_id)
+            raise
+        return OrderResult(
+            symbol, notional, side, str(getattr(order, "status", "submitted")),
+            str(getattr(order, "id", "")) or None, client_order_id,
+        )
 
     def close_position(self, symbol: str) -> OrderResult:
         order = self._client.close_position(symbol)
-        return OrderResult(symbol, 0.0, "sell", str(getattr(order, "status", "submitted")))
+        return OrderResult(
+            symbol, 0.0, "sell", str(getattr(order, "status", "submitted")),
+            str(getattr(order, "id", "")) or None, None,
+        )

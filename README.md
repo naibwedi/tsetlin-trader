@@ -23,9 +23,9 @@ This repo is the **execution layer**. Signal generation (leakage-aware walk-forw
 1. **Data**: about 18 years (from 2008, matching the research protocol) of adjusted daily closes for four ETFs from Tiingo. Stale data (more than 5 days old) is rejected rather than traded on.
 2. **Signal**: the research pipeline picks one of four strategies: `trend` (SPY or cash), `momentum` (rotate SPY/QQQ/IWM), `defensive` (SPY or TLT), or `cash`. The model is fit on every day whose 20-day forward label is already known, then predicts the latest day. That mirrors one fold of the research backtest, including its 20-day embargo.
 3. **Model and explanation**: by default a Tsetlin Machine ensemble (5 fixed seeds, votes averaged, so the same data always gives the same signal). Each class's vote is a weighted sum of the clauses that fired, so the strongest clauses for and against the winner are read straight out of the model and sum exactly to its vote (checked in `tests/test_tm_model.py`). Bernoulli Naive Bayes (`SIGNAL_MODEL=bernoulli`) is available as a simpler baseline with per-feature explanations.
-4. **Risk**: positions are scaled to `POSITION_FRACTION` of equity. A max-drawdown circuit breaker liquidates to cash and stays tripped until a human deletes `results/state.json`. Peak equity persists across runs.
-5. **Shadow signals**: each run also records what the other model(s) in `SHADOW_MODELS` (default `bernoulli`) would have said, without trading on them. Over weeks of paper trading this builds a fair, real-time comparison that nobody could have tuned against.
-6. **Execution**: the account is rebalanced to target, with sells before buys, a no-trade band to avoid churn, and a guard that skips the cycle if orders are still pending.
+4. **Risk, checked first**: the account and the drawdown breaker are checked before any data is downloaded or any model trained, so a broken data feed can never stop the breaker. Positions are scaled to `POSITION_FRACTION` of equity. On a breach the bot liquidates to cash and stays halted until a human deletes `results/state.json`. On Alpaca it refuses to run if that state file is missing (set `ALLOW_FRESH_STATE=1` once to start a history).
+5. **Three virtual portfolios**: every executed run also marks three paper portfolios on the same prices with the same costs: the plain strategy `blend`, `blend_filtered` (halved under the simple stress rule from the research repo), and `tm`. State lives in `results/portfolios.json`. Shadow signals from `SHADOW_MODELS` (default `bernoulli`) are logged too. Together these give a fair, real-time comparison nobody could have tuned against.
+6. **Execution**: only `SPY/QQQ/IWM/TLT` are ever traded; anything else in the account is reported and left alone. Sells go first and the bot waits for them to fill before buying (buys are skipped if they don't). Every order carries a client id derived from the cycle, so a retry cannot place it twice. A lock file allows one cycle at a time, a no-trade band avoids churn, and pending orders skip the cycle.
 
 Example output (Tsetlin Machine, 2026-09-17, shortened):
 
@@ -74,13 +74,15 @@ Run it once a week, since the strategy selector rebalances on a roughly 5-tradin
 | `broker/base.py` | `BrokerClient` interface |
 | `broker/alpaca_client.py`, `broker/simulated_client.py` | Alpaca paper and local implementations |
 | `broker/rebalance.py` | Current positions plus target, turned into trades |
-| `run_cycle.py` | Orchestration and CLI |
+| `portfolios.py` | Blend vs blend+filter vs TM, marked on the same prices |
+| `run_cycle.py` | Orchestration, run lock, and CLI |
 
 ## Known limitations
 
 - **No unattended schedule yet.** GitHub Actions runners are stateless, so the drawdown state can't persist between runs. The workflow is manual-dispatch only until that's solved.
 - **Tsetlin Machine votes are not probabilities**, so a TM signal reports no confidence figure. The clauses are readable but can be long (several conditions joined by AND).
-- **The Tsetlin Machine is not shown to beat the baseline.** Choosing it was a design decision, not a result. The research repo keeps 2021-2025 as a locked holdout, and this bot deliberately does not evaluate models on it.
+- **The Tsetlin Machine has not beaten the baselines.** On the 2010-2020 development benchmark no model (TM, Bernoulli, logistic, boosted trees) beat the equal-weight blend in any of 7 cost/setting variations, and in the research repo's binary risk-filter pilot the TM passed 0 of 9 seed/cost scenarios while a hand-written stress rule did better. The 2021-2025 holdout stays locked. The TM's demonstrated value here is readable rules, not returns.
+- **Alpaca paper trading omits dividends and some execution costs**, so its displayed return is not directly comparable with adjusted-price backtests. The virtual portfolios use adjusted closes for that reason.
 - **A run takes about a minute** (5 seeds trained on the full history). The `tm` extra pins `numpy<2`, `scipy<1.13` and `scikit-learn<1.6` because `tmu` requires them.
 - **Prices are Tiingo current-vintage adjusted closes**, a documented limitation of the underlying research.
 - **`SimulatedBroker` doesn't move prices**, so it exercises the pipeline but says nothing about P&L.
