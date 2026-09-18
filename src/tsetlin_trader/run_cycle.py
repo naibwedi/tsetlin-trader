@@ -64,6 +64,33 @@ def build_signal_provider(provider: str) -> SignalProvider:
     raise ValueError(f"Unknown SIGNAL_PROVIDER: {provider!r} (expected 'logic_alpha' or 'mock')")
 
 
+def shadow_signals(main_model: str) -> dict:
+    """What the other models would have said today. Logged for later comparison, never traded.
+
+    Reuses the price file the main signal just refreshed, so no extra downloads.
+    """
+    from .signal.logic_alpha_provider import LogicAlphaProvider
+
+    wanted = [m.strip() for m in os.environ.get("SHADOW_MODELS", "bernoulli").split(",") if m.strip()]
+    results = {}
+    for model in wanted:
+        if model == main_model:
+            continue
+        try:
+            signal = LogicAlphaProvider(
+                model=model, history_start=os.environ.get("SIGNAL_HISTORY_START", "2008-01-01")
+            ).get_current_signal()
+            results[model] = {
+                "strategy": signal.strategy,
+                "target_weights": signal.target_weights,
+                "confidence": signal.confidence,
+                "as_of": signal.as_of,
+            }
+        except Exception as exc:  # a shadow failure must never block the real trade
+            results[model] = {"error": f"{type(exc).__name__}: {exc}"}
+    return results
+
+
 def run(
     broker_provider: str | None = None,
     signal_provider: str | None = None,
@@ -83,6 +110,7 @@ def run(
         return entry
 
     signal = build_signal_provider(signal_name).get_current_signal()
+    shadow = shadow_signals(os.environ.get("SIGNAL_MODEL", "tmu")) if signal_name == "logic_alpha" else {}
     account = broker.get_account()
     positions = broker.get_positions()
 
@@ -102,6 +130,7 @@ def run(
     entry.update(
         status="planned" if plan_only else "executed",
         signal=signal.model_dump(mode="json"),
+        shadow_signals=shadow,
         risk_decision=decision.decision.value,
         risk_reason=decision.reason,
         equity=account.equity,
@@ -130,6 +159,8 @@ def main() -> None:
         print(f"signal:   {s['strategy']} (confidence {conf}, as of {s['as_of']})")
         for line in s["rule_trace"]:
             print(f"          - {line}")
+        for model, sh in result.get("shadow_signals", {}).items():
+            print(f"shadow:   {model} would say {sh.get('strategy', 'ERROR ' + sh.get('error', ''))} (not traded)")
         print(f"risk:     {result['risk_decision']} - {result['risk_reason']}")
         print(f"equity:   ${result['equity']:,.2f}   positions: {result['positions_before']}")
         for t in result["trades"]:

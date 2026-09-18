@@ -59,11 +59,11 @@ class LogicAlphaProvider(SignalProvider):
         tiingo_token: str | None = None,
         history_start: str = "2008-01-01",
         top_rules: int = 5,
-        max_data_age_days: int = MAX_DATA_AGE_DAYS,
+        max_data_age_days: int | None = None,
         tm_params: dict | None = None,
     ) -> None:
         self.tm_params = tm_params or {}
-        self.max_data_age_days = max_data_age_days
+        self.max_data_age_days = MAX_DATA_AGE_DAYS if max_data_age_days is None else max_data_age_days
         self.prices_csv = Path(prices_csv)
         self.model = model
         self.tiingo_token = tiingo_token

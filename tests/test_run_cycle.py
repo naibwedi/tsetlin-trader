@@ -70,3 +70,24 @@ def test_load_dotenv_reads_values_but_never_overrides(tmp_path, monkeypatch):
     assert os.environ["NEW_KEY"] == "abc"
     assert os.environ["QUOTED"] == "hello"
     assert os.environ["EXISTING"] == "from_shell"
+
+
+def test_shadow_signals_are_logged_but_never_traded(tmp_path, monkeypatch):
+    from logic_alpha_tm.data import synthetic_prices
+
+    import tsetlin_trader.signal.logic_alpha_provider as provider_module
+
+    (tmp_path / "data").mkdir()
+    synthetic_prices().rename_axis("date").to_csv(tmp_path / "data" / "tiingo-prices.csv")
+    monkeypatch.setattr(provider_module, "MAX_DATA_AGE_DAYS", 10_000)
+    monkeypatch.delenv("TIINGO_API_TOKEN", raising=False)
+    monkeypatch.setenv("SIGNAL_MODEL", "logistic")
+    monkeypatch.setenv("SHADOW_MODELS", "bernoulli,logistic,not_a_model")
+
+    result = run(broker_provider="simulated", signal_provider="logic_alpha", plan_only=True)
+
+    shadow = result["shadow_signals"]
+    assert "logistic" not in shadow  # the traded model is not repeated
+    assert shadow["bernoulli"]["strategy"] in {"trend", "momentum", "defensive", "cash"}
+    assert "error" in shadow["not_a_model"]  # a bad shadow is recorded, not fatal
+    assert result["signal"]["strategy"] in {"trend", "momentum", "defensive", "cash"}

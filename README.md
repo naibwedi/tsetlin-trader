@@ -22,7 +22,8 @@ This repo is the **execution layer**. Signal generation (leakage-aware walk-forw
 2. **Signal**: the research pipeline picks one of four strategies: `trend` (SPY or cash), `momentum` (rotate SPY/QQQ/IWM), `defensive` (SPY or TLT), or `cash`. The model is fit on every day whose 20-day forward label is already known, then predicts the latest day. That mirrors one fold of the research backtest, including its 20-day embargo.
 3. **Model and explanation**: by default a Tsetlin Machine ensemble (5 fixed seeds, votes averaged, so the same data always gives the same signal). Each class's vote is a weighted sum of the clauses that fired, so the strongest clauses for and against the winner are read straight out of the model and sum exactly to its vote (checked in `tests/test_tm_model.py`). Bernoulli Naive Bayes (`SIGNAL_MODEL=bernoulli`) is available as a simpler baseline with per-feature explanations.
 4. **Risk**: positions are scaled to `POSITION_FRACTION` of equity. A max-drawdown circuit breaker liquidates to cash and stays tripped until a human deletes `results/state.json`. Peak equity persists across runs.
-5. **Execution**: the account is rebalanced to target, with sells before buys, a no-trade band to avoid churn, and a guard that skips the cycle if orders are still pending.
+5. **Shadow signals**: each run also records what the other model(s) in `SHADOW_MODELS` (default `bernoulli`) would have said, without trading on them. Over weeks of paper trading this builds a fair, real-time comparison that nobody could have tuned against.
+6. **Execution**: the account is rebalanced to target, with sells before buys, a no-trade band to avoid churn, and a guard that skips the cycle if orders are still pending.
 
 Example output (Tsetlin Machine, 2026-09-17, shortened):
 
