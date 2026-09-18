@@ -1,10 +1,13 @@
-name: Weekly paper trade cycle
+name: Paper trade cycle
 
+# The weekly schedule is intentionally disabled. GitHub-hosted runners start
+# clean every time, so results/state.json (the drawdown peak and the sticky
+# circuit-breaker flag) would be lost between runs and the breaker could never
+# trip. Re-enable the cron only after that state is persisted somewhere durable.
 on:
-  schedule:
-    # Every Monday 14:35 UTC (~30 min after US market open)
-    - cron: "35 14 * * 1"
   workflow_dispatch: {}
+  # schedule:
+  #   - cron: "35 14 * * 1"   # Mondays, ~5 min after the US open
 
 jobs:
   run-cycle:
@@ -19,15 +22,22 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
+      - name: Run tests
+        run: pytest -q
+
       - name: Run trading cycle
         env:
+          BROKER_PROVIDER: alpaca
+          SIGNAL_PROVIDER: logic_alpha
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          TIINGO_API_TOKEN: ${{ secrets.TIINGO_API_TOKEN }}
           MAX_DRAWDOWN_PCT: "0.15"
           POSITION_FRACTION: "0.25"
         run: python -m tsetlin_trader.run_cycle
 
       - name: Upload decision log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: decisions-log

@@ -13,12 +13,7 @@ class AlpacaClient(BrokerClient):
     """Paper-trading-only client. Always constructed against Alpaca's paper
     endpoint — this repo does not place live trades."""
 
-    def __init__(
-        self,
-        api_key: str,
-        secret_key: str,
-        trading_client=None,
-    ) -> None:
+    def __init__(self, api_key: str, secret_key: str, trading_client=None) -> None:
         if trading_client is not None:
             self._client = trading_client
         else:
@@ -34,36 +29,35 @@ class AlpacaClient(BrokerClient):
             buying_power=float(acct.buying_power),
         )
 
-    def get_position_value(self, symbol: str) -> float:
-        try:
-            position = self._client.get_open_position(symbol)
-            return float(position.market_value)
-        except Exception:
-            return 0.0
+    def get_positions(self) -> dict[str, float]:
+        return {p.symbol: float(p.market_value) for p in self._client.get_all_positions()}
 
-    def submit_order(self, symbol: str, target_weight: float, equity: float) -> OrderResult:
-        if target_weight < 0:
-            raise ValueError("target_weight must be >= 0 (long-only)")
+    def open_order_symbols(self) -> set[str]:
+        from alpaca.trading.enums import QueryOrderStatus
+        from alpaca.trading.requests import GetOrdersRequest
 
-        notional = round(equity * target_weight, 2)
-        side = "buy"
+        orders = self._client.get_orders(GetOrdersRequest(status=QueryOrderStatus.OPEN))
+        return {o.symbol for o in orders}
 
-        if notional <= 0:
-            return OrderResult(symbol=symbol, notional=0.0, side=side, status="skipped_zero_notional")
+    def submit_order(self, symbol: str, notional: float, side: str) -> OrderResult:
+        if side not in ("buy", "sell"):
+            raise ValueError("side must be 'buy' or 'sell'")
+        notional = round(notional, 2)
+        if notional < 1.0:
+            return OrderResult(symbol, 0.0, side, "skipped_below_minimum_notional")
 
         from alpaca.trading.enums import OrderSide, TimeInForce
         from alpaca.trading.requests import MarketOrderRequest
 
-        order_request = MarketOrderRequest(
+        request = MarketOrderRequest(
             symbol=symbol,
             notional=notional,
-            side=OrderSide.BUY,
+            side=OrderSide.BUY if side == "buy" else OrderSide.SELL,
             time_in_force=TimeInForce.DAY,
         )
-        order = self._client.submit_order(order_request)
-        return OrderResult(
-            symbol=symbol,
-            notional=notional,
-            side=side,
-            status=getattr(order, "status", "submitted"),
-        )
+        order = self._client.submit_order(request)
+        return OrderResult(symbol, notional, side, str(getattr(order, "status", "submitted")))
+
+    def close_position(self, symbol: str) -> OrderResult:
+        order = self._client.close_position(symbol)
+        return OrderResult(symbol, 0.0, "sell", str(getattr(order, "status", "submitted")))

@@ -1,79 +1,86 @@
 # tsetlin-trader
 
-**An interpretable ML trading engine that paper-trades on live markets using Tsetlin Machine rule-based signals.**
+**An interpretable ML trading engine that paper-trades using rule-based signals from a Tsetlin-Machine-family research model.**
 
-Most "AI trading bot" repos are black boxes: a model spits out buy/sell and nobody — including the author — can say why. `tsetlin-trader` is built the other way around. Every trading decision carries the exact logical clauses (human-readable `IF ... AND ... THEN ...` rules) that fired to produce it, logged alongside the trade itself. Orders go through a pluggable broker interface — a local zero-setup simulator out of the box, or [Alpaca's paper trading API](https://alpaca.markets/) for real market data and order simulation. Zero real money either way.
+Most "AI trading bot" repos are black boxes: a model spits out buy/sell and nobody, including the author, can say why. `tsetlin-trader` is built the other way around. Every decision is logged with the evidence behind it: which Boolean features pushed the model toward the chosen strategy, and by how much. Orders go through a pluggable broker interface, either a zero-setup local simulator or [Alpaca's paper trading API](https://alpaca.markets/). No real money either way.
 
-This repo is the **production/execution layer**. The signal-generation research — leakage-aware backtesting, walk-forward validation, Boolean feature engineering — lives in the companion research repo, [`logic-alpha-tm`](https://github.com/naibwedi/logic-alpha-tm). This repo wraps that research behind a clean interface and puts it to work on a schedule.
+This repo is the **execution layer**. Signal generation (leakage-aware walk-forward research, Boolean feature engineering) lives in the companion repo [`logic-alpha-tm`](https://github.com/naibwedi/logic-alpha-tm), which this repo installs as a dependency.
 
-> **Status**: paper trading only. No real capital, no investment advice, no brokerage service. Educational / portfolio project.
+> **Status: paper trading only.** Not investment advice. The research repo itself states that its backtests are not evidence of tradable alpha, and that applies here too. Treat this as an engineering and forward-testing exercise.
 
-## Why this exists
-
-- **Interpretability as a first-class output.** Every decision in `results/decisions.jsonl` includes the rule trace that produced it — not just the trade.
-- **A clean seam between research and execution.** The `SignalProvider` interface (`src/tsetlin_trader/signal/base.py`) is the only thing execution code depends on. Swap the model without touching risk, broker, or logging code.
-- **Broker-agnostic by design.** The `BrokerClient` interface (`src/tsetlin_trader/broker/base.py`) does the same job on the execution side — `SimulatedBroker` for a zero-setup local demo, `AlpacaClient` for a real paper account, and any future broker is just a new implementation of the same three methods.
-- **Risk management isn't an afterthought.** Fixed-fraction position sizing plus a max-drawdown circuit breaker that halts trading automatically — see `src/tsetlin_trader/risk/manager.py`.
-
-## Architecture
+## How it works
 
 ```
-                 ┌─────────────────────┐
-                 │   SignalProvider     │   (today: MockSignalProvider
-                 │  get_current_signal()│    tomorrow: logic-alpha-tm model)
-                 └──────────┬───────────┘
-                            │ Signal{strategy, confidence, rule_trace}
-                            ▼
-                 ┌─────────────────────┐
-                 │    RiskManager       │   position sizing +
-                 │   size_order()       │   drawdown circuit breaker
-                 └──────────┬───────────┘
-                            │ Order | HALT
-                            ▼
-                 ┌─────────────────────┐
-                 │   BrokerClient        │  (default: SimulatedBroker
-                 │   submit_order()      │   or: AlpacaClient paper endpoint)
-                 └──────────┬───────────┘
-                            │
-                            ▼
-                 ┌─────────────────────┐
-                 │   DecisionLog         │   results/decisions.jsonl
-                 └─────────────────────┘
+ Tiingo EOD prices ──> LogicAlphaProvider ──> RiskManager ──> rebalance ──> BrokerClient
+ (SPY QQQ IWM TLT)     fit on labelled days    size + circuit   sells first,   simulated | Alpaca
+                       predict latest day      breaker          then buys
+                              │                     │                              │
+                              └──────────── DecisionLog (results/decisions.jsonl) ───┘
 ```
 
-`run_cycle.py` orchestrates the loop above. A GitHub Actions cron job (`.github/workflows/weekly-trade.yml`) runs it weekly.
+1. **Data**: ~5 years of adjusted daily closes for four ETFs from Tiingo. Stale data (more than 5 days old) is rejected rather than traded on.
+2. **Signal**: the research pipeline picks one of four strategies: `trend` (SPY or cash), `momentum` (rotate SPY/QQQ/IWM), `defensive` (SPY or TLT), or `cash`. The model is fit on every day whose 20-day forward label is already known, then predicts the latest day. That mirrors one fold of the research backtest, including its 20-day embargo.
+3. **Explanation**: for the default Bernoulli model, the lead over the runner-up decomposes exactly into per-feature terms, so each signal carries the top contributing features and their values.
+4. **Risk**: positions are scaled to `POSITION_FRACTION` of equity. A max-drawdown circuit breaker liquidates to cash and stays tripped until a human deletes `results/state.json`. Peak equity persists across runs.
+5. **Execution**: the account is rebalanced to target, with sells before buys, a no-trade band to avoid churn, and a guard that skips the cycle if orders are still pending.
 
-## Tech stack
+Example output:
 
-`Python` · `alpaca-py` (paper trading) · `pandas` / `numpy` · `pydantic` · `pytest` · `GitHub Actions`
+```
+signal:   momentum (confidence 0.85, as of 2026-09-17)
+          - regime today: SIDEWAYS_LOW
+          - 60d momentum leader is SPY (+4.0%)
+          - evidence for 'momentum' over 'cash': prior -1.28 + features +2.98
+          -   IWM_ret_60>q40 is false -> +0.47
+risk:     trade - drawdown 0.00% within limit; scaled by position_fraction=0.25
+trade:    sell IWM $9,947.51 (close all)
+trade:    buy SPY $19,997.45
+```
 
 ## Quickstart
 
 ```bash
 pip install -e ".[dev]"
-pytest                                  # all offline, no network calls, no API keys
-python -m tsetlin_trader.run_cycle      # runs against the local SimulatedBroker by default
+pytest                                            # offline, no keys needed
+python -m tsetlin_trader.run_cycle --broker simulated --signal mock
 ```
 
-To run against a real Alpaca paper account instead:
+Real signal against your Alpaca paper account:
 
 ```bash
-cp .env.example .env    # set BROKER_PROVIDER=alpaca and your Alpaca *paper* API keys
-python -m tsetlin_trader.run_cycle --broker alpaca
+cp .env.example .env     # add TIINGO_API_TOKEN, ALPACA_API_KEY, ALPACA_SECRET_KEY, set BROKER_PROVIDER=alpaca
+python -m tsetlin_trader.run_cycle --plan-only   # shows the trades, places nothing
+python -m tsetlin_trader.run_cycle               # places them
 ```
 
-## Trading universe
+Run it once a week, since the strategy selector rebalances on a roughly 5-trading-day cadence. Running it more often is harmless: it rebalances to the same target and does nothing.
 
-`SPY` · `QQQ` · `IWM` · `TLT` — liquid, low-cost US ETFs, matched to the strategy set the underlying research (`logic-alpha-tm`) was validated on. The universe is deliberately narrow: proving the paper-trading loop end-to-end on a small, well-understood set comes before any expansion.
+## Layout
+
+| Path | Role |
+|---|---|
+| `signal/logic_alpha_provider.py` | Real signal from `logic-alpha-tm`, with per-feature explanations |
+| `signal/mock_provider.py` | Deterministic stand-in for tests and demos |
+| `risk/manager.py` | Position sizing and the persistent, sticky circuit breaker |
+| `broker/base.py` | `BrokerClient` interface |
+| `broker/alpaca_client.py`, `broker/simulated_client.py` | Alpaca paper and local implementations |
+| `broker/rebalance.py` | Current positions plus target, turned into trades |
+| `run_cycle.py` | Orchestration and CLI |
+
+## Known limitations
+
+- **No unattended schedule yet.** GitHub Actions runners are stateless, so the drawdown state can't persist between runs. The workflow is manual-dispatch only until that's solved.
+- **Bernoulli model by default.** It is the interpretable baseline from the research repo. The Tsetlin Machine model (`SIGNAL_MODEL=tmu`) needs the optional `tmu` dependency and gives no per-feature explanation.
+- **Prices are Tiingo current-vintage adjusted closes**, a documented limitation of the underlying research.
+- **`SimulatedBroker` doesn't move prices**, so it exercises the pipeline but says nothing about P&L.
 
 ## Roadmap
 
-- [ ] Wire in the real `logic-alpha-tm` Tsetlin Machine signal (replacing `MockSignalProvider`)
-- [ ] Decision-rationale digest (plain-English rule trace → Telegram/Discord)
-- [ ] Live equity curve dashboard, backtest-vs-live drift tracking
-- [ ] Volatility-targeted position sizing
-- [ ] `SimulatedBroker` price-aware fills (mark-to-market P&L, not just notional tracking)
+- [ ] Persist risk state so the weekly cron can be re-enabled
+- [ ] Explanations for the TMU model (clause-level rules)
+- [ ] Equity curve and forward-test vs backtest drift report
+- [ ] Notifications (Telegram/Discord) with the plain-English rationale
 
 ## Disclaimer
 
-This project places paper (simulated) trades only. It does not provide investment advice, recommendations, brokerage services, or any assurance of future returns. Nothing here should be construed as financial advice.
+This project places paper (simulated) trades only. It does not provide investment advice, recommendations, brokerage services, or any assurance of future returns.

@@ -9,6 +9,7 @@ dependencies = [
     "pandas>=2.0",
     "numpy>=1.26",
     "pydantic>=2.0",
+    "logic-alpha-tm @ git+https://github.com/naibwedi/logic-alpha-tm.git",
 ]
 
 [project.optional-dependencies]

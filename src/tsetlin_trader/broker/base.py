@@ -25,17 +25,28 @@ class OrderResult:
 
 
 class BrokerClient(ABC):
-    """Anything that can report account state and place a long-only order."""
+    """Anything that can report account state and place long-only orders."""
 
     @abstractmethod
     def get_account(self) -> AccountSnapshot:
         raise NotImplementedError
 
     @abstractmethod
-    def get_position_value(self, symbol: str) -> float:
+    def get_positions(self) -> dict[str, float]:
+        """Current market value in dollars per held symbol."""
         raise NotImplementedError
 
     @abstractmethod
-    def submit_order(self, symbol: str, target_weight: float, equity: float) -> OrderResult:
-        """Place an order sized as `target_weight * equity` notional. Long-only."""
+    def open_order_symbols(self) -> set[str]:
+        """Symbols with orders submitted but not yet filled/cancelled."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def submit_order(self, symbol: str, notional: float, side: str) -> OrderResult:
+        """Place a market order for `notional` dollars. `side` is 'buy' or 'sell'."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def close_position(self, symbol: str) -> OrderResult:
+        """Liquidate the entire position in `symbol`."""
         raise NotImplementedError

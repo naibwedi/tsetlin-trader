@@ -19,6 +19,7 @@ class Signal(BaseModel):
     """One strategy-selection decision, with the interpretable rationale behind it."""
 
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    as_of: str | None = None
     strategy: str
     target_weights: dict[str, float]
     confidence: float

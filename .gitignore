@@ -5,6 +5,8 @@ __pycache__/
 venv/
 .env
 results/*.jsonl
+results/state.json
+data/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

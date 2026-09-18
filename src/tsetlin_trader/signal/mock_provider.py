@@ -1,39 +1,34 @@
-"""Deterministic stand-in for the real logic-alpha-tm Tsetlin Machine signal.
+"""Deterministic stand-in signal for offline tests and demos.
 
-Lets the rest of the pipeline (risk, broker, logging) run and be tested
-end-to-end today. Replace with a real SignalProvider implementation once
-the research model is wired in — nothing else needs to change.
+Uses the same strategy names as the real logic-alpha-tm model (trend,
+momentum, defensive, cash) so it is a drop-in replacement, but it does no
+modelling: it just cycles through them by ISO week.
 """
 
 from __future__ import annotations
 
 from datetime import date
 
-from .base import UNIVERSE, Signal, SignalProvider
+from .base import Signal, SignalProvider
 
 _STRATEGIES: dict[str, dict[str, float]] = {
-    "risk_on": {"SPY": 0.5, "QQQ": 0.3},
-    "risk_off": {"TLT": 0.6},
-    "small_cap_tilt": {"IWM": 0.4, "SPY": 0.2},
-    "balanced": {"SPY": 0.25, "QQQ": 0.15, "IWM": 0.1, "TLT": 0.2},
+    "trend": {"SPY": 1.0},
+    "momentum": {"QQQ": 1.0},
+    "defensive": {"TLT": 1.0},
+    "cash": {},
 }
 
 
 class MockSignalProvider(SignalProvider):
-    """Cycles deterministically through a fixed set of strategies by ISO week."""
-
     def get_current_signal(self) -> Signal:
         week = date.today().isocalendar().week
-        names = list(_STRATEGIES.keys())
+        names = list(_STRATEGIES)
         strategy = names[week % len(names)]
-        weights = _STRATEGIES[strategy]
 
         return Signal(
+            as_of=date.today().isoformat(),
             strategy=strategy,
-            target_weights=weights,
-            confidence=0.7,
-            rule_trace=[
-                f"MOCK: week {week} % {len(names)} -> '{strategy}'",
-                f"MOCK: no real Tsetlin Machine clauses fired (universe={UNIVERSE})",
-            ],
+            target_weights=_STRATEGIES[strategy],
+            confidence=0.5,
+            rule_trace=[f"MOCK: ISO week {week} % {len(names)} -> '{strategy}' (no model was run)"],
         )
