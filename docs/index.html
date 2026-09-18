@@ -172,8 +172,8 @@ a{color:var(--accent)}
   <p class="lede">Once a week the bot looks at four ETFs, asks a Tsetlin Machine which of four simple strategies looks best right now, and moves a fake-money Alpaca account to match. This page shows each step, using the numbers from the latest real run.</p>
   <div class="strip" aria-label="Account state at the last run">
     <div><span>Account</span><b>Alpaca paper</b></div>
-    <div><span>Equity</span><b>&asymp; $99,936</b></div>
-    <div><span>Holding</span><b>SPY &asymp; $25,030</b></div>
+    <div><span>Equity</span><b>&asymp; $99,991</b></div>
+    <div><span>Holding</span><b>cash (SPY sold 2026-09-18)</b></div>
     <div><span>Last signal</span><b>cash &middot; 2026-09-17</b></div>
   </div>
 </header>
@@ -196,7 +196,7 @@ a{color:var(--accent)}
     <li><span class="n">4</span><div class="step-body"><h3>Vote on today</h3><p>Every clause that is true today casts a weighted vote for or against a strategy. The five machines' votes are averaged and the top strategy wins.</p><span class="today">winner: cash, +386 votes ahead of momentum, 5 of 5 machines agree</span></div></li>
     <li><span class="n">5</span><div class="step-body"><h3>Turn the strategy into a holding</h3><p>Each strategy has a fixed rule for what to hold. Cash means hold nothing.</p><span class="today">target: no position</span></div></li>
     <li><span class="n">6</span><div class="step-body"><h3>Check the risk limits</h3><p>The bot only uses 25% of the account at most, and it checks that the account has not fallen too far from its best value.</p><span class="today">drawdown 0.00%, limit not hit</span></div></li>
-    <li><span class="n">7</span><div class="step-body"><h3>Trade only the difference</h3><p>It compares the target with what you hold, sells first and buys second, and ignores gaps under 0.5% of the account. If any order is still waiting to fill, it skips the whole cycle.</p><span class="today">preview: sell all SPY (&asymp; $24,997). Not placed yet.</span></div></li>
+    <li><span class="n">7</span><div class="step-body"><h3>Trade only the difference</h3><p>It compares the target with what you hold, sells first and buys second, and ignores gaps under 0.5% of the account. If any order is still waiting to fill, it skips the whole cycle.</p><span class="today">done 2026-09-18: sold all SPY (&asymp; $25,041), now in cash</span></div></li>
   </ol>
 </section>
 
@@ -380,9 +380,9 @@ a{color:var(--accent)}
   <h3 style="margin-top:40px">The corrected plan</h3>
   <ol class="steps">
     <li><span class="n">1</span><div class="step-body"><h3>Make execution trustworthy</h3><p>Safety checks now run before any data or model. The bot refuses to run without its saved risk state, only ever trades the four ETFs, waits for sells to fill before buying, cannot place the same order twice, and allows one run at a time. Bad signals (negative, infinite, or unknown symbols) are rejected.</p><span class="today">done: 80 tests pass</span></div></li>
-    <li><span class="n">2</span><div class="step-body"><h3>Run three portfolios side by side</h3><p>On every real run the bot now books three paper portfolios on the same prices with the same costs: the plain blend, the blend with the hand-written stress rule, and the Tsetlin Machine. This compares returns, not just signals, on data nobody could have tuned against.</p><span class="today">done: starts with the next executed run</span></div></li>
-    <li><span class="n">3</span><div class="step-body"><h3>An 8&ndash;12 week paper trial</h3><p>Weekly runs. This tests that the machinery is reliable, not whether the strategy is profitable. Alpaca's paper account leaves out dividends and some costs, so the virtual portfolios are the fair scoreboard.</p><span class="today">status: not started</span></div></li>
-    <li><span class="n">4</span><div class="step-body"><h3>One small, predefined feature test</h3><p>Add only trend strength, changing volatility and stock&ndash;bond correlation as new facts, decided in advance, and test on 2002&ndash;2020 with every seed reported. More clauses, more features or a GPU are not automatically improvements.</p><span class="today">status: not started</span></div></li>
+    <li><span class="n">2</span><div class="step-body"><h3>Run three portfolios side by side</h3><p>On every real run the bot now books three paper portfolios on the same prices with the same costs: the plain blend, the blend with the hand-written stress rule, and the Tsetlin Machine. This compares returns, not just signals, on data nobody could have tuned against.</p><span class="today">done: started 2026-09-18, all three at 1.00</span></div></li>
+    <li><span class="n">3</span><div class="step-body"><h3>An 8&ndash;12 week paper trial</h3><p>Weekly runs, every Monday after the US open, from GitHub Actions. The bot's state is saved back to the repo so the breaker and the scoreboard survive between runs. This tests that the machinery is reliable, not whether the strategy is profitable. Alpaca's paper account leaves out dividends and some costs, so the virtual portfolios are the fair scoreboard.</p><span class="today">scheduled: first automatic run Monday 2026-09-21 (needs the API keys added as GitHub secrets)</span></div></li>
+    <li><span class="n">4</span><div class="step-body"><h3>One small, predefined feature test</h3><p>Add only trend strength, changing volatility and stock&ndash;bond correlation as new facts (5 measurements, 20 facts), decided in advance, and test on 2002&ndash;2020 with every seed reported. More clauses, more features or a GPU are not automatically improvements.</p><span class="today">running: v0.4 benchmark, old vs new facts, 3 fixed seeds each</span></div></li>
     <li><span class="n">5</span><div class="step-body"><h3>Be honest about the machine's role</h3><p>On the evidence so far the Tsetlin Machine's value is rules a person can read, and a hand-written rule currently beats it on returns. That is a legitimate project. The 2021&ndash;2025 period stays locked.</p><span class="today">this page says so</span></div></li>
   </ol>
   <div class="prose" style="margin-top:22px">
@@ -401,6 +401,8 @@ a{color:var(--accent)}
     <div><b>Sells, then wait</b><p>Buys are placed only after the sells have filled. Every order has an id tied to the run, so a retry cannot double it.</p></div>
     <div><b>One at a time</b><p>A lock file stops two runs overlapping. A stale lock from a crash is replaced after 2 hours.</p></div>
     <div><b>0.5%</b><p>gaps between target and holdings are ignored, so it does not trade on tiny drift.</p></div>
+    <div><b>Trading days</b><p>Real runs are skipped on weekends and exchange holidays, using Alpaca's calendar.</p></div>
+    <div><b>Receipts</b><p>Every decision records the code version, a hash of the price data, package versions and settings. Failures and halts can post to a webhook.</p></div>
   </div>
 </section>
 
@@ -428,7 +430,8 @@ a{color:var(--accent)}
   </div>
   <ul class="plain" style="margin-top:26px">
     <li>Read "How the test went" before you give the signal any weight.</li>
-    <li>Run it about once a week. Running it more often is harmless.</li>
+    <li>Add <code>ALPACA_API_KEY</code>, <code>ALPACA_SECRET_KEY</code> and <code>TIINGO_API_TOKEN</code> as GitHub Actions secrets so the Monday run can work. Until then, run it yourself once a week.</li>
+    <li>If you run it locally, <code>git pull</code> first: the saved state now lives in the repo.</li>
     <li>Regenerate your Alpaca keys when you finish testing, since they appeared in a chat.</li>
     <li>A run now takes about a minute, because it trains five Tsetlin Machines each time.</li>
   </ul>
