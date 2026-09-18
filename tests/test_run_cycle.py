@@ -189,3 +189,36 @@ def test_shadow_signals_and_virtual_portfolios_are_logged(tmp_path, monkeypatch)
     vp = result["virtual_portfolios"]
     assert set(vp["portfolios"]) == {"blend", "blend_filtered", "tm"}
     assert (tmp_path / "results" / "portfolios.json").exists()
+
+
+def test_market_closed_skips_real_runs_but_not_plans(monkeypatch):
+    from tsetlin_trader.broker.simulated_client import SimulatedBroker
+
+    monkeypatch.setattr(SimulatedBroker, "is_trading_day", lambda self, day: False)
+    assert run(broker_provider="simulated", signal_provider="mock")["status"] == "skipped_market_closed"
+    assert run(broker_provider="simulated", signal_provider="mock", plan_only=True)["status"] == "planned"
+
+
+def test_every_entry_carries_a_fingerprint():
+    result = run(broker_provider="simulated", signal_provider="mock")
+    fp = result["fingerprint"]
+    assert "code_commit" in fp and "packages" in fp and "config" in fp
+
+
+def test_failure_is_logged_alerted_and_raised(tmp_path, monkeypatch):
+    from tsetlin_trader import run_cycle
+    from tsetlin_trader.signal import mock_provider
+
+    sent = []
+    monkeypatch.setattr(run_cycle, "alert", lambda message, url=None: sent.append(message) or True)
+
+    def boom(self):
+        raise RuntimeError("model exploded")
+
+    monkeypatch.setattr(mock_provider.MockSignalProvider, "get_current_signal", boom)
+    with pytest.raises(RuntimeError, match="model exploded"):
+        run(broker_provider="simulated", signal_provider="mock")
+
+    assert read_log(tmp_path)[-1]["status"] == "failed"
+    assert sent and "FAILED" in sent[0]
+    assert not (tmp_path / "results" / ".run.lock").exists()

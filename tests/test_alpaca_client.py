@@ -36,6 +36,10 @@ class FakeTradingClient:
         self.submitted.append(request)
         return SimpleNamespace(status="accepted", id="ord-1")
 
+    def get_calendar(self, request):
+        from datetime import date
+        return [] if request.start == date(2026, 9, 19) else [SimpleNamespace(date=request.start)]
+
     def close_position(self, symbol):
         self.closed.append(symbol)
         return SimpleNamespace(status="pending_new", id="ord-2")
@@ -121,3 +125,11 @@ def test_close_position():
     assert fake.closed == ["IWM"]
     assert result.side == "sell"
     assert result.order_id == "ord-2"
+
+
+def test_is_trading_day_uses_the_exchange_calendar():
+    from datetime import date
+
+    client, _ = make_client()
+    assert client.is_trading_day(date(2026, 9, 18)) is True
+    assert client.is_trading_day(date(2026, 9, 19)) is False

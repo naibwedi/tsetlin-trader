@@ -1,0 +1,25 @@
+{
+  "started": "2026-09-17",
+  "as_of": "2026-09-17",
+  "portfolios": {
+    "blend": {
+      "value": 0.9998,
+      "cash": 0.0,
+      "holdings": {
+        "SPY": 0.9998
+      }
+    },
+    "blend_filtered": {
+      "value": 0.9998,
+      "cash": 0.0,
+      "holdings": {
+        "SPY": 0.9998
+      }
+    },
+    "tm": {
+      "value": 1.0,
+      "cash": 1.0,
+      "holdings": {}
+    }
+  }
+}

@@ -4,8 +4,7 @@ __pycache__/
 .venv/
 venv/
 .env
-results/*.jsonl
-results/state.json
+results/.run.lock
 data/
 .pytest_cache/
 .mypy_cache/

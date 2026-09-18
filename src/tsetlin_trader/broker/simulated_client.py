@@ -8,6 +8,8 @@ pipeline end-to-end but says nothing about P&L. Use `AlpacaClient` for that.
 
 from __future__ import annotations
 
+from datetime import date
+
 from .base import AccountSnapshot, BrokerClient, OrderResult
 
 
@@ -26,6 +28,9 @@ class SimulatedBroker(BrokerClient):
 
     def open_order_symbols(self) -> set[str]:
         return set()
+
+    def is_trading_day(self, day: date) -> bool:
+        return day.weekday() < 5
 
     def wait_for_open_orders(self, timeout_s: float) -> bool:
         return True

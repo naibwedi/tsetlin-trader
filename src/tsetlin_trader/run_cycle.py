@@ -11,7 +11,8 @@ Order of operations, chosen so that safety never depends on the model:
 
 Environment (see .env.example): BROKER_PROVIDER, SIGNAL_PROVIDER, SIGNAL_MODEL,
 SIGNAL_HISTORY_START, SHADOW_MODELS, TIINGO_API_TOKEN, ALPACA_API_KEY,
-ALPACA_SECRET_KEY, MAX_DRAWDOWN_PCT, POSITION_FRACTION, ALLOW_FRESH_STATE.
+ALPACA_SECRET_KEY, MAX_DRAWDOWN_PCT, POSITION_FRACTION, ALLOW_FRESH_STATE,
+ALERT_WEBHOOK_URL.
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ from .broker.base import BrokerClient
 from .broker.rebalance import execute, plan_rebalance
 from .broker.simulated_client import SimulatedBroker
 from .logging.decision_log import DecisionLog
+from .ops import alert, fingerprint
 from .risk.manager import Decision, RiskManager
 from .signal.base import UNIVERSE, SignalProvider
 from .signal.mock_provider import MockSignalProvider
@@ -133,6 +135,12 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
     broker = build_broker(broker_name)
     entry: dict = {"broker_provider": broker_name, "signal_provider": signal_name, "plan_only": plan_only}
 
+    entry["fingerprint"] = fingerprint(PRICES_PATH)
+
+    if not plan_only and not broker.is_trading_day(date.today()):
+        entry.update(status="skipped_market_closed", reason=f"{date.today()} is not a trading day")
+        return entry
+
     pending = broker.open_order_symbols()
     if pending:
         entry.update(status="skipped_open_orders_pending", pending_symbols=sorted(pending))
@@ -142,6 +150,7 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
     if broker_name == "alpaca" and not STATE_PATH.exists() and os.environ.get("ALLOW_FRESH_STATE") != "1":
         entry.update(status="refused_missing_state",
                      reason=f"{STATE_PATH} is missing; set ALLOW_FRESH_STATE=1 once to start a new history")
+        alert(f"tsetlin-trader refused to run: {entry['reason']}")
         return entry
 
     account = broker.get_account()
@@ -158,6 +167,10 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
         if not plan_only:
             risk.save_state(STATE_PATH)
         orders = [] if plan_only else [o.__dict__ for o in execute(broker, plan.trades, cycle_id)]
+        if decision.decision == Decision.HALT and not plan_only:
+            alert(f"tsetlin-trader HALT: {decision.reason}. Liquidated: {[t.symbol for t in plan.trades]}")
+        if any(o["status"] == "skipped_sells_not_filled" for o in orders):
+            alert("tsetlin-trader: sells did not fill in time; buys were skipped. Check the account.")
         entry.update(
             status="planned" if plan_only else "executed",
             risk_decision=decision.decision.value, risk_reason=decision.reason,
@@ -197,6 +210,11 @@ def run(
     except AlreadyRunning as exc:
         entry = {"broker_provider": broker_name, "signal_provider": signal_name,
                  "plan_only": plan_only, "status": "skipped_locked", "reason": str(exc)}
+    except Exception as exc:
+        log.append({"broker_provider": broker_name, "signal_provider": signal_name, "plan_only": plan_only,
+                    "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+        alert(f"tsetlin-trader FAILED: {type(exc).__name__}: {exc}")
+        raise
     log.append(entry)
     return entry
 
@@ -211,7 +229,7 @@ def main() -> None:
     result = run(broker_provider=args.broker, signal_provider=args.signal, plan_only=args.plan_only)
 
     print(f"status:   {result['status']}")
-    if result["status"] in ("skipped_open_orders_pending", "skipped_locked", "refused_missing_state"):
+    if result["status"] in ("skipped_open_orders_pending", "skipped_locked", "refused_missing_state", "skipped_market_closed"):
         print(f"reason:   {result.get('reason') or result.get('pending_symbols')}")
         return
     s = result.get("signal")

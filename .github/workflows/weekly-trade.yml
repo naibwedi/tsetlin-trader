@@ -1,13 +1,20 @@
 name: Paper trade cycle
 
-# The weekly schedule is intentionally disabled. GitHub-hosted runners start
-# clean every time, so results/state.json (the drawdown peak and the sticky
-# circuit-breaker flag) would be lost between runs and the breaker could never
-# trip. Re-enable the cron only after that state is persisted somewhere durable.
+# Runs Mondays after the US open. The bot's state (results/state.json, the
+# virtual portfolios and the decision log) is committed back to the repo so
+# the drawdown breaker and the scoreboard persist across stateless runners.
+# If you also run the bot locally, `git pull` first so both sides share state.
 on:
+  schedule:
+    - cron: "35 14 * * 1"   # Mondays 14:35 UTC, about 5 min after the US open
   workflow_dispatch: {}
-  # schedule:
-  #   - cron: "35 14 * * 1"   # Mondays, ~5 min after the US open
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-trade
+  cancel-in-progress: false
 
 jobs:
   run-cycle:
@@ -19,26 +26,34 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -e ".[dev,tm]"
+      - name: Install pinned dependencies
+        run: |
+          pip install -r requirements-lock.txt
+          pip install --no-deps -e .
+          pip install --no-deps "logic-alpha-tm @ git+https://github.com/naibwedi/logic-alpha-tm.git"
 
       - name: Run tests
-        run: pytest -q
+        run: pytest -q -p no:cacheprovider
 
       - name: Run trading cycle
         env:
           BROKER_PROVIDER: alpaca
           SIGNAL_PROVIDER: logic_alpha
+          SIGNAL_MODEL: tmu
+          SIGNAL_HISTORY_START: "2008-01-01"
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
           TIINGO_API_TOKEN: ${{ secrets.TIINGO_API_TOKEN }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
           MAX_DRAWDOWN_PCT: "0.15"
           POSITION_FRACTION: "0.25"
         run: python -m tsetlin_trader.run_cycle
 
-      - name: Upload decision log
+      - name: Commit state back
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: decisions-log
-          path: results/decisions.jsonl
+        run: |
+          git config user.name "tsetlin-trader bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add results/state.json results/portfolios.json results/decisions.jsonl
+          git diff --cached --quiet || git commit -m "Record paper trade cycle $(date -u +%Y-%m-%d) [skip ci]"
+          git push

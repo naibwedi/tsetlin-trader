@@ -7,6 +7,7 @@ module is fully testable offline, with no real network calls.
 from __future__ import annotations
 
 import time
+from datetime import date
 
 from .base import AccountSnapshot, BrokerClient, OrderResult
 
@@ -41,6 +42,12 @@ class AlpacaClient(BrokerClient):
 
         orders = self._client.get_orders(GetOrdersRequest(status=QueryOrderStatus.OPEN))
         return {o.symbol for o in orders}
+
+    def is_trading_day(self, day: date) -> bool:
+        from alpaca.trading.requests import GetCalendarRequest
+
+        days = self._client.get_calendar(GetCalendarRequest(start=day, end=day))
+        return any(getattr(d, "date", None) == day for d in days) or (len(days) > 0)
 
     def wait_for_open_orders(self, timeout_s: float) -> bool:
         deadline = time.monotonic() + timeout_s

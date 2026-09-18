@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import date
 
 
 @dataclass
@@ -41,6 +42,11 @@ class BrokerClient(ABC):
     @abstractmethod
     def open_order_symbols(self) -> set[str]:
         """Symbols with orders submitted but not yet filled/cancelled."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def is_trading_day(self, day: date) -> bool:
+        """True if the exchange is open on `day`."""
         raise NotImplementedError
 
     @abstractmethod
