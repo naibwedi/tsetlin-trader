@@ -130,6 +130,18 @@ def test_close_position():
     assert result.order_id == "ord-2"
 
 
+def test_full_session_check_rejects_early_close():
+    from datetime import date, datetime
+
+    client, fake = make_client()
+    fake.get_calendar = lambda request: [SimpleNamespace(
+        date=request.start, close=datetime(2026, 11, 27, 13, 0))]
+    assert client.is_full_trading_day(date(2026, 11, 27)) is False
+    fake.get_calendar = lambda request: [SimpleNamespace(
+        date=request.start, close=datetime(2026, 11, 30, 16, 0))]
+    assert client.is_full_trading_day(date(2026, 11, 30)) is True
+
+
 def test_get_order_status_uses_the_broker_record():
     client, _ = make_client()
     assert client.get_order_status("ord-2") == "filled"
