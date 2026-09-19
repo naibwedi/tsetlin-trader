@@ -61,3 +61,10 @@ def test_insufficient_data_stays_idle():
     assert result["status"] == "insufficient_sessions"
     assert result["trades"] == []
 
+
+def test_real_tm_replay_produces_explained_trades():
+    result = replay(bars(31), min_train=30)
+    assert result["status"] == "retrospective_paper_replay"
+    assert len(result["trades"]) == 1
+    assert "votes" in result["trades"][0]["explanation"]
+
