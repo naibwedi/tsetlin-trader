@@ -55,6 +55,34 @@ Read `IWM_ret_60>q20` as "small caps' 60-day return is above its 20th percentile
 
 ## Quickstart
 
+### Separate intraday paper experiment
+
+`intraday_trial` is an **after-close virtual paper replay**, separate from the
+weekly Alpaca account and its 52-week trial. It downloads Alpaca IEX 5-minute
+SPY bars using paper API keys, but has no trading endpoint or order submission.
+Each full session uses only the 09:30–10:25 bars for a decision at 10:30 ET,
+then values a hypothetical long-SPY or cash position at 15:55 ET. A fixed
+5-basis-point cost is charged on each side of a trade. The comparison is a
+simple rule that buys SPY when the morning return is positive.
+
+```bash
+# Set ALPACA_API_KEY and ALPACA_SECRET_KEY (paper account data credentials).
+python -m tsetlin_trader.intraday_trial --fetch-days 90
+# Later, replay the same saved bars without network access:
+python -m tsetlin_trader.intraday_trial
+```
+
+The output is `results/intraday-trial.json`, with one explained decision per
+session. It is retrospective simulation, **not live day trading**: completed
+bars, IEX-only coverage, closing-bar fill assumptions and fixed costs cannot
+establish an executable edge. The frozen weekly gate does not apply to it.
+Only after a separate forward paper trial and broker reconciliation should an
+intraday execution path be considered. The current TM uses four simple
+intraday Boolean features and is newly trained on prior days; it does not
+reuse the weekly model.
+
+### Weekly paper bot
+
 ```bash
 pip install -e ".[dev,tm]"
 pytest                                            # offline, no keys needed
