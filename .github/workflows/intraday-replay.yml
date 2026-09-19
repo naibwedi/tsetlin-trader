@@ -29,6 +29,8 @@ jobs:
         run: |
           pip install -r requirements-lock.txt
           pip install --no-deps -e .
+      - name: Test intraday runner and replay
+        run: pytest -q -p no:cacheprovider tests/test_intraday_trial.py tests/test_live_paper.py tests/test_alpaca_client.py
       - name: Check paper data credentials
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
