@@ -76,6 +76,11 @@ The output is `results/intraday-trial.json`, with one explained decision per
 session. It is retrospective simulation, **not live day trading**: completed
 bars, IEX-only coverage, closing-bar fill assumptions and fixed costs cannot
 establish an executable edge. The frozen weekly gate does not apply to it.
+The separate [intraday replay workflow](.github/workflows/intraday-replay.yml)
+rebuilds `docs/intraday.json` after the US close on weekdays using the two
+Alpaca paper credentials stored as GitHub Actions repository secrets. The
+dashboard displays its latest saved result; GitHub Actions scheduling can be
+delayed, so this workflow must never be used for time-critical exits.
 Only after a separate forward paper trial and broker reconciliation should an
 intraday execution path be considered. The current TM uses four simple
 intraday Boolean features and is newly trained on prior days; it does not
