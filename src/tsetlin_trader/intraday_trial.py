@@ -17,11 +17,11 @@ import numpy as np
 import pandas as pd
 
 
-def fetch_bars(start: str, end: str, output: Path, symbol: str = "SPY") -> int:
-    """Download IEX 5-minute bars using paper keys; no order API is used."""
+def download_bars(start: str, end: str, key: str, secret: str,
+                  symbol: str = "SPY") -> pd.DataFrame:
+    """Download IEX 5-minute bars. This function cannot submit orders."""
     if symbol != "SPY":
         raise ValueError("This frozen trial supports SPY only")
-    key, secret = os.environ["ALPACA_API_KEY"], os.environ["ALPACA_SECRET_KEY"]
     rows: list[dict] = []
     token = None
     while True:
@@ -38,9 +38,16 @@ def fetch_bars(start: str, end: str, output: Path, symbol: str = "SPY") -> int:
         token = payload.get("next_page_token")
         if not token:
             break
+    return pd.DataFrame(rows, columns=["t", "o", "h", "l", "c", "v"])
+
+
+def fetch_bars(start: str, end: str, output: Path, symbol: str = "SPY") -> int:
+    """Save IEX bars using paper keys; no order API is used."""
+    frame = download_bars(start, end, os.environ["ALPACA_API_KEY"],
+                          os.environ["ALPACA_SECRET_KEY"], symbol)
     output.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows, columns=["t", "o", "h", "l", "c", "v"]).to_csv(output, index=False)
-    return len(rows)
+    frame.to_csv(output, index=False)
+    return len(frame)
 
 
 def sessions(bars: pd.DataFrame) -> pd.DataFrame:
@@ -72,6 +79,29 @@ def sessions(bars: pd.DataFrame) -> pd.DataFrame:
                      "morning_volume_high": int(float(morning.v.sum()) > 1_000_000),
                      "label": int(exit_price > entry)})
     return pd.DataFrame(rows)
+
+
+def morning_features(bars: pd.DataFrame, day: str) -> dict:
+    """Features available when the 10:25 ET bar completes at 10:30 ET."""
+    required = {"t", "o", "h", "l", "c", "v"}
+    if not required.issubset(bars):
+        raise ValueError(f"bars need columns {sorted(required)}")
+    frame = bars.copy()
+    frame["t"] = pd.to_datetime(frame["t"], utc=True).dt.tz_convert("America/New_York")
+    frame = frame[frame.t.dt.strftime("%Y-%m-%d") == day].sort_values("t")
+    frame = frame[(frame.t.dt.strftime("%H:%M") >= "09:30") &
+                  (frame.t.dt.strftime("%H:%M") <= "10:25")]
+    if len(frame) != 12 or frame.t.dt.strftime("%H:%M").nunique() != 12:
+        raise ValueError("need 12 distinct completed morning bars")
+    first, last = frame.iloc[0], frame.iloc[-1]
+    opening, entry = float(first.o), float(last.c)
+    if min(opening, entry) <= 0:
+        raise ValueError("invalid morning price")
+    return {"day": day, "entry": entry,
+            "morning_up": int(entry > opening),
+            "morning_range_high": int(float(frame.h.max()) / opening - 1 > .002),
+            "morning_range_low": int(float(frame.l.min()) / opening - 1 < -.002),
+            "morning_volume_high": int(float(frame.v.sum()) > 1_000_000)}
 
 
 FEATURES = ("morning_up", "morning_range_high", "morning_range_low", "morning_volume_high")
