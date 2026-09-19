@@ -49,6 +49,20 @@ class AlpacaClient(BrokerClient):
         days = self._client.get_calendar(GetCalendarRequest(start=day, end=day))
         return any(getattr(d, "date", None) == day for d in days) or (len(days) > 0)
 
+    def is_market_open(self) -> bool:
+        return bool(self._client.get_clock().is_open)
+
+    def is_full_trading_day(self, day: date) -> bool:
+        from alpaca.trading.requests import GetCalendarRequest
+
+        days = self._client.get_calendar(GetCalendarRequest(start=day, end=day))
+        return any(getattr(session, "date", None) == day and
+                   getattr(session, "close", None) is not None and
+                   session.close.hour >= 16 for session in days)
+
+    def cancel_order(self, order_id: str) -> None:
+        self._client.cancel_order_by_id(order_id)
+
     def wait_for_open_orders(self, timeout_s: float) -> bool:
         deadline = time.monotonic() + timeout_s
         while self.open_order_symbols():
