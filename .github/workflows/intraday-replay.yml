@@ -1,0 +1,48 @@
+name: Intraday virtual paper replay
+
+# Runs after the US close, including during standard time. It downloads IEX
+# bars and recomputes a retrospective comparison; it never submits an order.
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intraday-replay
+  cancel-in-progress: false
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned dependencies
+        run: |
+          pip install -r requirements-lock.txt
+          pip install --no-deps -e .
+      - name: Check paper data credentials
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: |
+          test -n "$ALPACA_API_KEY" || { echo 'Missing ALPACA_API_KEY repository secret'; exit 1; }
+          test -n "$ALPACA_SECRET_KEY" || { echo 'Missing ALPACA_SECRET_KEY repository secret'; exit 1; }
+      - name: Fetch bars and replay
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python -m tsetlin_trader.intraday_trial --fetch-days 90 --output docs/intraday.json
+      - name: Publish sanitized replay
+        run: |
+          git config user.name "tsetlin-trader bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add docs/intraday.json
+          git diff --cached --quiet || git commit -m "Update intraday virtual paper replay [skip ci]"
+          git push
+
