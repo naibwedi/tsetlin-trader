@@ -3,6 +3,9 @@ name: Intraday virtual paper replay
 # Runs after the US close, including during standard time. It downloads IEX
 # bars and recomputes a retrospective comparison; it never submits an order.
 on:
+  push:
+    paths:
+      - ".github/workflows/intraday-replay.yml"
   schedule:
     - cron: "30 22 * * 1-5"
   workflow_dispatch: {}
