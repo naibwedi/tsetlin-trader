@@ -12,3 +12,5 @@ data/
 .vscode/
 .idea/
 results/dev-benchmark/
+results/intraday-trial.json
+
