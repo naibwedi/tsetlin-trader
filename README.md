@@ -17,6 +17,11 @@ the three virtual portfolios, and a forward-evidence screen. Open the HTML
 through a local HTTP server or GitHub Pages; see the frozen
 [trial protocol](docs/TRIAL_PROTOCOL.md) for the pass criteria and limits.
 
+**Private live paper bot:** [docs/LIVE_PAPER_BOT.md](docs/LIVE_PAPER_BOT.md)
+describes the separate always-on intraday runner and its local control-room
+UI. It starts paused and only submits orders with a dedicated second Alpaca
+paper account. The GitHub-hosted page remains a delayed read-only report.
+
 ## How it works
 
 ```
