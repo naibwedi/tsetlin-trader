@@ -55,6 +55,11 @@ class BrokerClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_order_status(self, order_id: str) -> str:
+        """Return the broker's current status for one submitted order."""
+        raise NotImplementedError
+
+    @abstractmethod
     def submit_order(
         self, symbol: str, notional: float, side: str, client_order_id: str | None = None
     ) -> OrderResult:
@@ -69,3 +74,4 @@ class BrokerClient(ABC):
     def close_position(self, symbol: str) -> OrderResult:
         """Liquidate the entire position in `symbol`."""
         raise NotImplementedError
+

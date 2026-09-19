@@ -35,6 +35,9 @@ class SimulatedBroker(BrokerClient):
     def wait_for_open_orders(self, timeout_s: float) -> bool:
         return True
 
+    def get_order_status(self, order_id: str) -> str:
+        return "filled"
+
     def submit_order(
         self, symbol: str, notional: float, side: str, client_order_id: str | None = None
     ) -> OrderResult:
@@ -69,3 +72,4 @@ class SimulatedBroker(BrokerClient):
         if held <= 0:
             return OrderResult(symbol, 0.0, "sell", "skipped_no_position")
         return self.submit_order(symbol, held, "sell")
+

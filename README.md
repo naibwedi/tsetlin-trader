@@ -10,6 +10,13 @@ This repo is the **execution layer**. Signal generation (leakage-aware walk-forw
 
 **Visual explainer:** [docs/index.html](docs/index.html) walks through one trading cycle, how the Tsetlin Machine votes, the 2010-2020 test results and the improvement plan.
 
+**Live paper trial:** the top of the explainer reads [docs/live.json](docs/live.json),
+a sanitized feed rebuilt after each recorded run and committed by the weekly
+workflow. It shows the latest recorded signal and order statuses, changes in
+the three virtual portfolios, and a forward-evidence screen. Open the HTML
+through a local HTTP server or GitHub Pages; see the frozen
+[trial protocol](docs/TRIAL_PROTOCOL.md) for the pass criteria and limits.
+
 ## How it works
 
 ```
@@ -82,6 +89,9 @@ Run it once a week, since the strategy selector rebalances on a roughly 5-tradin
 ## Known limitations
 
 - **Shared state lives in git.** The weekly GitHub Actions run commits `results/state.json`, `results/portfolios.json` and `results/decisions.jsonl` back to the repo so the breaker and scoreboard persist across stateless runners. If you also run locally, `git pull` first.
+- **Order submissions are not confirmed fills.** The live page labels pending
+  orders as unconfirmed. Verify final broker fills before using execution data
+  to assess the model.
 - **Tsetlin Machine votes are not probabilities**, so a TM signal reports no confidence figure. The clauses are readable but can be long (several conditions joined by AND).
 - **The Tsetlin Machine has not beaten the baselines.** On the 2010-2020 development benchmark no model (TM, Bernoulli, logistic, boosted trees) beat the equal-weight blend in any of 7 cost/setting variations, and in the research repo's binary risk-filter pilot the TM passed 0 of 9 seed/cost scenarios while a hand-written stress rule did better. The 2021-2025 holdout stays locked. The TM's demonstrated value here is readable rules, not returns.
 - **Alpaca paper trading omits dividends and some execution costs**, so its displayed return is not directly comparable with adjusted-price backtests. The virtual portfolios use adjusted closes for that reason.
@@ -98,3 +108,4 @@ Run it once a week, since the strategy selector rebalances on a roughly 5-tradin
 ## Disclaimer
 
 This project places paper (simulated) trades only. It does not provide investment advice, recommendations, brokerage services, or any assurance of future returns.
+

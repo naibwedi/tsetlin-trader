@@ -44,6 +44,9 @@ class FakeTradingClient:
         self.closed.append(symbol)
         return SimpleNamespace(status="pending_new", id="ord-2")
 
+    def get_order_by_id(self, order_id):
+        return SimpleNamespace(status="filled" if order_id == "ord-2" else "canceled")
+
 
 def make_client(**kwargs):
     fake = FakeTradingClient(**kwargs)
@@ -127,9 +130,16 @@ def test_close_position():
     assert result.order_id == "ord-2"
 
 
+def test_get_order_status_uses_the_broker_record():
+    client, _ = make_client()
+    assert client.get_order_status("ord-2") == "filled"
+    assert client.get_order_status("ord-1") == "canceled"
+
+
 def test_is_trading_day_uses_the_exchange_calendar():
     from datetime import date
 
     client, _ = make_client()
     assert client.is_trading_day(date(2026, 9, 18)) is True
     assert client.is_trading_day(date(2026, 9, 19)) is False
+

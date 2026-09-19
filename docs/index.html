@@ -52,6 +52,22 @@ header{padding-block:44px 8px;display:flex;flex-direction:column;gap:18px}
 .strip div{display:flex;flex-direction:column}
 .strip b{font-family:var(--mono);font-weight:500;font-size:.95rem}
 .strip span{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.07em}
+.live-head{display:flex;justify-content:space-between;align-items:start;gap:16px;flex-wrap:wrap}
+.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px}
+.live-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:5px}
+.live-card span{color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:.06em}
+.live-card strong{font-family:var(--display);font-size:1.25rem}
+.live-card small{color:var(--muted)}
+.live-status{margin-top:12px;color:var(--muted);font-size:.9rem}
+.live-status.error{color:var(--bad)}
+.refresh{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer}
+.live-detail{margin-top:20px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.live-detail summary{cursor:pointer;font-weight:600}
+.live-detail ol{margin-bottom:0;padding-left:1.25rem}
+.live-detail li{margin-top:8px;overflow-wrap:anywhere}
+.live-table{width:100%;min-width:0}
+.live-table th,.live-table td{padding-right:10px}
+.live-table td:first-child{white-space:normal}
 
 /* callouts */
 .note{background:var(--warn-soft);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;max-width:66ch}
@@ -169,14 +185,41 @@ a{color:var(--accent)}
 <header>
   <p class="eyebrow">tsetlin-trader &middot; paper trading</p>
   <h1>Inside Tsetlin Trader</h1>
-  <p class="lede">Once a week the bot looks at four ETFs, asks a Tsetlin Machine which of four simple strategies looks best right now, and moves a fake-money Alpaca account to match. This page shows each step, using the numbers from the latest real run.</p>
-  <div class="strip" aria-label="Account state at the last run">
-    <div><span>Account</span><b>Alpaca paper</b></div>
-    <div><span>Equity</span><b>&asymp; $99,991</b></div>
-    <div><span>Holding</span><b>cash (SPY sold 2026-09-18)</b></div>
-    <div><span>Last signal</span><b>cash &middot; 2026-09-17</b></div>
+  <p class="lede">The live panel below follows the paper trial as new runs are recorded. The rest of this page explains the model with a worked example from September 2026.</p>
+  <div class="strip" aria-label="Trial setup">
+    <div><span>Broker</span><b>Alpaca paper</b></div>
+    <div><span>Universe</span><b>SPY · QQQ · IWM · TLT</b></div>
+    <div><span>Model</span><b>5-seed Tsetlin Machine</b></div>
+    <div><span>Goal</span><b>Independent forward evidence</b></div>
   </div>
 </header>
+
+<section id="live-trial" aria-labelledby="live-title">
+  <div class="live-head">
+    <div><p class="eyebrow">Recorded paper activity</p><h2 id="live-title">Live trial</h2></div>
+    <button class="refresh" id="live-refresh" type="button">Refresh data</button>
+  </div>
+  <p class="prose muted" style="margin-top:12px">Updates after a bot run is saved to GitHub. Market prices and this page are not streaming tick by tick. No account balances or credentials appear in this feed.</p>
+  <p class="live-status" id="live-status" role="status" aria-live="polite">Loading the latest saved run…</p>
+  <div class="live-grid">
+    <div class="live-card"><span>Latest run</span><strong id="live-run">—</strong><small id="live-run-time">Waiting for data</small></div>
+    <div class="live-card"><span>Model decision</span><strong id="live-decision">—</strong><small id="live-change">Waiting for data</small></div>
+    <div class="live-card"><span>Forward evidence</span><strong id="live-progress">—</strong><small id="live-gate">Waiting for data</small></div>
+  </div>
+  <div class="live-detail" id="live-signal-panel" hidden>
+    <h3>What changed, and why</h3>
+    <p id="live-signal-date" class="muted"></p>
+    <p id="live-risk" style="margin-top:10px"></p>
+    <p id="live-orders" style="margin-top:10px"></p>
+    <details style="margin-top:14px"><summary>Read the model's recorded explanation</summary><ol id="live-rules"></ol></details>
+  </div>
+  <div class="live-detail" id="live-comparison-panel" hidden>
+    <h3>Forward portfolio comparison</h3>
+    <p class="muted" style="margin-top:8px">Normalized value starts at 1.0000. The virtual books use adjusted closing prices and assumed trading costs; these are not Alpaca fills.</p>
+    <div class="tablewrap"><table class="live-table"><thead><tr><th>Approach</th><th class="num">Value</th><th class="num">Change since prior record</th></tr></thead><tbody id="live-portfolios"></tbody></table></div>
+    <p id="live-criteria" class="muted" style="margin-top:12px"></p>
+  </div>
+</section>
 
 <section>
   <h2>Two things to know first</h2>
@@ -188,7 +231,7 @@ a{color:var(--accent)}
 
 <section>
   <h2>One cycle, step by step</h2>
-  <p class="prose muted" style="margin-top:12px">This is the order things happen every time you run the bot. Each step shows what it did on the last run.</p>
+  <p class="prose muted" style="margin-top:12px">This is the order things happen every time you run the bot. The numbers below are a worked example from 2026-09-18; use the live panel above for the latest record.</p>
   <ol class="steps">
     <li><span class="n">1</span><div class="step-body"><h3>Download prices</h3><p>Daily closing prices for four ETFs from Tiingo: SPY (US large companies), QQQ (tech), IWM (small companies) and TLT (long-term bonds). Data more than 5 days old is refused, so the bot never trades on old news.</p><span class="today">4,707 trading days, 2008-01-02 to 2026-09-17</span></div></li>
     <li><span class="n">2</span><div class="step-body"><h3>Turn numbers into yes/no facts</h3><p>The model can only read true/false facts, such as "SPY's 60-day return is above its 40th percentile." The bot measures 25 things (returns, volatility, trend gaps) and asks 4 questions about each, which gives 100 facts. The cut-offs come from past days only.</p><span class="today">100 true/false facts per day</span></div></li>
@@ -196,7 +239,7 @@ a{color:var(--accent)}
     <li><span class="n">4</span><div class="step-body"><h3>Vote on today</h3><p>Every clause that is true today casts a weighted vote for or against a strategy. The five machines' votes are averaged and the top strategy wins.</p><span class="today">winner: cash, +386 votes ahead of momentum, 5 of 5 machines agree</span></div></li>
     <li><span class="n">5</span><div class="step-body"><h3>Turn the strategy into a holding</h3><p>Each strategy has a fixed rule for what to hold. Cash means hold nothing.</p><span class="today">target: no position</span></div></li>
     <li><span class="n">6</span><div class="step-body"><h3>Check the risk limits</h3><p>The bot only uses 25% of the account at most, and it checks that the account has not fallen too far from its best value.</p><span class="today">drawdown 0.00%, limit not hit</span></div></li>
-    <li><span class="n">7</span><div class="step-body"><h3>Trade only the difference</h3><p>It compares the target with what you hold, sells first and buys second, and ignores gaps under 0.5% of the account. If any order is still waiting to fill, it skips the whole cycle.</p><span class="today">done 2026-09-18: sold all SPY (&asymp; $25,041), now in cash</span></div></li>
+    <li><span class="n">7</span><div class="step-body"><h3>Trade only the difference</h3><p>It compares the target with what you hold, sells first and buys second, and ignores gaps under 0.5% of the account. If any order is still waiting to fill, it skips the whole cycle.</p><span class="today">2026-09-18: SPY sell submitted; the saved record does not confirm a fill</span></div></li>
   </ol>
 </section>
 
@@ -414,7 +457,7 @@ a{color:var(--accent)}
     <ul class="plain">
       <li>The bot rebalances about once a week, so a few days of results tell you nothing about whether the strategy works. Give it at least a couple of months.</li>
       <li>Your research repo says its own backtests are not evidence of profit, and the Tsetlin Machine here has not been shown to beat the simpler baseline.</li>
-      <li>The safety breaker does not yet survive on an automatic schedule, so every run is manual.</li>
+      <li>The automatic schedule is configured, but it still needs a successful recorded run and ongoing monitoring.</li>
       <li>Real-money accounts have their own eligibility rules by country. Check Alpaca's before planning anything.</li>
     </ul>
   </div>
@@ -549,6 +592,8 @@ document.getElementById("eqlegend").addEventListener("click",function(e){
 });
 drawEquity();
 </script>
+<script src="live.js" defer></script>
 
 </body>
 </html>
+

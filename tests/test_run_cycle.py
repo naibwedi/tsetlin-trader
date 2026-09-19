@@ -9,8 +9,11 @@ from tsetlin_trader.run_cycle import AlreadyRunning, load_dotenv, run, run_lock
 
 @pytest.fixture(autouse=True)
 def isolated_cwd(tmp_path, monkeypatch):
+    from tsetlin_trader.broker.simulated_client import SimulatedBroker
+
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("ALLOW_FRESH_STATE", raising=False)
+    monkeypatch.setattr(SimulatedBroker, "is_trading_day", lambda self, day: True)
 
 
 def read_log(tmp_path):
@@ -113,6 +116,29 @@ def test_halt_liquidates_without_needing_a_signal(tmp_path, monkeypatch):
     assert result["risk_decision"] == "halt"
     assert result["signal"] is None
     assert result["trades"] == [{"symbol": "SPY", "side": "sell", "notional": 30_000, "close_all": True}]
+
+
+def test_failed_halt_sell_is_reported_as_incomplete(tmp_path, monkeypatch):
+    from tsetlin_trader.broker.base import OrderResult
+    from tsetlin_trader.broker.simulated_client import SimulatedBroker
+    from tsetlin_trader.risk.manager import RiskManager
+
+    class RejectedBroker(SimulatedBroker):
+        def __init__(self):
+            super().__init__(70_000)
+            self._positions["SPY"] = 30_000
+
+        def close_position(self, symbol):
+            return OrderResult(symbol, 0.0, "sell", "rejected")
+
+    monkeypatch.setattr("tsetlin_trader.run_cycle.build_broker", lambda name: RejectedBroker())
+    RiskManager(peak_equity=200_000).save_state(tmp_path / "results" / "state.json")
+
+    result = run(broker_provider="simulated", signal_provider="mock")
+
+    assert result["status"] == "execution_incomplete"
+    assert result["risk_decision"] == "halt"
+    assert result["orders"][0]["status"] == "rejected"
 
 
 def test_alpaca_refuses_to_start_without_state(monkeypatch):
@@ -222,3 +248,4 @@ def test_failure_is_logged_alerted_and_raised(tmp_path, monkeypatch):
     assert read_log(tmp_path)[-1]["status"] == "failed"
     assert sent and "FAILED" in sent[0]
     assert not (tmp_path / "results" / ".run.lock").exists()
+

@@ -33,6 +33,7 @@ from .ops import alert, fingerprint
 from .risk.manager import Decision, RiskManager
 from .signal.base import UNIVERSE, SignalProvider
 from .signal.mock_provider import MockSignalProvider
+from .trial_report import publish as publish_trial_report
 
 STATE_PATH = Path("results/state.json")
 LOCK_PATH = Path("results/.run.lock")
@@ -167,12 +168,15 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
         if not plan_only:
             risk.save_state(STATE_PATH)
         orders = [] if plan_only else [o.__dict__ for o in execute(broker, plan.trades, cycle_id)]
-        if decision.decision == Decision.HALT and not plan_only:
+        failed_sells = [o for o in orders if o["side"] == "sell" and
+                        str(o["status"]).lower() not in ("filled", "orderstatus.filled")]
+        incomplete = bool(failed_sells or any(o["status"] == "skipped_sells_not_filled" for o in orders))
+        if incomplete:
+            alert("tsetlin-trader: one or more sells were not confirmed filled; check the paper account.")
+        elif decision.decision == Decision.HALT and not plan_only:
             alert(f"tsetlin-trader HALT: {decision.reason}. Liquidated: {[t.symbol for t in plan.trades]}")
-        if any(o["status"] == "skipped_sells_not_filled" for o in orders):
-            alert("tsetlin-trader: sells did not fill in time; buys were skipped. Check the account.")
         entry.update(
-            status="planned" if plan_only else "executed",
+            status="planned" if plan_only else "execution_incomplete" if incomplete else "executed",
             risk_decision=decision.decision.value, risk_reason=decision.reason,
             target_values=target_values, ignored_symbols=plan.ignored_symbols,
             trades=[t.__dict__ for t in plan.trades], orders=orders,
@@ -204,6 +208,12 @@ def run(
     broker_name = broker_provider or os.environ.get("BROKER_PROVIDER", "simulated")
     signal_name = signal_provider or os.environ.get("SIGNAL_PROVIDER", "logic_alpha")
     log = DecisionLog()
+    def refresh_page() -> None:
+        try:
+            publish_trial_report(log.path)
+        except Exception as exc:
+            alert(f"tsetlin-trader could not update the public trial page: {type(exc).__name__}: {exc}")
+
     try:
         with run_lock():
             entry = _run(broker_name, signal_name, plan_only, log)
@@ -213,9 +223,11 @@ def run(
     except Exception as exc:
         log.append({"broker_provider": broker_name, "signal_provider": signal_name, "plan_only": plan_only,
                     "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+        refresh_page()
         alert(f"tsetlin-trader FAILED: {type(exc).__name__}: {exc}")
         raise
     log.append(entry)
+    refresh_page()
     return entry
 
 
@@ -259,3 +271,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-19T13:05:12.692880+00:00",
+  "latest_run": {
+    "logged_at": "2026-09-18T19:39:19.056562+00:00",
+    "status": "executed",
+    "plan_only": false,
+    "reason": null
+  },
+  "latest_signal": {
+    "logged_at": "2026-09-18T19:39:19.056562+00:00",
+    "as_of": "2026-09-17",
+    "strategy": "cash",
+    "previous_strategy": null,
+    "target_weights": {},
+    "rule_trace": [
+      "model=tmu trained on 4587 labelled days (through 2026-08-19), predicting 2026-09-17",
+      "regime today: SIDEWAYS_LOW",
+      "selected strategy 'cash' (vote margin over 'momentum' +386; 5/5 seeds agree)",
+      "model selected cash",
+      "average votes over 5 seeds: cash +189, defensive -421, momentum -197, trend -429 (votes are not probabilities)",
+      "clauses that fired FOR 'cash' (strongest first):",
+      "  +9.8  IF IWM_ret_60>q20 AND NOT TLT_ret_20>q40 AND NOT TLT_vol_20>q80 AND NOT IWM_vs_SPY_60>q80",
+      "  +9.6  IF SPY_ret_100>q40 AND QQQ_ret_100>q40 AND QQQ_vol_20>q20 AND NOT QQQ_ret_5>q80 AND NOT QQQ_vol_20>q80 AND NOT IWM_ret_20>q80 AND NOT TLT_vol_20>q80",
+      "  +9.2  IF NOT IWM_vol_20>q20",
+      "  +9.0  IF SPY_ret_5>q20 AND NOT IWM_ret_60>q60 AND NOT IWM_ret_60>q80 AND NOT QQQ_vs_SPY_60>q60 AND NOT IWM_vs_SPY_60>q40",
+      "  +9.0  IF QQQ_vol_20>q20 AND NOT IWM_ret_60>q40 AND NOT IWM_ret_100>q80 AND NOT QQQ_vs_SPY_60>q60 AND NOT IWM_vs_SPY_60>q40 AND NOT IWM_vs_SPY_60>q60",
+      "clauses that fired AGAINST 'cash':",
+      "  -10.4  IF TLT_ret_100>q20 AND NOT QQQ_vol_20>q80 AND NOT IWM_ret_5>q60 AND NOT IWM_ret_5>q80 AND NOT TLT_ret_5>q80 AND NOT TLT_ret_20>q60 AND NOT TLT_ret_60>q80 AND NOT TLT_ret_100>q60",
+      "  -10.0  IF NOT IWM_ret_60>q80 AND NOT IWM_ret_100>q60 AND NOT TLT_ret_100>q40 AND NOT QQQ_vs_SPY_60>q60",
+      "  -8.2  IF IWM_ret_100>q20 AND NOT SPY_ret_20>q80 AND NOT QQQ_ret_5>q80 AND NOT QQQ_ret_100>q60 AND NOT QQQ_vol_20>q60 AND NOT IWM_ret_100>q80 AND NOT SPY_ma_gap_20_100>q80 AND NOT QQQ_vs_SPY_60>q80 AND NOT TLT_vs_SPY_20>q80",
+      "  -7.4  IF NOT SPY_ret_60>q60 AND NOT QQQ_ret_60>q60 AND NOT TLT_ret_5>q80 AND NOT TLT_ret_20>q60 AND NOT TLT_vol_20>q40",
+      "  -7.0  IF IWM_ret_60>q20 AND TLT_vs_SPY_20>q40 AND NOT QQQ_ret_60>q80 AND NOT QQQ_ret_100>q60 AND NOT QQQ_vs_SPY_60>q60"
+    ],
+    "risk_decision": "trade",
+    "risk_reason": "drawdown 0.00% within limit; scaled by position_fraction=0.25",
+    "orders": [
+      {
+        "symbol": "SPY",
+        "side": "sell",
+        "status": "OrderStatus.PENDING_NEW"
+      }
+    ]
+  },
+  "points": [
+    {
+      "as_of": "2026-09-17",
+      "tm": 1.0,
+      "blend": 0.9998,
+      "blend_filtered": 0.9998
+    }
+  ],
+  "gate": {
+    "status": "collecting_evidence",
+    "intervals": 0,
+    "calendar_days": 0,
+    "minimum_intervals": 52,
+    "minimum_calendar_days": 365,
+    "maximum_gap_days": 0,
+    "criteria": "TM must beat both simple books on net return; its 95% moving-block bootstrap lower bound for paired weekly excess return must exceed zero against each; maximum drawdown must be no worse than the blend.",
+    "execution_verified": false
+  },
+  "notes": [
+    "Virtual books use adjusted closing prices and a 2 bps trading-cost assumption; they are not broker fills.",
+    "Orders show the status logged at submission. A pending order is not a confirmed fill.",
+    "Passing a research gate would trigger review, never automatic real-money trading."
+  ]
+}
+

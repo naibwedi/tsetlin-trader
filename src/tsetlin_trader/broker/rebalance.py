@@ -67,11 +67,11 @@ def execute(
     cycle_id: str,
     fill_timeout_s: float = 120.0,
 ) -> list[OrderResult]:
-    """Submit sells, wait for them to fill, then submit buys.
+    """Submit sells, confirm their final filled status, then submit buys.
 
     Each order carries a client id derived from the cycle and the trade, so a
-    retry of the same cycle cannot place the same order twice. If the sells do
-    not fill in time the buys are skipped rather than placed on unsettled funds.
+    retry of the same cycle cannot place the same order twice. A timed-out,
+    rejected or canceled sell prevents buys, even when no order remains open.
     """
     results: list[OrderResult] = []
     sells = [t for t in trades if t.side == "sell"]
@@ -83,7 +83,14 @@ def execute(
         else:
             results.append(broker.submit_order(trade.symbol, trade.notional, "sell", _client_id(cycle_id, trade)))
 
-    if sells and not broker.wait_for_open_orders(fill_timeout_s):
+    sells_cleared = not sells or broker.wait_for_open_orders(fill_timeout_s)
+    if sells_cleared:
+        for result in results:
+            if result.order_id and str(result.status).lower() not in ("filled", "orderstatus.filled"):
+                result.status = broker.get_order_status(result.order_id)
+
+    if not sells_cleared or any(str(result.status).lower() not in ("filled", "orderstatus.filled")
+                                for result in results):
         for trade in buys:
             results.append(OrderResult(trade.symbol, 0.0, "buy", "skipped_sells_not_filled"))
         return results
@@ -95,3 +102,4 @@ def execute(
 
 def _client_id(cycle_id: str, trade: Trade) -> str:
     return f"tt-{cycle_id}-{trade.symbol}-{trade.side}"[:48]
+

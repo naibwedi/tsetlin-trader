@@ -1,6 +1,7 @@
 import pytest
 
 from tsetlin_trader.broker.rebalance import Trade, execute, plan_rebalance
+from tsetlin_trader.broker.base import OrderResult
 from tsetlin_trader.broker.simulated_client import SimulatedBroker
 
 U = ("SPY", "QQQ", "IWM", "TLT")
@@ -81,3 +82,35 @@ def test_buys_are_skipped_when_sells_do_not_fill():
     assert results[0].side == "sell"
     assert results[1].status == "skipped_sells_not_filled"
     assert "SPY" not in broker.get_positions()
+
+
+def test_rejected_sell_cannot_be_followed_by_a_buy():
+    class RejectingBroker(SimulatedBroker):
+        def close_position(self, symbol):
+            return OrderResult(symbol, 0.0, "sell", "rejected")
+
+    broker = RejectingBroker()
+    broker.submit_order("IWM", 10_000, "buy")
+    results = execute(broker, [Trade("IWM", "sell", 10_000, True),
+                               Trade("SPY", "buy", 10_000)], cycle_id="reject")
+
+    assert [result.status for result in results] == ["rejected", "skipped_sells_not_filled"]
+    assert broker.get_positions() == {"IWM": 10_000}
+
+
+def test_closed_order_must_have_filled_before_buying():
+    class CanceledBroker(SimulatedBroker):
+        def close_position(self, symbol):
+            return OrderResult(symbol, 10_000, "sell", "pending_new", "order-1")
+
+        def get_order_status(self, order_id):
+            return "canceled"
+
+    broker = CanceledBroker()
+    broker.submit_order("IWM", 10_000, "buy")
+    results = execute(broker, [Trade("IWM", "sell", 10_000, True),
+                               Trade("SPY", "buy", 10_000)], cycle_id="cancel")
+
+    assert [result.status for result in results] == ["canceled", "skipped_sells_not_filled"]
+    assert broker.get_positions() == {"IWM": 10_000}
+

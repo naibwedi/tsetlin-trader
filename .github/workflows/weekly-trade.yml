@@ -52,8 +52,10 @@ jobs:
       - name: Commit state back
         if: always()
         run: |
+          python -m tsetlin_trader.trial_report
           git config user.name "tsetlin-trader bot"
           git config user.email "bot@users.noreply.github.com"
-          git add results/state.json results/portfolios.json results/decisions.jsonl
+          git add results/state.json results/portfolios.json results/decisions.jsonl docs/live.json
           git diff --cached --quiet || git commit -m "Record paper trade cycle $(date -u +%Y-%m-%d) [skip ci]"
           git push
+

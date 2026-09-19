@@ -57,6 +57,9 @@ class AlpacaClient(BrokerClient):
             time.sleep(self._poll_s)
         return True
 
+    def get_order_status(self, order_id: str) -> str:
+        return str(self._client.get_order_by_id(order_id).status)
+
     def submit_order(
         self, symbol: str, notional: float, side: str, client_order_id: str | None = None
     ) -> OrderResult:
@@ -93,3 +96,4 @@ class AlpacaClient(BrokerClient):
             symbol, 0.0, "sell", str(getattr(order, "status", "submitted")),
             str(getattr(order, "id", "")) or None, None,
         )
+
