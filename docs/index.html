@@ -221,6 +221,24 @@ a{color:var(--accent)}
   </div>
 </section>
 
+<section id="intraday-trial" aria-labelledby="intraday-title">
+  <p class="eyebrow">Separate virtual experiment</p>
+  <h2 id="intraday-title">Intraday Tsetlin trial</h2>
+  <p class="prose muted" style="margin-top:12px">This panel replays completed SPY sessions using IEX 5-minute bars. A hypothetical position enters at 10:30 ET and exits at 15:55 ET. These are simulated fills, not Alpaca orders or a live trading signal.</p>
+  <p class="live-status" id="intraday-status" role="status" aria-live="polite">Loading the latest replay…</p>
+  <div class="live-grid">
+    <div class="live-card"><span>Replay</span><strong id="intraday-run">—</strong><small id="intraday-time">Waiting for first run</small></div>
+    <div class="live-card"><span>Tsetlin Machine</span><strong id="intraday-tm">—</strong><small id="intraday-tm-detail">Net virtual value</small></div>
+    <div class="live-card"><span>Morning rule</span><strong id="intraday-baseline">—</strong><small id="intraday-baseline-detail">Same bars and costs</small></div>
+  </div>
+  <div class="live-detail" id="intraday-detail" hidden>
+    <h3>Latest completed session</h3>
+    <p id="intraday-action" style="margin-top:8px"></p>
+    <p id="intraday-cost" class="muted" style="margin-top:8px"></p>
+    <details style="margin-top:14px"><summary>Read the intraday model's explanation</summary><ol id="intraday-rules"></ol></details>
+  </div>
+</section>
+
 <section>
   <h2>Two things to know first</h2>
   <div class="prose" style="margin-top:18px">
