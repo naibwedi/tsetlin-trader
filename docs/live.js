@@ -3,6 +3,9 @@
 const LIVE_URL = location.protocol === "file:"
   ? "https://raw.githubusercontent.com/naibwedi/tsetlin-trader/main/docs/live.json"
   : "live.json";
+const INTRADAY_URL = location.protocol === "file:"
+  ? "https://raw.githubusercontent.com/naibwedi/tsetlin-trader/main/docs/intraday.json"
+  : "intraday.json";
 const byId = (id) => document.getElementById(id);
 
 function timeLabel(value) {
@@ -104,7 +107,53 @@ async function refreshLive() {
   }
 }
 
-byId("live-refresh").addEventListener("click", refreshLive);
+async function refreshIntraday() {
+  const status = byId("intraday-status");
+  try {
+    const response = await fetch(`${INTRADAY_URL}?t=${Date.now()}`, {cache: "no-store"});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const trades = data.trades || [];
+    const last = trades.at(-1);
+    if (!last) {
+      byId("intraday-run").textContent = "Awaiting data";
+      status.textContent = data.status === "insufficient_sessions"
+        ? `${data.sessions} complete sessions; ${data.required} needed before the first comparison.`
+        : "No intraday replay has been saved yet.";
+      return;
+    }
+    byId("intraday-run").textContent = `${trades.length} sessions`;
+    byId("intraday-time").textContent = `Last session ${last.day}; rebuilt ${timeLabel(data.generated_at)}`;
+    byId("intraday-tm").textContent = Number(data.tm_final_value).toFixed(4);
+    byId("intraday-baseline").textContent = Number(data.baseline_final_value).toFixed(4);
+    byId("intraday-tm-detail").textContent = "Net virtual value from 1.0000";
+    byId("intraday-baseline-detail").textContent = "Same bars and estimated costs";
+    byId("intraday-detail").hidden = false;
+    byId("intraday-action").textContent = `${last.day}: TM ${last.tm_action}; morning rule ${last.baseline_action}. Hypothetical entry $${last.entry}, exit $${last.exit}.`;
+    byId("intraday-cost").textContent = `${data.cost_bps_per_side} basis points per side assumed. IEX bars and fixed fills do not verify executable performance.`;
+    const rules = byId("intraday-rules");
+    rules.replaceChildren();
+    const explanation = last.explanation;
+    const lines = typeof explanation === "string" ? [explanation] : [
+      `Class votes: ${Object.entries(explanation?.votes || {}).map(([key, vote]) => `${key}: ${vote}`).join(", ")}`,
+      ...(explanation?.for || []).map(item => `For: ${item.vote} · ${item.literals.join(" AND ") || "empty clause"}`),
+      ...(explanation?.against || []).map(item => `Against: ${item.vote} · ${item.literals.join(" AND ") || "empty clause"}`),
+    ];
+    for (const line of lines) {
+      const item = document.createElement("li");
+      item.textContent = line;
+      rules.append(item);
+    }
+    status.classList.remove("error");
+    status.textContent = `Retrospective replay through ${last.day}; no intraday broker orders.`;
+  } catch (error) {
+    status.classList.add("error");
+    status.textContent = `Could not load intraday replay (${error.message}).`;
+  }
+}
+
+byId("live-refresh").addEventListener("click", () => { refreshLive(); refreshIntraday(); });
 refreshLive();
-setInterval(refreshLive, 60000);
+refreshIntraday();
+setInterval(() => { refreshLive(); refreshIntraday(); }, 60000);
 
