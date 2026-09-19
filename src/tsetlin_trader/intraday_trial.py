@@ -101,7 +101,7 @@ def replay(bars: pd.DataFrame, min_train: int = 30, cost_bps: float = 5.0) -> di
             row = pd.DataFrame([{name: int(today[name]) for name in FEATURES}])
             votes = model.class_sums(row)
             tm_buy = int(model.classes_[int(np.argmax(votes))]) == 1
-            pro, con = model.explain(row, "1" if tm_buy else "0", top_n=2)
+            pro, con = model.explain(row, 1 if tm_buy else 0, top_n=2)
             def clause(item):
                 return {"vote": round(item.vote, 2), "literals": list(item.literals)}
             reason = {"votes": {str(k): round(float(v), 2) for k, v in zip(model.classes_, votes)},
