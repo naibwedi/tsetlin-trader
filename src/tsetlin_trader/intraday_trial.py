@@ -120,6 +120,7 @@ def replay(bars: pd.DataFrame, min_train: int = 30, cost_bps: float = 5.0) -> di
                        "tm_value": round(value_tm, 6), "baseline_value": round(value_rule, 6),
                        "explanation": reason})
     return {"status": "retrospective_paper_replay", "symbol": "SPY", "feed": "IEX",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "cost_bps_per_side": cost_bps, "training_sessions": min_train,
             "sessions": len(data), "tm_final_value": round(value_tm, 6),
             "baseline_final_value": round(value_rule, 6), "trades": trades}
