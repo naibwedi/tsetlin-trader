@@ -15,6 +15,8 @@ import json
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+import math
+from ..storage import atomic_json
 
 
 class Decision(str, Enum):
@@ -55,12 +57,11 @@ class RiskManager:
 
     def save_state(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            json.dumps({"peak_equity": self.peak_equity, "halted": self.halted}, indent=2),
-            encoding="utf-8",
-        )
+        atomic_json(path, {"peak_equity": self.peak_equity, "halted": self.halted})
 
     def _current_drawdown(self, equity: float) -> float:
+        if not math.isfinite(equity) or equity <= 0:
+            raise ValueError("account equity must be positive and finite")
         if self.peak_equity is None or equity > self.peak_equity:
             self.peak_equity = equity
         if self.peak_equity == 0:

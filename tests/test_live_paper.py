@@ -22,6 +22,12 @@ class FakeBroker:
     def get_account(self):
         return SimpleNamespace(equity=100000, cash=100000)
 
+    def account_identity(self):
+        return "paper-test-account"
+
+    def find_order(self, client_id):
+        return None
+
     def get_positions(self):
         return self.positions.copy()
 
@@ -53,6 +59,9 @@ class FakeBroker:
         return SimpleNamespace(symbol=symbol, side="sell",
                                status="pending_new", order_id="exit1")
 
+    def close_position_idempotent(self, symbol, client_order_id):
+        return self.close_position(symbol)
+
 
 @pytest.fixture
 def state_path():
@@ -82,13 +91,13 @@ def test_paper_runner_starts_paused_and_never_duplicates_entry(monkeypatch, stat
     monkeypatch.setenv("INTRADAY_ALPACA_API_KEY", "test")
     monkeypatch.setenv("INTRADAY_ALPACA_SECRET_KEY", "test")
     monkeypatch.setattr("tsetlin_trader.live_paper.decide", lambda *args: {"day": "2026-09-21", "action": "buy_SPY"})
-    runner.tick(at(10, 31))
+    runner.tick(at(10, 35))
     assert not broker.orders
     with pytest.raises(PermissionError):
         runner.control("resume", "wrong")
     runner.control("resume", "private", at(10, 31))
-    runner.tick(at(10, 32))
-    runner.tick(at(10, 33))
+    runner.tick(at(10, 35))
+    runner.tick(at(10, 35))
     assert len(broker.orders) == 1
     assert broker.orders[0][1] == 5000
     assert runner.snapshot()["entry_order"]["status"] == "filled"

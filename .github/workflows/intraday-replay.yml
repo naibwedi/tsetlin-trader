@@ -3,9 +3,6 @@ name: Intraday virtual paper replay
 # Runs after the US close, including during standard time. It downloads IEX
 # bars and recomputes a retrospective comparison; it never submits an order.
 on:
-  push:
-    paths:
-      - ".github/workflows/intraday-replay.yml"
   schedule:
     - cron: "30 22 * * 1-5"
   workflow_dispatch: {}
@@ -30,7 +27,7 @@ jobs:
           pip install -r requirements-lock.txt
           pip install --no-deps -e .
       - name: Test intraday runner and replay
-        run: pytest -q -p no:cacheprovider tests/test_intraday_trial.py tests/test_live_paper.py tests/test_alpaca_client.py
+        run: python -m pytest -q -p no:cacheprovider
       - name: Check paper data credentials
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}

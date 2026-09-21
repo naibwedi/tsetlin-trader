@@ -15,8 +15,10 @@ def bars(days=35):
                 price = 100 + (minute / 12 if day.day % 2 else -minute / 12)
                 rows.append({"t": stamp.isoformat(), "o": price, "h": price + .1,
                              "l": price - .1, "c": price, "v": 100000})
-            stamp = pd.Timestamp(day.isoformat(), tz="America/New_York") + pd.Timedelta(hours=15, minutes=50)
-            rows.append({"t": stamp.isoformat(), "o": 100, "h": 102, "l": 99,
+            entry_stamp = pd.Timestamp(day.isoformat(), tz="America/New_York") + pd.Timedelta(hours=10, minutes=35)
+            rows.append({"t": entry_stamp.isoformat(), "o": 100, "h": 102, "l": 99, "c": 100, "v": 100000})
+            stamp = pd.Timestamp(day.isoformat(), tz="America/New_York") + pd.Timedelta(hours=15, minutes=45)
+            rows.append({"t": stamp.isoformat(), "o": 101 if day.day % 3 else 99, "h": 102, "l": 99,
                          "c": 101 if day.day % 3 else 99, "v": 100000})
         day += timedelta(days=1)
     return pd.DataFrame(rows)
@@ -49,7 +51,7 @@ def test_replay_does_not_use_current_exit_for_signal(monkeypatch):
     original = bars()
     changed = original.copy()
     last = changed.index[-1]
-    changed.loc[last, "c"] = 50
+    changed.loc[last, "o"] = 50
     first = replay(original, min_train=30)
     second = replay(changed, min_train=30)
     assert first["trades"][-1]["tm_action"] == second["trades"][-1]["tm_action"]

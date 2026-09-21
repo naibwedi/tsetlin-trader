@@ -5,8 +5,8 @@ name: Paper trade cycle
 # the drawdown breaker and the scoreboard persist across stateless runners.
 # If you also run the bot locally, `git pull` first so both sides share state.
 on:
-  schedule:
-    - cron: "35 14 * * 1"   # Mondays 14:35 UTC, about 5 min after the US open
+  # Execution moved to a supervised host with private durable state.
+  # This manual workflow is offline validation only, never a trading runner.
   workflow_dispatch: {}
 
 permissions:
@@ -30,12 +30,12 @@ jobs:
         run: |
           pip install -r requirements-lock.txt
           pip install --no-deps -e .
-          pip install --no-deps "logic-alpha-tm @ git+https://github.com/naibwedi/logic-alpha-tm.git"
 
       - name: Run tests
         run: pytest -q -p no:cacheprovider
 
-      - name: Run trading cycle
+      - name: Run trading cycle (disabled pending supervised host acceptance)
+        if: ${{ false }}
         env:
           BROKER_PROVIDER: alpaca
           SIGNAL_PROVIDER: logic_alpha
@@ -50,7 +50,7 @@ jobs:
         run: python -m tsetlin_trader.run_cycle
 
       - name: Commit state back
-        if: always()
+        if: ${{ false }}
         run: |
           python -m tsetlin_trader.trial_report
           git config user.name "tsetlin-trader bot"

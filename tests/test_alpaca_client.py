@@ -47,6 +47,11 @@ class FakeTradingClient:
     def get_order_by_id(self, order_id):
         return SimpleNamespace(status="filled" if order_id == "ord-2" else "canceled")
 
+    def get_order_by_client_id(self, client_id):
+        request = next(r for r in self.submitted if r.client_order_id == client_id)
+        return SimpleNamespace(symbol=request.symbol, notional=request.notional,
+                               side=request.side, status="filled", id="ord-1")
+
 
 def make_client(**kwargs):
     fake = FakeTradingClient(**kwargs)
@@ -96,7 +101,8 @@ def test_duplicate_client_id_is_reported_not_raised():
     client.submit_order("QQQ", 10_000.0, "buy", client_order_id="dup")
     result = client.submit_order("QQQ", 10_000.0, "buy", client_order_id="dup")
 
-    assert result.status == "duplicate_client_order_id"
+    assert result.status == "filled"
+    assert result.order_id == "ord-1"
     assert len(fake.submitted) == 1
 
 

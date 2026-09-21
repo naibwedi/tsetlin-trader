@@ -1,7 +1,7 @@
 """Isolated, after-close intraday paper replay. Never connects to a trading endpoint.
 
-Each session enters at the 10:30 New York bar close and exits at the 15:55
-bar close. Features use bars available at entry; training uses prior sessions.
+Each session enters at the 10:35 New York bar open and exits at the 15:45
+bar open (execution proxies). Features stop at 10:25; training uses prior sessions.
 """
 from __future__ import annotations
 
@@ -62,18 +62,19 @@ def sessions(bars: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for day, group in frame.groupby("day", sort=True):
         # Alpaca bar timestamps mark the start of the interval. The 10:25
-        # bar has completed at 10:30; 15:50 completes at 15:55.
+        # bar has completed at 10:30; execution uses later bar opens.
         morning = group[(group.clock >= "09:30") & (group.clock <= "10:25")]
-        exit_bar = group[group.clock == "15:50"]
-        if len(morning) != 12 or len(exit_bar) != 1:
+        entry_bar = group[group.clock == "10:35"]
+        exit_bar = group[group.clock == "15:45"]
+        if len(morning) != 12 or morning.clock.nunique() != 12 or len(exit_bar) != 1 or len(entry_bar) != 1:
             continue  # incomplete or shortened session
         first, last = morning.iloc[0], morning.iloc[-1]
-        entry = float(last.c)
-        exit_price = float(exit_bar.iloc[0].c)
+        entry = float(entry_bar.iloc[0].o)
+        exit_price = float(exit_bar.iloc[0].o)
         if min(float(first.o), entry, exit_price) <= 0:
             continue
         rows.append({"day": str(day), "entry": entry, "exit": exit_price,
-                     "morning_up": int(entry > float(first.o)),
+                     "morning_up": int(float(last.c) > float(first.o)),
                      "morning_range_high": int(float(morning.h.max()) / float(first.o) - 1 > .002),
                      "morning_range_low": int(float(morning.l.min()) / float(first.o) - 1 < -.002),
                      "morning_volume_high": int(float(morning.v.sum()) > 1_000_000),
@@ -142,14 +143,16 @@ def replay(bars: pd.DataFrame, min_train: int = 30, cost_bps: float = 5.0) -> di
         net_rule = gross - 2 * cost_bps / 10000 if rule_buy else 0.0
         value_tm *= 1 + net_tm
         value_rule *= 1 + net_rule
-        trades.append({"day": today.day, "entry_time_et": "10:30", "exit_time_et": "15:55",
+        trades.append({"day": today.day, "entry_time_et": "10:35", "exit_time_et": "15:45",
                        "tm_action": "buy_SPY" if tm_buy else "cash",
                        "baseline_action": "buy_SPY" if rule_buy else "cash",
                        "entry": round(float(today.entry), 4), "exit": round(float(today.exit), 4),
                        "tm_net_return": round(net_tm, 6), "baseline_net_return": round(net_rule, 6),
                        "tm_value": round(value_tm, 6), "baseline_value": round(value_rule, 6),
                        "explanation": reason})
-    return {"status": "retrospective_paper_replay", "symbol": "SPY", "feed": "IEX",
+    return {"status": "retrospective_paper_replay", "protocol": "intraday-v2-1035-1545",
+            "fill_assumption": "next scheduled bar open proxy; not confirmed broker fills",
+            "symbol": "SPY", "feed": "IEX",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "cost_bps_per_side": cost_bps, "training_sessions": min_train,
             "sessions": len(data), "tm_final_value": round(value_tm, 6),

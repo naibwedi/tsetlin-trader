@@ -14,6 +14,13 @@ from .base import AccountSnapshot, BrokerClient, OrderResult
 
 
 class SimulatedBroker(BrokerClient):
+    def close_position_idempotent(self, symbol, client_order_id):
+        if not hasattr(self, "_exit_results"):
+            self._exit_results = {}
+        if client_order_id not in self._exit_results:
+            self._exit_results[client_order_id] = self.close_position(symbol)
+        return self._exit_results[client_order_id]
+
     def __init__(self, starting_cash: float = 100_000.0) -> None:
         self._cash = starting_cash
         self._positions: dict[str, float] = {}

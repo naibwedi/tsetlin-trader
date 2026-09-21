@@ -17,6 +17,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from .storage import atomic_json
 
 from .signal.logic_alpha_provider import strategy_target_weights
 
@@ -85,7 +86,7 @@ def step(
 
     state["as_of"] = as_of
     state_path.parent.mkdir(parents=True, exist_ok=True)
-    state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    atomic_json(state_path, state)
     return _summary(state, changed=True)
 
 

@@ -23,6 +23,7 @@ import time
 from contextlib import contextmanager
 from datetime import date
 from pathlib import Path
+import json
 
 from .broker.alpaca_client import AlpacaClient
 from .broker.base import BrokerClient
@@ -34,6 +35,7 @@ from .risk.manager import Decision, RiskManager
 from .signal.base import UNIVERSE, SignalProvider
 from .signal.mock_provider import MockSignalProvider
 from .trial_report import publish as publish_trial_report
+from .storage import AlreadyRunning, process_lock, atomic_json
 
 STATE_PATH = Path("results/state.json")
 LOCK_PATH = Path("results/.run.lock")
@@ -53,21 +55,11 @@ def load_dotenv(path: Path = Path(".env")) -> None:
         os.environ.setdefault(key.strip(), value.strip().strip("'\""))
 
 
-class AlreadyRunning(RuntimeError):
-    pass
-
-
 @contextmanager
 def run_lock(path: Path = LOCK_PATH, stale_s: float = LOCK_STALE_S):
-    """One cycle at a time. A lock older than `stale_s` is treated as a crash and replaced."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists() and time.time() - path.stat().st_mtime < stale_s:
-        raise AlreadyRunning(f"another cycle holds {path} (delete it if no cycle is running)")
-    path.write_text(f"{os.getpid()} {time.time()}", encoding="utf-8")
-    try:
+    """Kernel lock releases on crash; file age never overrides a live owner."""
+    with process_lock(path):
         yield
-    finally:
-        path.unlink(missing_ok=True)
 
 
 def build_broker(provider: str) -> BrokerClient:
@@ -127,7 +119,8 @@ def virtual_portfolios(tm_weights: dict[str, float], as_of: str) -> dict:
         from . import portfolios
 
         prices = load_prices_csv(PRICES_PATH)
-        return portfolios.step(prices, portfolios.build_targets(prices, tm_weights), as_of)
+        return portfolios.step(prices, portfolios.build_targets(prices, tm_weights), as_of,
+                               state_path=Path(os.environ.get("TT_STATE_DIR", "results")) / "portfolios.json")
     except Exception as exc:
         return {"error": f"{type(exc).__name__}: {exc}"}
 
@@ -135,6 +128,10 @@ def virtual_portfolios(tm_weights: dict[str, float], as_of: str) -> dict:
 def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) -> dict:
     broker = build_broker(broker_name)
     entry: dict = {"broker_provider": broker_name, "signal_provider": signal_name, "plan_only": plan_only}
+    state_path = Path(os.environ.get("TT_STATE_DIR", "results")) / "state.json"
+    if broker_name == "alpaca" and not os.environ.get("TT_STATE_DIR"):
+        entry.update(status="refused_missing_state", reason="Set TT_STATE_DIR to a private durable directory")
+        return entry
 
     entry["fingerprint"] = fingerprint(PRICES_PATH)
 
@@ -142,22 +139,27 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
         entry.update(status="skipped_market_closed", reason=f"{date.today()} is not a trading day")
         return entry
 
-    pending = broker.open_order_symbols()
-    if pending:
-        entry.update(status="skipped_open_orders_pending", pending_symbols=sorted(pending))
-        return entry
-
     # Safety first: account state and the drawdown breaker never wait on data or a model.
-    if broker_name == "alpaca" and not STATE_PATH.exists() and os.environ.get("ALLOW_FRESH_STATE") != "1":
+    if broker_name == "alpaca" and not state_path.exists() and os.environ.get("ALLOW_FRESH_STATE") != "1":
         entry.update(status="refused_missing_state",
                      reason=f"{STATE_PATH} is missing; set ALLOW_FRESH_STATE=1 once to start a new history")
         alert(f"tsetlin-trader refused to run: {entry['reason']}")
         return entry
 
     account = broker.get_account()
+    if broker_name == "alpaca":
+        identity_path = state_path.with_name("account.json")
+        identity = broker.account_identity()
+        if identity_path.exists():
+            if json.loads(identity_path.read_text())["account_id"] != identity:
+                raise ValueError("private state belongs to another paper account")
+        elif state_path.exists() or os.environ.get("ALLOW_FRESH_STATE") != "1":
+            raise ValueError("unbound/legacy state: manual account reconciliation required")
+        elif not plan_only:
+            atomic_json(identity_path, {"account_id": identity})
     positions = broker.get_positions()
     risk = RiskManager.from_state_file(
-        STATE_PATH,
+        state_path,
         max_drawdown_pct=float(os.environ.get("MAX_DRAWDOWN_PCT", 0.15)),
         position_fraction=float(os.environ.get("POSITION_FRACTION", 0.25)),
     )
@@ -166,17 +168,20 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
     def finish(target_values: dict[str, float], decision, cycle_id: str) -> dict:
         plan = plan_rebalance(positions, target_values, account.equity, UNIVERSE)
         if not plan_only:
-            risk.save_state(STATE_PATH)
+            risk.save_state(state_path)
         orders = [] if plan_only else [o.__dict__ for o in execute(broker, plan.trades, cycle_id)]
         failed_sells = [o for o in orders if o["side"] == "sell" and
                         str(o["status"]).lower() not in ("filled", "orderstatus.filled")]
-        incomplete = bool(failed_sells or any(o["status"] == "skipped_sells_not_filled" for o in orders))
+        incomplete = bool(failed_sells or any(
+            str(o["status"]).lower() in ("rejected", "orderstatus.rejected", "canceled", "orderstatus.canceled")
+            or str(o["status"]).startswith("skipped_") for o in orders))
+        unconfirmed = any(str(o["status"]).lower() not in ("filled", "orderstatus.filled") for o in orders)
         if incomplete:
             alert("tsetlin-trader: one or more sells were not confirmed filled; check the paper account.")
         elif decision.decision == Decision.HALT and not plan_only:
             alert(f"tsetlin-trader HALT: {decision.reason}. Liquidated: {[t.symbol for t in plan.trades]}")
         entry.update(
-            status="planned" if plan_only else "execution_incomplete" if incomplete else "executed",
+            status="planned" if plan_only else "execution_incomplete" if incomplete else "execution_pending" if unconfirmed else "executed",
             risk_decision=decision.decision.value, risk_reason=decision.reason,
             target_values=target_values, ignored_symbols=plan.ignored_symbols,
             trades=[t.__dict__ for t in plan.trades], orders=orders,
@@ -184,6 +189,17 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
         return entry
 
     halt = risk.size_order({}, account.equity)
+    if not plan_only:
+        risk.save_state(state_path)
+    pending = broker.open_order_symbols()
+    if pending:
+        # Do not submit conflicting liquidation orders, but always persist
+        # a tripped breaker and alert the operator before returning.
+        entry.update(status="skipped_open_orders_pending", pending_symbols=sorted(pending),
+                     risk_decision=halt.decision.value, risk_reason=halt.reason)
+        if halt.decision == Decision.HALT:
+            alert("HALT: pending orders block liquidation; cancel/reconcile at the paper broker")
+        return entry
     if halt.decision == Decision.HALT:
         entry["signal"] = None
         return finish({}, halt, f"{date.today():%Y%m%d}-halt")
@@ -207,15 +223,18 @@ def run(
 ) -> dict:
     broker_name = broker_provider or os.environ.get("BROKER_PROVIDER", "simulated")
     signal_name = signal_provider or os.environ.get("SIGNAL_PROVIDER", "logic_alpha")
-    log = DecisionLog()
+    state_dir = Path(os.environ.get("TT_STATE_DIR", "results"))
+    log = DecisionLog(state_dir / "decisions.jsonl")
     def refresh_page() -> None:
+        if os.environ.get("TT_STATE_DIR"):
+            return  # private runtime never automatically publishes account data
         try:
             publish_trial_report(log.path)
         except Exception as exc:
             alert(f"tsetlin-trader could not update the public trial page: {type(exc).__name__}: {exc}")
 
     try:
-        with run_lock():
+        with run_lock(state_dir / ".run.lock"):
             entry = _run(broker_name, signal_name, plan_only, log)
     except AlreadyRunning as exc:
         entry = {"broker_provider": broker_name, "signal_provider": signal_name,
