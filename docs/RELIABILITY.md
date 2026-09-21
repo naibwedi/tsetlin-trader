@@ -1,5 +1,26 @@
 # Paper-bot reliability acceptance
 
+## Delivery record — 21 September 2026
+
+Implementation and regression tests are delivered through
+[PR #1](https://github.com/naibwedi/tsetlin-trader/pull/1).
+Code revision `ab2daee0b05ea112c122ad1501a0bec31f638ae8` passed
+124 offline tests locally on Windows/Python 3.12 and the
+[Windows/Linux GitHub CI run](https://github.com/naibwedi/tsetlin-trader/actions/runs/35607549804).
+Dependency validation (`pip check`) also passed. This delivery record is a
+documentation-only follow-up; the PR records the final merge revision.
+
+No brokerage credentials were used, no orders were placed, and no trading
+service or paid infrastructure was started during implementation. Merging
+disables the old weekly GitHub broker-execution schedule; it does not deploy
+the replacement runner. The separate no-order data replay remains scheduled.
+
+Remaining operator work: select the supervised host, configure the dedicated
+paper account and private state/backups, verify watchdog/host alert delivery,
+then complete observe-only and supervised broker-fill acceptance below.
+Neither profitability nor unattended operational readiness is established
+by the passing software tests.
+
 This release hardens the software. It does not approve unattended operation,
 establish a trading edge, or enable real-money endpoints.
 
