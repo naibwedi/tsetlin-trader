@@ -29,7 +29,7 @@ def test_full_cycle_with_simulated_broker(tmp_path):
     assert "rule_trace" in result["signal"]
     assert len(read_log(tmp_path)) == 1
     assert (tmp_path / "results" / "state.json").exists()
-    assert not (tmp_path / "results" / ".run.lock").exists()
+    assert (tmp_path / "results" / ".run.lock").exists()  # persistent inode, released kernel lock
 
 
 def test_plan_only_places_no_orders_and_saves_no_state(tmp_path):
@@ -76,7 +76,7 @@ def test_stale_lock_is_replaced(tmp_path):
 
     with run_lock():
         pass  # no AlreadyRunning
-    assert not lock.exists()
+    assert lock.exists()
 
 
 def test_fresh_lock_raises(tmp_path):
@@ -151,15 +151,28 @@ def test_alpaca_refuses_to_start_without_state(monkeypatch):
     assert result["status"] == "refused_missing_state"
 
 
-def test_alpaca_starts_fresh_when_explicitly_allowed(monkeypatch):
+def test_alpaca_starts_fresh_when_explicitly_allowed(monkeypatch, tmp_path):
     from tsetlin_trader import run_cycle
     from tsetlin_trader.broker.simulated_client import SimulatedBroker
 
     monkeypatch.setattr(run_cycle, "build_broker", lambda name: SimulatedBroker())
+    monkeypatch.setattr(SimulatedBroker, "account_identity", lambda self: "test-paper", raising=False)
+    monkeypatch.setenv("TT_STATE_DIR", str(tmp_path / "private"))
     monkeypatch.setenv("ALLOW_FRESH_STATE", "1")
     result = run(broker_provider="alpaca", signal_provider="mock")
 
     assert result["status"] == "executed"
+
+
+def test_pending_orders_do_not_bypass_drawdown(tmp_path, monkeypatch):
+    from tsetlin_trader.risk.manager import RiskManager
+    from tsetlin_trader.broker.simulated_client import SimulatedBroker
+    path = tmp_path / "results" / "state.json"
+    RiskManager(peak_equity=200000).save_state(path)
+    monkeypatch.setattr(SimulatedBroker, "open_order_symbols", lambda self: {"SPY"})
+    result = run(broker_provider="simulated", signal_provider="mock")
+    assert result["risk_decision"] == "halt"
+    assert json.loads(path.read_text())["halted"] is True
 
 
 def test_positions_outside_universe_are_reported_and_kept(monkeypatch):
@@ -247,5 +260,6 @@ def test_failure_is_logged_alerted_and_raised(tmp_path, monkeypatch):
 
     assert read_log(tmp_path)[-1]["status"] == "failed"
     assert sent and "FAILED" in sent[0]
-    assert not (tmp_path / "results" / ".run.lock").exists()
+    with run_lock():
+        pass  # exception released the kernel lock
 

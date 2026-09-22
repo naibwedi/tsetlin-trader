@@ -75,3 +75,6 @@ class BrokerClient(ABC):
         """Liquidate the entire position in `symbol`."""
         raise NotImplementedError
 
+    def close_position_idempotent(self, symbol: str, client_order_id: str) -> OrderResult:
+        raise NotImplementedError("broker must implement recoverable exits")
+

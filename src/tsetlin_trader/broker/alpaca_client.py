@@ -74,6 +74,21 @@ class AlpacaClient(BrokerClient):
     def get_order_status(self, order_id: str) -> str:
         return str(self._client.get_order_by_id(order_id).status)
 
+    def account_identity(self) -> str:
+        return str(self._client.get_account().id)
+
+    def find_order(self, client_order_id: str) -> OrderResult | None:
+        """Only a definite 404 means absent; timeouts/auth errors must block."""
+        try:
+            order = self._client.get_order_by_client_id(client_order_id)
+        except Exception as exc:
+            if getattr(exc, "status_code", None) == 404:
+                return None
+            raise
+        return OrderResult(str(order.symbol), float(order.notional or 0),
+                           str(order.side).lower().split(".")[-1], str(order.status),
+                           str(order.id), client_order_id)
+
     def submit_order(
         self, symbol: str, notional: float, side: str, client_order_id: str | None = None
     ) -> OrderResult:
@@ -96,8 +111,10 @@ class AlpacaClient(BrokerClient):
         try:
             order = self._client.submit_order(request)
         except Exception as exc:  # Alpaca rejects a reused client_order_id with an API error
-            if client_order_id and "client_order_id" in str(exc):
-                return OrderResult(symbol, 0.0, side, "duplicate_client_order_id", None, client_order_id)
+            if client_order_id:
+                recovered = self.find_order(client_order_id)
+                if recovered is not None:
+                    return recovered
             raise
         return OrderResult(
             symbol, notional, side, str(getattr(order, "status", "submitted")),
@@ -110,4 +127,27 @@ class AlpacaClient(BrokerClient):
             symbol, 0.0, "sell", str(getattr(order, "status", "submitted")),
             str(getattr(order, "id", "")) or None, None,
         )
+
+    def close_position_idempotent(self, symbol: str, client_order_id: str) -> OrderResult:
+        existing = self.find_order(client_order_id)
+        if existing is not None:
+            return existing
+        from alpaca.trading.requests import MarketOrderRequest
+        from alpaca.trading.enums import OrderSide, TimeInForce
+        from decimal import Decimal
+        position = self._client.get_open_position(symbol)
+        quantity = Decimal(str(position.qty))
+        if not quantity.is_finite() or quantity <= 0:
+            raise ValueError("only a positive long position can be closed")
+        request = MarketOrderRequest(symbol=symbol, qty=str(quantity),
+                                     side=OrderSide.SELL, time_in_force=TimeInForce.DAY,
+                                     client_order_id=client_order_id)
+        try:
+            order = self._client.submit_order(request)
+        except Exception:
+            existing = self.find_order(client_order_id)
+            if existing is not None:
+                return existing
+            raise
+        return OrderResult(symbol, 0.0, "sell", str(order.status), str(order.id), client_order_id)
 

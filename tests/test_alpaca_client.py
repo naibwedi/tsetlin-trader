@@ -47,6 +47,11 @@ class FakeTradingClient:
     def get_order_by_id(self, order_id):
         return SimpleNamespace(status="filled" if order_id == "ord-2" else "canceled")
 
+    def get_order_by_client_id(self, client_id):
+        request = next(r for r in self.submitted if r.client_order_id == client_id)
+        return SimpleNamespace(symbol=request.symbol, notional=request.notional,
+                               side=request.side, status="filled", id="ord-1")
+
 
 def make_client(**kwargs):
     fake = FakeTradingClient(**kwargs)
@@ -96,7 +101,8 @@ def test_duplicate_client_id_is_reported_not_raised():
     client.submit_order("QQQ", 10_000.0, "buy", client_order_id="dup")
     result = client.submit_order("QQQ", 10_000.0, "buy", client_order_id="dup")
 
-    assert result.status == "duplicate_client_order_id"
+    assert result.status == "filled"
+    assert result.order_id == "ord-1"
     assert len(fake.submitted) == 1
 
 
@@ -154,4 +160,49 @@ def test_is_trading_day_uses_the_exchange_calendar():
     client, _ = make_client()
     assert client.is_trading_day(date(2026, 9, 18)) is True
     assert client.is_trading_day(date(2026, 9, 19)) is False
+
+
+def test_order_lookup_only_treats_404_as_absent():
+    client, fake = make_client()
+    class Missing(Exception):
+        status_code = 404
+    def absent(cid):
+        raise Missing()
+    fake.get_order_by_client_id = absent
+    assert client.find_order("not-found") is None
+    def outage(cid):
+        raise TimeoutError()
+    fake.get_order_by_client_id = outage
+    with pytest.raises(TimeoutError):
+        client.find_order("unknown")
+
+
+def test_quantity_exit_reuses_client_id_instead_of_duplicate_sell():
+    client, fake = make_client()
+    class Missing(Exception):
+        status_code = 404
+    original = fake.get_order_by_client_id
+    def lookup(cid):
+        if not fake.submitted:
+            raise Missing()
+        return original(cid)
+    fake.get_order_by_client_id = lookup
+    fake.get_open_position = lambda symbol: SimpleNamespace(qty="2.5")
+    first = client.close_position_idempotent("SPY", "exit-test")
+    second = client.close_position_idempotent("SPY", "exit-test")
+    assert first.order_id == second.order_id == "ord-1"
+    assert len(fake.submitted) == 1
+    assert fake.submitted[0].qty == 2.5
+
+
+def test_timeout_after_acceptance_recovers_broker_order():
+    client, fake = make_client()
+    original = fake.submit_order
+    def timeout(request):
+        original(request)
+        raise TimeoutError("response lost")
+    fake.submit_order = timeout
+    result = client.submit_order("SPY", 1000, "buy", "entry-test")
+    assert result.order_id == "ord-1" and result.status == "filled"
+    assert len(fake.submitted) == 1
 

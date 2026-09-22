@@ -79,7 +79,7 @@ def execute(
 
     for trade in sells:
         if trade.close_all:
-            results.append(broker.close_position(trade.symbol))
+            results.append(broker.close_position_idempotent(trade.symbol, _client_id(cycle_id, trade)))
         else:
             results.append(broker.submit_order(trade.symbol, trade.notional, "sell", _client_id(cycle_id, trade)))
 
@@ -96,6 +96,10 @@ def execute(
         return results
 
     for trade in buys:
+        account = broker.get_account()
+        if trade.notional > max(0.0, account.cash) or trade.notional > max(0.0, account.buying_power):
+            results.append(OrderResult(trade.symbol, 0.0, "buy", "skipped_insufficient_cash"))
+            continue
         results.append(broker.submit_order(trade.symbol, trade.notional, "buy", _client_id(cycle_id, trade)))
     return results
 

@@ -1,5 +1,14 @@
 # tsetlin-trader
 
+## Reliability update — supervised paper acceptance required
+
+See [the reliability checklist](docs/RELIABILITY.md). This version adds
+restart/order recovery, atomic private state, account binding, kernel locks,
+offline Windows/Linux CI and an independent watchdog. No real-money trading
+is supported. Installing or testing it does not start a trading service.
+Weekly GitHub broker execution is disabled; use a supervised host with
+`TT_STATE_DIR` for private durable state. Intraday restarts always pause entries.
+
 **An interpretable ML trading engine that paper-trades using rule-based signals from a Tsetlin Machine.**
 
 Most "AI trading bot" repos are black boxes: a model spits out buy/sell and nobody, including the author, can say why. `tsetlin-trader` is built the other way around. Every decision is logged with the evidence behind it: the learned rules (clauses) that fired for and against the chosen strategy, and how many votes each carried. Orders go through a pluggable broker interface, either a zero-setup local simulator or [Alpaca's paper trading API](https://alpaca.markets/). No real money either way.
@@ -11,8 +20,8 @@ This repo is the **execution layer**. Signal generation (leakage-aware walk-forw
 **Visual explainer:** [docs/index.html](docs/index.html) walks through one trading cycle, how the Tsetlin Machine votes, the 2010-2020 test results and the improvement plan.
 
 **Live paper trial:** the top of the explainer reads [docs/live.json](docs/live.json),
-a sanitized feed rebuilt after each recorded run and committed by the weekly
-workflow. It shows the latest recorded signal and order statuses, changes in
+a historical sanitized feed. Private execution no longer automatically
+publishes account state. It shows the last recorded signal and order statuses, changes in
 the three virtual portfolios, and a forward-evidence screen. Open the HTML
 through a local HTTP server or GitHub Pages; see the frozen
 [trial protocol](docs/TRIAL_PROTOCOL.md) for the pass criteria and limits.
@@ -65,8 +74,9 @@ Read `IWM_ret_60>q20` as "small caps' 60-day return is above its 20th percentile
 `intraday_trial` is an **after-close virtual paper replay**, separate from the
 weekly Alpaca account and its 52-week trial. It downloads Alpaca IEX 5-minute
 SPY bars using paper API keys, but has no trading endpoint or order submission.
-Each full session uses only the 09:30–10:25 bars for a decision at 10:30 ET,
-then values a hypothetical long-SPY or cash position at 15:55 ET. A fixed
+Each full session uses only the 09:30–10:25 bars for a decision before 10:35 ET,
+then values a hypothetical long-SPY or cash position using the 10:35 entry
+and 15:45 exit bar opens (protocol v2). A fixed
 5-basis-point cost is charged on each side of a trade. The comparison is a
 simple rule that buys SPY when the morning return is positive.
 
@@ -107,7 +117,9 @@ python -m tsetlin_trader.run_cycle --plan-only   # shows the trades, places noth
 python -m tsetlin_trader.run_cycle               # places them
 ```
 
-Run it once a week, since the strategy selector rebalances on a roughly 5-trading-day cadence. Running it more often is harmless: it rebalances to the same target and does nothing.
+Use a supervised weekly cadence. Repeated runs can retrain or see different
+prices; they are not a substitute for order reconciliation. Review private
+state setup in [RELIABILITY.md](docs/RELIABILITY.md) before using Alpaca.
 
 ## Layout
 
@@ -126,7 +138,9 @@ Run it once a week, since the strategy selector rebalances on a roughly 5-tradin
 
 ## Known limitations
 
-- **Shared state lives in git.** The weekly GitHub Actions run commits `results/state.json`, `results/portfolios.json` and `results/decisions.jsonl` back to the repo so the breaker and scoreboard persist across stateless runners. If you also run locally, `git pull` first.
+- **Execution state is private.** Set `TT_STATE_DIR` on a single supervised
+  weekly host. Historical Git records are retained for provenance, not used
+  as the authoritative live state. See the migration checklist before running.
 - **Order submissions are not confirmed fills.** The live page labels pending
   orders as unconfirmed. Verify final broker fills before using execution data
   to assess the model.
