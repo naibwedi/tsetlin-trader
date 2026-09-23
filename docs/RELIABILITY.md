@@ -62,6 +62,21 @@ manual migration: reconcile all broker positions/orders, preserve the actual
 peak equity/halt state, and bind account.json to the verified account ID.
 Do not reset an existing risk history just to make a refusal disappear.
 
+## Controller and GitHub workflow boundary
+
+The current controller is the deterministic rule blend. Tsetlin Machine and
+Bernoulli predictions are shadow observations only and cannot size or submit
+orders. Promotion of a model requires forward evidence and a separately
+reviewed code change; changing `SHADOW_MODELS` does not promote it.
+
+The broker-free signal-preview workflow is safe on a GitHub-hosted runner: it
+receives only `TIINGO_API_TOKEN`, never Alpaca credentials, and never constructs
+a broker client. The paper-trade workflow accepts only a manual dispatch with
+the confirmation `PAPER` and targets a self-hosted runner labelled
+`tsetlin-paper`. Repository variable `TT_STATE_DIR` must point to that host's
+private durable state. Missing state fails closed; the workflow never sets
+`ALLOW_FRESH_STATE`.
+
 ## Required before supervised paper execution
 
 1. Full offline CI green at the exact deployed commit.
