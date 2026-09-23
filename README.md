@@ -11,6 +11,22 @@ Weekly GitHub broker execution is disabled; use a supervised host with
 
 **An interpretable ML trading engine that paper-trades using rule-based signals from a Tsetlin Machine.**
 
+## Current paper strategy
+
+The paper account is now designed around a deliberately conservative split:
+
+- **Controller:** an equal blend of the transparent trend, momentum and
+  defensive rules. This is the strategy that can create paper orders.
+- **Shadow research:** the Tsetlin Machine and Bernoulli baseline calculate
+  their signals on the same data, but cannot create orders.
+- **Risk envelope:** only 25% of account equity is allocated by default, with
+  a sticky 15% peak-to-trough drawdown halt.
+
+This choice follows the available evidence: the blend was more robust in the
+development comparisons, while the Tsetlin Machine has not yet earned control
+of the account. The shadow record lets it prove—or fail to prove—its value on
+new data without risking even paper execution quality.
+
 Most "AI trading bot" repos are black boxes: a model spits out buy/sell and nobody, including the author, can say why. `tsetlin-trader` is built the other way around. Every decision is logged with the evidence behind it: the learned rules (clauses) that fired for and against the chosen strategy, and how many votes each carried. Orders go through a pluggable broker interface, either a zero-setup local simulator or [Alpaca's paper trading API](https://alpaca.markets/). No real money either way.
 
 This repo is the **execution layer**. Signal generation (leakage-aware walk-forward research, Boolean feature engineering) lives in the companion repo [`logic-alpha-tm`](https://github.com/naibwedi/logic-alpha-tm), which this repo installs as a dependency.
@@ -34,9 +50,11 @@ paper account. The GitHub-hosted page remains a delayed read-only report.
 ## How it works
 
 ```
- Tiingo EOD prices ──> LogicAlphaProvider ──> RiskManager ──> rebalance ──> BrokerClient
- (SPY QQQ IWM TLT)     fit on labelled days    size + circuit   sells first,   simulated | Alpaca
-                       predict latest day      breaker          then buys
+ Tiingo EOD prices ──> BlendSignalProvider ──> RiskManager ──> rebalance ──> BrokerClient
+ (SPY QQQ IWM TLT)     transparent rules       size + circuit   sells first,   simulated | Alpaca
+                              │                breaker          then buys
+                              ├── TM shadow (observed, never traded)
+                              ├── Bernoulli shadow (observed, never traded)
                               │                     │                              │
                               └──────────── DecisionLog (results/decisions.jsonl) ───┘
 ```
@@ -117,6 +135,20 @@ python -m tsetlin_trader.run_cycle --plan-only   # shows the trades, places noth
 python -m tsetlin_trader.run_cycle               # places them
 ```
 
+GitHub Actions has two intentionally different paths:
+
+- **Broker-free signal preview** runs on a GitHub-hosted runner. It uses only
+  the Tiingo secret and prints the blend, TM and Bernoulli decisions. It has no
+  broker credentials and cannot place orders.
+- **Paper trade cycle (self-hosted only)** requires typing `PAPER` and a runner
+  labelled `tsetlin-paper`. Set repository variable `TT_STATE_DIR` to a private,
+  durable directory on that host containing reviewed `state.json` and
+  `account.json`. GitHub-hosted runners are deliberately ineligible.
+
+Existing files under public `results/` are historical reports, not
+authoritative execution state. Follow [RELIABILITY.md](docs/RELIABILITY.md)
+before initializing the private directory.
+
 Use a supervised weekly cadence. Repeated runs can retrain or see different
 prices; they are not a substitute for order reconciliation. Review private
 state setup in [RELIABILITY.md](docs/RELIABILITY.md) before using Alpaca.
@@ -125,7 +157,8 @@ state setup in [RELIABILITY.md](docs/RELIABILITY.md) before using Alpaca.
 
 | Path | Role |
 |---|---|
-| `signal/logic_alpha_provider.py` | Real signal from `logic-alpha-tm`; picks the model and builds the explanation |
+| `signal/blend_provider.py` | Transparent blend that controls the paper account |
+| `signal/logic_alpha_provider.py` | TM/Bernoulli research signals and explanations, currently shadow-only |
 | `signal/tm_model.py` | Seeded Tsetlin Machine ensemble that reads its fired clauses back out |
 | `signal/mock_provider.py` | Deterministic stand-in for tests and demos |
 | `risk/manager.py` | Position sizing and the persistent, sticky circuit breaker |

@@ -85,7 +85,14 @@ def build_signal_provider(provider: str) -> SignalProvider:
             tiingo_token=os.environ.get("TIINGO_API_TOKEN"),
             history_start=os.environ.get("SIGNAL_HISTORY_START", "2008-01-01"),
         )
-    raise ValueError(f"Unknown SIGNAL_PROVIDER: {provider!r} (expected 'logic_alpha' or 'mock')")
+    if provider == "blend":
+        from .signal.blend_provider import BlendSignalProvider
+        return BlendSignalProvider(
+            prices_csv=PRICES_PATH,
+            tiingo_token=os.environ.get("TIINGO_API_TOKEN"),
+            history_start=os.environ.get("SIGNAL_HISTORY_START", "2008-01-01"),
+        )
+    raise ValueError(f"Unknown SIGNAL_PROVIDER: {provider!r} (expected 'blend', 'logic_alpha' or 'mock')")
 
 
 def shadow_signals(main_model: str) -> dict:
@@ -206,10 +213,21 @@ def _run(broker_name: str, signal_name: str, plan_only: bool, log: DecisionLog) 
 
     signal = build_signal_provider(signal_name).get_current_signal()
     entry["signal"] = signal.model_dump(mode="json")
-    if signal_name == "logic_alpha":
-        entry["shadow_signals"] = shadow_signals(os.environ.get("SIGNAL_MODEL", "tmu"))
-        if not plan_only and signal.as_of:
-            entry["virtual_portfolios"] = virtual_portfolios(signal.target_weights, signal.as_of)
+    if signal_name in {"logic_alpha", "blend"}:
+        main_model = os.environ.get("SIGNAL_MODEL", "tmu") if signal_name == "logic_alpha" else "blend"
+        entry["shadow_signals"] = shadow_signals(main_model)
+        tm_weights = signal.target_weights
+        if signal_name == "blend":
+            tm_shadow = entry["shadow_signals"].get("tmu", {})
+            if "error" in tm_shadow:
+                entry["virtual_portfolios"] = {
+                    "error": "TM shadow unavailable; virtual portfolios were not advanced"
+                }
+                tm_weights = None
+            else:
+                tm_weights = tm_shadow.get("target_weights", {})
+        if not plan_only and signal.as_of and tm_weights is not None:
+            entry["virtual_portfolios"] = virtual_portfolios(tm_weights, signal.as_of)
 
     decision = risk.size_order(signal.target_weights, account.equity)
     target_values = {s: account.equity * w for s, w in decision.sized_weights.items()}
@@ -254,7 +272,7 @@ def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser()
     parser.add_argument("--broker", choices=["simulated", "alpaca"], default=None)
-    parser.add_argument("--signal", choices=["logic_alpha", "mock"], default=None)
+    parser.add_argument("--signal", choices=["blend", "logic_alpha", "mock"], default=None)
     parser.add_argument("--plan-only", action="store_true", help="Compute and print trades without placing them")
     args = parser.parse_args()
     result = run(broker_provider=args.broker, signal_provider=args.signal, plan_only=args.plan_only)

@@ -1,0 +1,39 @@
+name: Broker-free signal preview
+
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - ".github/workflows/signal-preview.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: |
+          pip install -r requirements-lock.txt
+          pip install --no-deps -e .
+
+      - name: Require the market-data secret
+        env:
+          TIINGO_API_TOKEN: ${{ secrets.TIINGO_API_TOKEN }}
+        run: test -n "$TIINGO_API_TOKEN"
+
+      - name: Preview blend controller and shadow models (no broker, no orders)
+        env:
+          TIINGO_API_TOKEN: ${{ secrets.TIINGO_API_TOKEN }}
+          SIGNAL_HISTORY_START: "2008-01-01"
+          SHADOW_MODELS: "tmu,bernoulli"
+        run: python -m tsetlin_trader.signal_preview

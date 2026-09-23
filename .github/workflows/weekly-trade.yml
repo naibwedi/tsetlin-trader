@@ -1,16 +1,14 @@
-name: Paper trade cycle
+name: Paper trade cycle (self-hosted only)
 
-# Runs Mondays after the US open. The bot's state (results/state.json, the
-# virtual portfolios and the decision log) is committed back to the repo so
-# the drawdown breaker and the scoreboard persist across stateless runners.
-# If you also run the bot locally, `git pull` first so both sides share state.
 on:
-  # Execution moved to a supervised host with private durable state.
-  # This manual workflow is offline validation only, never a trading runner.
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type PAPER to authorize one supervised paper-account cycle"
+        required: true
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: paper-trade
@@ -18,9 +16,12 @@ concurrency:
 
 jobs:
   run-cycle:
-    runs-on: ubuntu-latest
+    if: ${{ inputs.confirmation == 'PAPER' }}
+    runs-on: [self-hosted, tsetlin-paper]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:
@@ -31,31 +32,29 @@ jobs:
           pip install -r requirements-lock.txt
           pip install --no-deps -e .
 
-      - name: Run tests
+      - name: Run offline tests
         run: pytest -q -p no:cacheprovider
 
-      - name: Run trading cycle (disabled pending supervised host acceptance)
-        if: ${{ false }}
+      - name: Verify private durable state
+        env:
+          TT_STATE_DIR: ${{ vars.TT_STATE_DIR }}
+        run: |
+          test -n "$TT_STATE_DIR"
+          test -d "$TT_STATE_DIR"
+          test -f "$TT_STATE_DIR/state.json"
+          test -f "$TT_STATE_DIR/account.json"
+
+      - name: Run one supervised paper cycle
         env:
           BROKER_PROVIDER: alpaca
-          SIGNAL_PROVIDER: logic_alpha
-          SIGNAL_MODEL: tmu
+          SIGNAL_PROVIDER: blend
           SIGNAL_HISTORY_START: "2008-01-01"
+          SHADOW_MODELS: "tmu,bernoulli"
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
           TIINGO_API_TOKEN: ${{ secrets.TIINGO_API_TOKEN }}
           ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          TT_STATE_DIR: ${{ vars.TT_STATE_DIR }}
           MAX_DRAWDOWN_PCT: "0.15"
           POSITION_FRACTION: "0.25"
         run: python -m tsetlin_trader.run_cycle
-
-      - name: Commit state back
-        if: ${{ false }}
-        run: |
-          python -m tsetlin_trader.trial_report
-          git config user.name "tsetlin-trader bot"
-          git config user.email "bot@users.noreply.github.com"
-          git add results/state.json results/portfolios.json results/decisions.jsonl docs/live.json
-          git diff --cached --quiet || git commit -m "Record paper trade cycle $(date -u +%Y-%m-%d) [skip ci]"
-          git push
-

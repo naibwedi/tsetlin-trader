@@ -50,6 +50,23 @@ def test_rejects_unknown_signal_provider():
         run(broker_provider="simulated", signal_provider="nope")
 
 
+def test_blend_controls_account_and_tmu_is_shadow(tmp_path, monkeypatch):
+    from logic_alpha_tm.data import synthetic_prices
+    import tsetlin_trader.signal.blend_provider as blend_module
+    import tsetlin_trader.signal.logic_alpha_provider as logic_module
+    import tsetlin_trader.run_cycle as cycle_module
+    (tmp_path / "data").mkdir()
+    synthetic_prices().rename_axis("date").to_csv(tmp_path / "data" / "tiingo-prices.csv")
+    monkeypatch.setenv("SHADOW_MODELS", "tmu")
+    monkeypatch.setattr(logic_module, "MAX_DATA_AGE_DAYS", 10000)
+    monkeypatch.setattr(cycle_module, "build_signal_provider", lambda name:
+                        blend_module.BlendSignalProvider("data/tiingo-prices.csv", max_data_age_days=10000))
+    result = run(broker_provider="simulated", signal_provider="blend", plan_only=True)
+    assert result["signal"]["strategy"] == "blend"
+    assert "tmu" in result["shadow_signals"]
+    assert all(t["notional"] <= result["equity"] * .25 for t in result["trades"])
+
+
 def test_skips_when_orders_are_pending(monkeypatch):
     from tsetlin_trader.broker.simulated_client import SimulatedBroker
 
