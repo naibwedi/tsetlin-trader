@@ -1,30 +1,32 @@
 {
   "status": "retrospective_paper_replay",
+  "protocol": "intraday-v2-1035-1545",
+  "fill_assumption": "next scheduled bar open proxy; not confirmed broker fills",
   "symbol": "SPY",
   "feed": "IEX",
-  "generated_at": "2026-09-19T14:16:45.708796+00:00",
+  "generated_at": "2026-09-23T00:49:05.258296+00:00",
   "cost_bps_per_side": 5.0,
   "training_sessions": 30,
-  "sessions": 63,
-  "tm_final_value": 0.98652,
-  "baseline_final_value": 0.987799,
+  "sessions": 62,
+  "tm_final_value": 0.990704,
+  "baseline_final_value": 0.992332,
   "trades": [
     {
-      "day": "2026-08-04",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "day": "2026-08-07",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
-      "entry": 764.49,
-      "exit": 771.77,
-      "tm_net_return": 0.008523,
-      "baseline_net_return": 0.008523,
-      "tm_value": 1.008523,
-      "baseline_value": 1.008523,
+      "entry": 772.625,
+      "exit": 772.565,
+      "tm_net_return": -0.001078,
+      "baseline_net_return": -0.001078,
+      "tm_value": 0.998922,
+      "baseline_value": 0.998922,
       "explanation": {
         "votes": {
           "0": 1.5,
-          "1": 4.0
+          "1": 10.5
         },
         "for": [
           {
@@ -39,162 +41,9 @@
           {
             "vote": 2.5,
             "literals": [
-              "morning_range_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.0,
-            "literals": [
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
               "morning_up",
               "morning_range_high",
               "NOT morning_range_low"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-08-05",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "buy_SPY",
-      "baseline_action": "cash",
-      "entry": 774.805,
-      "exit": 771.5,
-      "tm_net_return": -0.005266,
-      "baseline_net_return": 0.0,
-      "tm_value": 1.003212,
-      "baseline_value": 1.008523,
-      "explanation": {
-        "votes": {
-          "0": 2.5,
-          "1": 3.5
-        },
-        "for": [
-          {
-            "vote": 3.0,
-            "literals": [
-              "NOT morning_up"
-            ]
-          },
-          {
-            "vote": 1.5,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_volume_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.0,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": -2.0,
-            "literals": [
-              "NOT morning_range_high"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-08-06",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "buy_SPY",
-      "baseline_action": "buy_SPY",
-      "entry": 770.43,
-      "exit": 768.62,
-      "tm_net_return": -0.003349,
-      "baseline_net_return": -0.003349,
-      "tm_value": 0.999852,
-      "baseline_value": 1.005145,
-      "explanation": {
-        "votes": {
-          "0": -0.5,
-          "1": 3.5
-        },
-        "for": [
-          {
-            "vote": 1.5,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": 1.5,
-            "literals": [
-              "morning_up"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
-            "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-08-07",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "buy_SPY",
-      "baseline_action": "buy_SPY",
-      "entry": 773.125,
-      "exit": 772.86,
-      "tm_net_return": -0.001343,
-      "baseline_net_return": -0.001343,
-      "tm_value": 0.99851,
-      "baseline_value": 1.003795,
-      "explanation": {
-        "votes": {
-          "0": -11.0,
-          "1": 4.0
-        },
-        "for": [
-          {
-            "vote": 2.5,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 1.5,
-            "literals": [
-              "morning_up"
             ]
           }
         ],
@@ -203,9 +52,7 @@
             "vote": -1.0,
             "literals": [
               "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           },
           {
@@ -222,24 +69,24 @@
     },
     {
       "day": "2026-08-10",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
-      "entry": 774.375,
-      "exit": 772.39,
-      "tm_net_return": -0.003563,
-      "baseline_net_return": -0.003563,
-      "tm_value": 0.994952,
-      "baseline_value": 1.000218,
+      "entry": 774.38,
+      "exit": 773.08,
+      "tm_net_return": -0.002679,
+      "baseline_net_return": -0.002679,
+      "tm_value": 0.996246,
+      "baseline_value": 0.996246,
       "explanation": {
         "votes": {
-          "0": 0.5,
-          "1": 4.5
+          "0": -2.0,
+          "1": -0.5
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -248,7 +95,7 @@
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 1.0,
             "literals": [
               "morning_range_high"
             ]
@@ -256,11 +103,17 @@
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
               "morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "morning_up",
+              "NOT morning_range_low"
             ]
           }
         ]
@@ -268,32 +121,37 @@
     },
     {
       "day": "2026-08-11",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 773.875,
-      "exit": 770.4,
-      "tm_net_return": -0.00549,
+      "entry": 773.685,
+      "exit": 770.52,
+      "tm_net_return": -0.005091,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989489,
-      "baseline_value": 1.000218,
+      "tm_value": 0.991175,
+      "baseline_value": 0.996246,
       "explanation": {
         "votes": {
-          "0": -2.0,
-          "1": 2.5
+          "0": -6.5,
+          "1": -1.0
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
+              "morning_range_low",
+              "NOT morning_up",
               "NOT morning_range_high"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ],
@@ -318,32 +176,36 @@
     },
     {
       "day": "2026-08-12",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 772.77,
-      "exit": 772.25,
-      "tm_net_return": 0.0,
+      "entry": 772.03,
+      "exit": 772.855,
+      "tm_net_return": 6.9e-05,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989489,
-      "baseline_value": 1.000218,
+      "tm_value": 0.991243,
+      "baseline_value": 0.996246,
       "explanation": {
         "votes": {
-          "0": 11.0,
-          "1": -9.5
+          "0": -9.5,
+          "1": 2.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
-              "morning_range_low"
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
-              "NOT morning_range_high"
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ],
@@ -351,11 +213,11 @@
           {
             "vote": -2.0,
             "literals": [
-              "morning_range_low"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high"
@@ -366,34 +228,36 @@
     },
     {
       "day": "2026-08-13",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
-      "entry": 779.195,
-      "exit": 777.515,
-      "tm_net_return": 0.0,
-      "baseline_net_return": -0.003156,
-      "tm_value": 0.989489,
-      "baseline_value": 0.997061,
+      "entry": 779.16,
+      "exit": 777.685,
+      "tm_net_return": -0.002893,
+      "baseline_net_return": -0.002893,
+      "tm_value": 0.988375,
+      "baseline_value": 0.993364,
       "explanation": {
         "votes": {
-          "0": 8.0,
-          "1": -7.5
+          "0": -6.0,
+          "1": 1.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
+              "morning_up",
               "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
-              "NOT morning_volume_high"
+              "morning_up",
+              "NOT morning_range_low"
             ]
           }
         ],
@@ -407,6 +271,7 @@
           {
             "vote": -1.0,
             "literals": [
+              "morning_range_high",
               "NOT morning_range_low"
             ]
           }
@@ -415,42 +280,145 @@
     },
     {
       "day": "2026-08-14",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 777.405,
-      "exit": 776.205,
+      "entry": 776.85,
+      "exit": 776.12,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989489,
-      "baseline_value": 0.997061,
+      "tm_value": 0.988375,
+      "baseline_value": 0.993364,
       "explanation": {
         "votes": {
-          "0": 11.0,
-          "1": -9.5
+          "0": 10.0,
+          "1": -11.0
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_high",
+              "NOT morning_range_low"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
               "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -1.0,
+            "literals": [
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "NOT morning_range_high",
+              "NOT morning_range_low"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-08-17",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
+      "baseline_action": "cash",
+      "entry": 775.55,
+      "exit": 773.0,
+      "tm_net_return": 0.0,
+      "baseline_net_return": 0.0,
+      "tm_value": 0.988375,
+      "baseline_value": 0.993364,
+      "explanation": {
+        "votes": {
+          "0": 15.5,
+          "1": -25.5
+        },
+        "for": [
+          {
+            "vote": 2.5,
             "literals": [
               "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": 2.0,
+            "literals": [
+              "NOT morning_range_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -1.0,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "NOT morning_range_low"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-08-18",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
+      "baseline_action": "cash",
+      "entry": 768.76,
+      "exit": 767.86,
+      "tm_net_return": 0.0,
+      "baseline_net_return": 0.0,
+      "tm_value": 0.988375,
+      "baseline_value": 0.993364,
+      "explanation": {
+        "votes": {
+          "0": 15.5,
+          "1": -21.5
+        },
+        "for": [
+          {
+            "vote": 3.0,
+            "literals": [
+              "NOT morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": 2.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -0.5,
+            "literals": [
               "NOT morning_range_high"
             ]
           },
@@ -465,135 +433,36 @@
       }
     },
     {
-      "day": "2026-08-17",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
-      "baseline_action": "cash",
-      "entry": 775.46,
-      "exit": 772.755,
-      "tm_net_return": 0.0,
-      "baseline_net_return": 0.0,
-      "tm_value": 0.989489,
-      "baseline_value": 0.997061,
-      "explanation": {
-        "votes": {
-          "0": 7.5,
-          "1": -20.5
-        },
-        "for": [
-          {
-            "vote": 3.0,
-            "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": 3.0,
-            "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
-            "literals": [
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "NOT morning_range_high"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-08-18",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
-      "baseline_action": "cash",
-      "entry": 768.58,
-      "exit": 767.415,
-      "tm_net_return": 0.0,
-      "baseline_net_return": 0.0,
-      "tm_value": 0.989489,
-      "baseline_value": 0.997061,
-      "explanation": {
-        "votes": {
-          "0": 14.0,
-          "1": -12.5
-        },
-        "for": [
-          {
-            "vote": 3.5,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": 2.5,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_low"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.0,
-            "literals": [
-              "NOT morning_up"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "NOT morning_range_high"
-            ]
-          }
-        ]
-      }
-    },
-    {
       "day": "2026-08-19",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 769.965,
-      "exit": 768.74,
-      "tm_net_return": -0.002591,
+      "entry": 770.18,
+      "exit": 768.93,
+      "tm_net_return": -0.002623,
       "baseline_net_return": 0.0,
-      "tm_value": 0.986925,
-      "baseline_value": 0.997061,
+      "tm_value": 0.985783,
+      "baseline_value": 0.993364,
       "explanation": {
         "votes": {
-          "0": -0.5,
-          "1": 0.5
+          "0": 0.0,
+          "1": 7.0
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 2.0,
             "literals": [
               "morning_range_low",
+              "NOT morning_up",
               "NOT morning_range_high"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
               "morning_range_low",
-              "NOT morning_up"
+              "NOT morning_volume_high"
             ]
           }
         ],
@@ -601,16 +470,13 @@
           {
             "vote": -2.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -2.5,
+            "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ]
@@ -618,49 +484,50 @@
     },
     {
       "day": "2026-08-20",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "buy_SPY",
-      "entry": 766.22,
-      "exit": 762.9,
+      "entry": 766.12,
+      "exit": 763.095,
       "tm_net_return": 0.0,
-      "baseline_net_return": -0.005333,
-      "tm_value": 0.986925,
-      "baseline_value": 0.991744,
+      "baseline_net_return": -0.004948,
+      "tm_value": 0.985783,
+      "baseline_value": 0.988449,
       "explanation": {
         "votes": {
-          "0": 3.0,
-          "1": -7.5
+          "0": 2.5,
+          "1": -5.0
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.5,
             "literals": [
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -3.5,
             "literals": [
+              "morning_up",
+              "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "morning_range_high",
+              "morning_up",
               "NOT morning_range_low"
             ]
           }
@@ -669,49 +536,50 @@
     },
     {
       "day": "2026-08-21",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 764.64,
-      "exit": 765.89,
-      "tm_net_return": 0.0,
+      "entry": 764.47,
+      "exit": 766.43,
+      "tm_net_return": 0.001564,
       "baseline_net_return": 0.0,
-      "tm_value": 0.986925,
-      "baseline_value": 0.991744,
+      "tm_value": 0.987324,
+      "baseline_value": 0.988449,
       "explanation": {
         "votes": {
-          "0": 2.5,
-          "1": -4.5
+          "0": -2.5,
+          "1": 3.5
         },
         "for": [
           {
             "vote": 2.5,
             "literals": [
+              "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
-              "NOT morning_range_high"
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "morning_range_low",
               "NOT morning_up"
             ]
           }
@@ -720,24 +588,24 @@
     },
     {
       "day": "2026-08-24",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 762.905,
-      "exit": 763.74,
-      "tm_net_return": 9.5e-05,
+      "entry": 763.655,
+      "exit": 763.68,
+      "tm_net_return": -0.000967,
       "baseline_net_return": 0.0,
-      "tm_value": 0.987018,
-      "baseline_value": 0.991744,
+      "tm_value": 0.986369,
+      "baseline_value": 0.988449,
       "explanation": {
         "votes": {
-          "0": -10.0,
-          "1": 3.0
+          "0": -5.0,
+          "1": -2.0
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 3.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -748,19 +616,15 @@
           {
             "vote": 1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up"
+              "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -3.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
@@ -775,31 +639,87 @@
     },
     {
       "day": "2026-08-25",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 764.7,
-      "exit": 766.12,
+      "entry": 764.36,
+      "exit": 765.39,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.987018,
-      "baseline_value": 0.991744,
+      "tm_value": 0.986369,
+      "baseline_value": 0.988449,
       "explanation": {
         "votes": {
-          "0": 23.5,
-          "1": -17.0
+          "0": 13.5,
+          "1": -15.0
         },
         "for": [
           {
-            "vote": 4.0,
+            "vote": 3.0,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": 3.0,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_range_low"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.0,
             "literals": [
               "NOT morning_up"
             ]
           },
           {
-            "vote": 3.5,
+            "vote": -1.0,
             "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-08-26",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
+      "baseline_action": "buy_SPY",
+      "entry": 765.125,
+      "exit": 766.69,
+      "tm_net_return": 0.001045,
+      "baseline_net_return": 0.001045,
+      "tm_value": 0.9874,
+      "baseline_value": 0.989482,
+      "explanation": {
+        "votes": {
+          "0": -4.0,
+          "1": 9.5
+        },
+        "for": [
+          {
+            "vote": 2.0,
+            "literals": [
+              "morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": 2.0,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
               "NOT morning_range_low"
             ]
           }
@@ -808,69 +728,13 @@
           {
             "vote": -1.5,
             "literals": [
-              "NOT morning_range_high"
+              "morning_up"
             ]
           },
           {
             "vote": -1.0,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-08-26",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
-      "baseline_action": "buy_SPY",
-      "entry": 765.1,
-      "exit": 766.18,
-      "tm_net_return": 0.0,
-      "baseline_net_return": 0.000412,
-      "tm_value": 0.987018,
-      "baseline_value": 0.992152,
-      "explanation": {
-        "votes": {
-          "0": 1.5,
-          "1": -1.5
-        },
-        "for": [
-          {
-            "vote": 2.5,
-            "literals": [
-              "morning_up",
-              "morning_range_high"
-            ]
-          },
-          {
-            "vote": 2.0,
-            "literals": [
-              "morning_up",
               "morning_range_high",
-              "NOT morning_volume_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.5,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": -2.0,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           }
@@ -879,24 +743,24 @@
     },
     {
       "day": "2026-08-27",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "buy_SPY",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
-      "entry": 769.67,
-      "exit": 771.25,
-      "tm_net_return": 0.001053,
-      "baseline_net_return": 0.001053,
-      "tm_value": 0.988058,
-      "baseline_value": 0.993197,
+      "entry": 769.41,
+      "exit": 770.59,
+      "tm_net_return": 0.0,
+      "baseline_net_return": 0.000534,
+      "tm_value": 0.9874,
+      "baseline_value": 0.99001,
       "explanation": {
         "votes": {
-          "0": 2.0,
-          "1": 3.5
+          "0": 1.5,
+          "1": 0.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
               "morning_up",
               "NOT morning_range_high",
@@ -904,25 +768,24 @@
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.0,
             "literals": [
-              "morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
               "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "NOT morning_range_high"
+              "morning_up"
             ]
           }
         ]
@@ -930,50 +793,51 @@
     },
     {
       "day": "2026-08-28",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 771.29,
-      "exit": 769.375,
+      "entry": 772.15,
+      "exit": 769.6,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988058,
-      "baseline_value": 0.993197,
+      "tm_value": 0.9874,
+      "baseline_value": 0.99001,
       "explanation": {
         "votes": {
-          "0": 4.5,
-          "1": -5.5
+          "0": 3.5,
+          "1": -1.5
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.0,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_high"
             ]
           },
           {
             "vote": 1.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
+              "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -981,24 +845,24 @@
     },
     {
       "day": "2026-08-31",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 764.93,
-      "exit": 767.4,
-      "tm_net_return": 0.002229,
+      "entry": 764.885,
+      "exit": 766.94,
+      "tm_net_return": 0.001687,
       "baseline_net_return": 0.0,
-      "tm_value": 0.99026,
-      "baseline_value": 0.993197,
+      "tm_value": 0.989066,
+      "baseline_value": 0.99001,
       "explanation": {
         "votes": {
-          "0": -8.5,
-          "1": 8.0
+          "0": -3.0,
+          "1": 5.5
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 2.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -1007,25 +871,22 @@
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up"
+              "morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
-              "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high",
@@ -1037,77 +898,22 @@
     },
     {
       "day": "2026-09-01",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "buy_SPY",
-      "entry": 763.76,
-      "exit": 760.93,
+      "entry": 764.45,
+      "exit": 761.04,
       "tm_net_return": 0.0,
-      "baseline_net_return": -0.004705,
-      "tm_value": 0.99026,
-      "baseline_value": 0.988524,
+      "baseline_net_return": -0.005461,
+      "tm_value": 0.989066,
+      "baseline_value": 0.984604,
       "explanation": {
         "votes": {
-          "0": 2.0,
-          "1": -7.0
+          "0": 2.5,
+          "1": -1.5
         },
         "for": [
-          {
-            "vote": 1.5,
-            "literals": [
-              "morning_range_high"
-            ]
-          },
-          {
-            "vote": 1.0,
-            "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.0,
-            "literals": [
-              "morning_range_high"
-            ]
-          },
-          {
-            "vote": -1.5,
-            "literals": [
-              "morning_up",
-              "NOT morning_range_low"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-09-02",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
-      "baseline_action": "buy_SPY",
-      "entry": 765.23,
-      "exit": 765.23,
-      "tm_net_return": 0.0,
-      "baseline_net_return": -0.001,
-      "tm_value": 0.99026,
-      "baseline_value": 0.987535,
-      "explanation": {
-        "votes": {
-          "0": 3.0,
-          "1": -5.0
-        },
-        "for": [
-          {
-            "vote": 1.5,
-            "literals": [
-              "morning_up"
-            ]
-          },
           {
             "vote": 1.5,
             "literals": [
@@ -1116,14 +922,19 @@
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
+          },
+          {
+            "vote": 1.0,
+            "literals": [
+              "morning_up"
+            ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "morning_up",
-              "morning_range_high"
+              "NOT morning_range_low"
             ]
           },
           {
@@ -1131,6 +942,60 @@
             "literals": [
               "morning_up",
               "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-02",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
+      "baseline_action": "buy_SPY",
+      "entry": 765.6,
+      "exit": 765.375,
+      "tm_net_return": -0.001294,
+      "baseline_net_return": -0.001294,
+      "tm_value": 0.987786,
+      "baseline_value": 0.98333,
+      "explanation": {
+        "votes": {
+          "0": -5.0,
+          "1": 0.0
+        },
+        "for": [
+          {
+            "vote": 2.5,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": 1.0,
+            "literals": [
+              "morning_range_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -3.0,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": -1.5,
+            "literals": [
+              "morning_up",
               "NOT morning_range_low"
             ]
           }
@@ -1139,32 +1004,35 @@
     },
     {
       "day": "2026-09-03",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
-      "entry": 768.67,
-      "exit": 773.22,
-      "tm_net_return": 0.0,
-      "baseline_net_return": 0.004919,
-      "tm_value": 0.99026,
-      "baseline_value": 0.992393,
+      "entry": 767.84,
+      "exit": 773.2,
+      "tm_net_return": 0.005981,
+      "baseline_net_return": 0.005981,
+      "tm_value": 0.993694,
+      "baseline_value": 0.989211,
       "explanation": {
         "votes": {
-          "0": 2.5,
-          "1": -3.0
+          "0": -5.0,
+          "1": -0.5
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 1.5,
             "literals": [
-              "morning_up"
+              "morning_up",
+              "morning_range_high"
             ]
           },
           {
             "vote": 1.0,
             "literals": [
-              "morning_range_high"
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low"
             ]
           }
         ],
@@ -1172,13 +1040,13 @@
           {
             "vote": -1.0,
             "literals": [
-              "morning_up"
+              "morning_up",
+              "NOT morning_range_low"
             ]
           },
           {
             "vote": -1.0,
             "literals": [
-              "morning_up",
               "morning_range_high"
             ]
           }
@@ -1187,44 +1055,41 @@
     },
     {
       "day": "2026-09-04",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 771.21,
-      "exit": 770.395,
+      "entry": 770.84,
+      "exit": 769.92,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.99026,
-      "baseline_value": 0.992393,
+      "tm_value": 0.993694,
+      "baseline_value": 0.989211,
       "explanation": {
         "votes": {
-          "0": 10.5,
-          "1": -13.0
+          "0": 11.5,
+          "1": -9.5
         },
         "for": [
           {
             "vote": 3.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_high"
             ]
           },
           {
@@ -1239,52 +1104,51 @@
     },
     {
       "day": "2026-09-08",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 766.71,
-      "exit": 765.71,
-      "tm_net_return": 0.0,
+      "entry": 766.96,
+      "exit": 766.82,
+      "tm_net_return": -0.001183,
       "baseline_net_return": 0.0,
-      "tm_value": 0.99026,
-      "baseline_value": 0.992393,
+      "tm_value": 0.992519,
+      "baseline_value": 0.989211,
       "explanation": {
         "votes": {
-          "0": 0.5,
-          "1": -0.5
+          "0": 1.5,
+          "1": 3.5
         },
         "for": [
           {
-            "vote": 2.0,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
               "morning_range_low"
             ]
-          }
-        ],
-        "against": [
+          },
           {
-            "vote": -2.5,
+            "vote": 1.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -1.0,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_volume_high"
+            ]
           },
           {
-            "vote": -2.0,
+            "vote": -0.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_volume_high"
+              "morning_range_low",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1292,53 +1156,48 @@
     },
     {
       "day": "2026-09-09",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 763.98,
-      "exit": 762.415,
-      "tm_net_return": 0.0,
+      "entry": 763.485,
+      "exit": 762.805,
+      "tm_net_return": -0.001891,
       "baseline_net_return": 0.0,
-      "tm_value": 0.99026,
-      "baseline_value": 0.992393,
+      "tm_value": 0.990642,
+      "baseline_value": 0.989211,
       "explanation": {
         "votes": {
-          "0": 4.0,
-          "1": -2.0
+          "0": 3.0,
+          "1": 4.0
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "morning_range_low",
+              "NOT morning_up"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
+              "morning_range_low",
               "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -2.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ]
@@ -1346,94 +1205,40 @@
     },
     {
       "day": "2026-09-10",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "buy_SPY",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
-      "entry": 758.71,
-      "exit": 757.86,
-      "tm_net_return": -0.00212,
-      "baseline_net_return": -0.00212,
-      "tm_value": 0.98816,
-      "baseline_value": 0.990289,
+      "entry": 758.92,
+      "exit": 758.08,
+      "tm_net_return": 0.0,
+      "baseline_net_return": -0.002107,
+      "tm_value": 0.990642,
+      "baseline_value": 0.987127,
       "explanation": {
         "votes": {
-          "0": -4.5,
-          "1": 6.0
+          "0": 9.0,
+          "1": -8.0
         },
         "for": [
           {
             "vote": 2.5,
             "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.5,
             "literals": [
-              "morning_range_high"
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": -1.5,
-            "literals": [
-              "morning_range_high"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-09-11",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
-      "baseline_action": "buy_SPY",
-      "entry": 765.83,
-      "exit": 764.67,
-      "tm_net_return": 0.0,
-      "baseline_net_return": -0.002515,
-      "tm_value": 0.98816,
-      "baseline_value": 0.987799,
-      "explanation": {
-        "votes": {
-          "0": 1.5,
-          "1": -3.5
-        },
-        "for": [
-          {
-            "vote": 2.0,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 1.5,
-            "literals": [
-              "morning_range_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
               "morning_range_high"
             ]
@@ -1441,6 +1246,62 @@
           {
             "vote": -1.0,
             "literals": [
+              "morning_range_high",
+              "NOT morning_range_low"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-11",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
+      "baseline_action": "buy_SPY",
+      "entry": 764.67,
+      "exit": 765.01,
+      "tm_net_return": 0.0,
+      "baseline_net_return": -0.000555,
+      "tm_value": 0.990642,
+      "baseline_value": 0.986578,
+      "explanation": {
+        "votes": {
+          "0": 8.5,
+          "1": -9.0
+        },
+        "for": [
+          {
+            "vote": 3.0,
+            "literals": [
+              "morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": 3.0,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -1.5,
+            "literals": [
+              "morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": -1.5,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
               "NOT morning_range_low"
             ]
           }
@@ -1449,24 +1310,24 @@
     },
     {
       "day": "2026-09-14",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 758.81,
-      "exit": 761.27,
+      "entry": 759.085,
+      "exit": 761.575,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.98816,
-      "baseline_value": 0.987799,
+      "tm_value": 0.990642,
+      "baseline_value": 0.986578,
       "explanation": {
         "votes": {
-          "0": 6.5,
-          "1": -3.0
+          "0": 6.0,
+          "1": -6.5
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.5,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_low",
@@ -1474,26 +1335,25 @@
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_range_high",
+              "NOT morning_range_low"
             ]
           },
           {
             "vote": -1.0,
             "literals": [
+              "NOT morning_up",
               "NOT morning_range_low"
             ]
           }
@@ -1502,49 +1362,49 @@
     },
     {
       "day": "2026-09-15",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 757.49,
-      "exit": 756.99,
-      "tm_net_return": -0.00166,
+      "entry": 757.345,
+      "exit": 756.71,
+      "tm_net_return": -0.001838,
       "baseline_net_return": 0.0,
-      "tm_value": 0.98652,
-      "baseline_value": 0.987799,
+      "tm_value": 0.988821,
+      "baseline_value": 0.986578,
       "explanation": {
         "votes": {
           "0": -4.0,
-          "1": 6.5
+          "1": 1.5
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
-              "morning_range_low",
               "NOT morning_up"
             ]
           },
           {
-            "vote": 2.0,
-            "literals": [
-              "NOT morning_up"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.5,
+            "vote": 1.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high"
             ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.0,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
           },
           {
             "vote": -1.0,
             "literals": [
-              "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
@@ -1555,50 +1415,52 @@
     },
     {
       "day": "2026-09-16",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 759.01,
-      "exit": 754.065,
+      "entry": 759.13,
+      "exit": 752.09,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.98652,
-      "baseline_value": 0.987799,
+      "tm_value": 0.988821,
+      "baseline_value": 0.986578,
       "explanation": {
         "votes": {
-          "0": 4.5,
-          "1": -1.5
+          "0": 5.5,
+          "1": -11.5
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 5.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -4.0,
             "literals": [
               "NOT morning_range_high",
+              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_range_high"
+              "NOT morning_up",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -1606,24 +1468,24 @@
     },
     {
       "day": "2026-09-17",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
       "tm_action": "cash",
       "baseline_action": "cash",
-      "entry": 761.65,
-      "exit": 763.145,
+      "entry": 762.005,
+      "exit": 763.09,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.98652,
-      "baseline_value": 0.987799,
+      "tm_value": 0.988821,
+      "baseline_value": 0.986578,
       "explanation": {
         "votes": {
-          "0": 5.0,
-          "1": -3.5
+          "0": 4.5,
+          "1": -2.5
         },
         "for": [
           {
-            "vote": 4.5,
+            "vote": 3.0,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high",
@@ -1631,9 +1493,8 @@
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
-              "morning_range_low",
               "NOT morning_up"
             ]
           }
@@ -1644,16 +1505,15 @@
             "literals": [
               "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -1661,33 +1521,140 @@
     },
     {
       "day": "2026-09-18",
-      "entry_time_et": "10:30",
-      "exit_time_et": "15:55",
-      "tm_action": "cash",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
-      "entry": 759.37,
-      "exit": 761.395,
-      "tm_net_return": 0.0,
+      "entry": 759.22,
+      "exit": 761.425,
+      "tm_net_return": 0.001904,
       "baseline_net_return": 0.0,
-      "tm_value": 0.98652,
-      "baseline_value": 0.987799,
+      "tm_value": 0.990704,
+      "baseline_value": 0.986578,
       "explanation": {
         "votes": {
-          "0": 0.5,
-          "1": -6.5
+          "0": -4.5,
+          "1": 8.0
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high"
+              "NOT morning_up",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.0,
+            "vote": 2.0,
             "literals": [
-              "morning_range_low"
+              "NOT morning_up"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-21",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
+      "baseline_action": "buy_SPY",
+      "entry": 769.18,
+      "exit": 774.435,
+      "tm_net_return": 0.0,
+      "baseline_net_return": 0.005832,
+      "tm_value": 0.990704,
+      "baseline_value": 0.992332,
+      "explanation": {
+        "votes": {
+          "0": 8.0,
+          "1": -6.0
+        },
+        "for": [
+          {
+            "vote": 3.5,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": 3.0,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -1.5,
+            "literals": [
+              "morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": -1.0,
+            "literals": [
+              "morning_range_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-22",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
+      "baseline_action": "cash",
+      "entry": 773.68,
+      "exit": 774.6,
+      "tm_net_return": 0.0,
+      "baseline_net_return": 0.0,
+      "tm_value": 0.990704,
+      "baseline_value": 0.992332,
+      "explanation": {
+        "votes": {
+          "0": 13.5,
+          "1": -10.0
+        },
+        "for": [
+          {
+            "vote": 2.5,
+            "literals": [
+              "NOT morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": 1.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_range_low"
             ]
           }
         ],
@@ -1701,10 +1668,7 @@
           {
             "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ]
