@@ -4,69 +4,13 @@
   "fill_assumption": "next scheduled bar open proxy; not confirmed broker fills",
   "symbol": "SPY",
   "feed": "IEX",
-  "generated_at": "2026-09-23T00:49:05.258296+00:00",
+  "generated_at": "2026-09-24T00:41:51.604178+00:00",
   "cost_bps_per_side": 5.0,
   "training_sessions": 30,
   "sessions": 62,
-  "tm_final_value": 0.990704,
-  "baseline_final_value": 0.992332,
+  "tm_final_value": 0.998621,
+  "baseline_final_value": 0.993403,
   "trades": [
-    {
-      "day": "2026-08-07",
-      "entry_time_et": "10:35",
-      "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
-      "baseline_action": "buy_SPY",
-      "entry": 772.625,
-      "exit": 772.565,
-      "tm_net_return": -0.001078,
-      "baseline_net_return": -0.001078,
-      "tm_value": 0.998922,
-      "baseline_value": 0.998922,
-      "explanation": {
-        "votes": {
-          "0": 1.5,
-          "1": 10.5
-        },
-        "for": [
-          {
-            "vote": 3.0,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 2.5,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.0,
-            "literals": [
-              "morning_up",
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          }
-        ]
-      }
-    },
     {
       "day": "2026-08-10",
       "entry_time_et": "10:35",
@@ -77,18 +21,17 @@
       "exit": 773.08,
       "tm_net_return": -0.002679,
       "baseline_net_return": -0.002679,
-      "tm_value": 0.996246,
-      "baseline_value": 0.996246,
+      "tm_value": 0.997321,
+      "baseline_value": 0.997321,
       "explanation": {
         "votes": {
           "0": -2.0,
-          "1": -0.5
+          "1": 4.5
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
-              "morning_up",
               "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
@@ -97,23 +40,24 @@
           {
             "vote": 1.0,
             "literals": [
-              "morning_range_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_volume_high"
+              "morning_up"
             ]
           },
           {
             "vote": -0.5,
             "literals": [
               "morning_up",
-              "NOT morning_range_low"
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -129,46 +73,40 @@
       "exit": 770.52,
       "tm_net_return": -0.005091,
       "baseline_net_return": 0.0,
-      "tm_value": 0.991175,
-      "baseline_value": 0.996246,
+      "tm_value": 0.992244,
+      "baseline_value": 0.997321,
       "explanation": {
         "votes": {
-          "0": -6.5,
-          "1": -1.0
+          "0": -3.0,
+          "1": 7.5
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
               "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_up"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
               "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_high"
             ]
           },
           {
             "vote": -1.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -184,43 +122,41 @@
       "exit": 772.855,
       "tm_net_return": 6.9e-05,
       "baseline_net_return": 0.0,
-      "tm_value": 0.991243,
-      "baseline_value": 0.996246,
+      "tm_value": 0.992312,
+      "baseline_value": 0.997321,
       "explanation": {
         "votes": {
-          "0": -9.5,
-          "1": 2.0
+          "0": -7.0,
+          "1": 6.0
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 3.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
+              "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
           },
           {
             "vote": 1.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_high"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_up"
             ]
           }
         ]
@@ -230,22 +166,38 @@
       "day": "2026-08-13",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 779.16,
       "exit": 777.685,
-      "tm_net_return": -0.002893,
+      "tm_net_return": 0.0,
       "baseline_net_return": -0.002893,
-      "tm_value": 0.988375,
-      "baseline_value": 0.993364,
+      "tm_value": 0.992312,
+      "baseline_value": 0.994436,
       "explanation": {
         "votes": {
-          "0": -6.0,
-          "1": 1.5
+          "0": 5.0,
+          "1": -2.5
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
+            "literals": [
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": 2.0,
+            "literals": [
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -3.0,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -254,24 +206,9 @@
             ]
           },
           {
-            "vote": 1.5,
+            "vote": -2.5,
             "literals": [
               "morning_up",
-              "NOT morning_range_low"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.0,
-            "literals": [
-              "morning_up"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "morning_range_high",
               "NOT morning_range_low"
             ]
           }
@@ -288,43 +225,41 @@
       "exit": 776.12,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988375,
-      "baseline_value": 0.993364,
+      "tm_value": 0.992312,
+      "baseline_value": 0.994436,
       "explanation": {
         "votes": {
-          "0": 10.0,
-          "1": -11.0
+          "0": 12.0,
+          "1": -7.5
         },
         "for": [
           {
             "vote": 2.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low",
+              "NOT morning_up",
               "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_low"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
+              "NOT morning_up",
               "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -340,16 +275,16 @@
       "exit": 773.0,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988375,
-      "baseline_value": 0.993364,
+      "tm_value": 0.992312,
+      "baseline_value": 0.994436,
       "explanation": {
         "votes": {
-          "0": 15.5,
-          "1": -25.5
+          "0": 11.0,
+          "1": -9.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high",
@@ -357,25 +292,25 @@
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
-              "NOT morning_range_high"
+              "NOT morning_up",
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -3.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_range_low"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -391,42 +326,40 @@
       "exit": 767.86,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988375,
-      "baseline_value": 0.993364,
+      "tm_value": 0.992312,
+      "baseline_value": 0.994436,
       "explanation": {
         "votes": {
-          "0": 15.5,
-          "1": -21.5
+          "0": 21.5,
+          "1": -18.5
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 2.5,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_up"
             ]
           },
           {
             "vote": 2.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -0.5,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_high"
+              "NOT morning_up",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -436,47 +369,51 @@
       "day": "2026-08-19",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "cash",
       "entry": 770.18,
       "exit": 768.93,
-      "tm_net_return": -0.002623,
+      "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.985783,
-      "baseline_value": 0.993364,
+      "tm_value": 0.992312,
+      "baseline_value": 0.994436,
       "explanation": {
         "votes": {
-          "0": 0.0,
-          "1": 7.0
+          "0": 0.5,
+          "1": -2.5
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
-              "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -3.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -492,31 +429,31 @@
       "exit": 763.095,
       "tm_net_return": 0.0,
       "baseline_net_return": -0.004948,
-      "tm_value": 0.985783,
-      "baseline_value": 0.988449,
+      "tm_value": 0.992312,
+      "baseline_value": 0.989515,
       "explanation": {
         "votes": {
-          "0": 2.5,
-          "1": -5.0
+          "0": -1.0,
+          "1": -2.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
+              "morning_up",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.0,
             "literals": [
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -3.5,
+            "vote": -2.0,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -525,7 +462,7 @@
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
               "morning_up",
               "NOT morning_range_low"
@@ -544,29 +481,28 @@
       "exit": 766.43,
       "tm_net_return": 0.001564,
       "baseline_net_return": 0.0,
-      "tm_value": 0.987324,
-      "baseline_value": 0.988449,
+      "tm_value": 0.993864,
+      "baseline_value": 0.989515,
       "explanation": {
         "votes": {
-          "0": -2.5,
-          "1": 3.5
+          "0": -4.0,
+          "1": 9.5
         },
         "for": [
           {
-            "vote": 2.5,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 2.0,
+            "vote": 3.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": 1.5,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_range_high"
             ]
           }
         ],
@@ -578,7 +514,7 @@
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
               "NOT morning_up"
             ]
@@ -596,41 +532,43 @@
       "exit": 763.68,
       "tm_net_return": -0.000967,
       "baseline_net_return": 0.0,
-      "tm_value": 0.986369,
-      "baseline_value": 0.988449,
+      "tm_value": 0.992903,
+      "baseline_value": 0.989515,
       "explanation": {
         "votes": {
           "0": -5.0,
-          "1": -2.0
+          "1": 4.0
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.0,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_up"
+            ]
+          },
+          {
+            "vote": 2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
-          },
-          {
-            "vote": 1.0,
-            "literals": [
-              "NOT morning_range_high"
-            ]
           }
         ],
         "against": [
           {
-            "vote": -3.0,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
-              "morning_range_low",
+              "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
           }
@@ -647,18 +585,17 @@
       "exit": 765.39,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.986369,
-      "baseline_value": 0.988449,
+      "tm_value": 0.992903,
+      "baseline_value": 0.989515,
       "explanation": {
         "votes": {
-          "0": 13.5,
-          "1": -15.0
+          "0": 20.5,
+          "1": -17.5
         },
         "for": [
           {
             "vote": 3.0,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_range_low"
             ]
@@ -667,24 +604,22 @@
             "vote": 3.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -694,31 +629,30 @@
       "day": "2026-08-26",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 765.125,
       "exit": 766.69,
-      "tm_net_return": 0.001045,
+      "tm_net_return": 0.0,
       "baseline_net_return": 0.001045,
-      "tm_value": 0.9874,
-      "baseline_value": 0.989482,
+      "tm_value": 0.992903,
+      "baseline_value": 0.990549,
       "explanation": {
         "votes": {
-          "0": -4.0,
-          "1": 9.5
+          "0": -0.5,
+          "1": -3.0
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
-              "morning_range_high",
+              "morning_up",
               "NOT morning_range_low"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "morning_up",
               "morning_range_high",
               "NOT morning_range_low"
             ]
@@ -726,16 +660,18 @@
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
-              "morning_up"
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           }
         ]
@@ -751,41 +687,42 @@
       "exit": 770.59,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.000534,
-      "tm_value": 0.9874,
-      "baseline_value": 0.99001,
+      "tm_value": 0.992903,
+      "baseline_value": 0.991078,
       "explanation": {
         "votes": {
-          "0": 1.5,
-          "1": 0.5
+          "0": 0.5,
+          "1": -6.5
         },
         "for": [
           {
             "vote": 1.5,
             "literals": [
-              "morning_up",
               "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.0,
+            "vote": 1.5,
             "literals": [
+              "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_range_high",
+              "morning_up",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
-              "morning_up"
+              "morning_up",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -801,43 +738,48 @@
       "exit": 769.6,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.9874,
-      "baseline_value": 0.99001,
+      "tm_value": 0.992903,
+      "baseline_value": 0.991078,
       "explanation": {
         "votes": {
-          "0": 3.5,
-          "1": -1.5
+          "0": -6.0,
+          "1": -7.0
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_range_high"
+              "morning_range_low",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.5,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
+            "vote": 1.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
-          },
+          }
+        ],
+        "against": [
           {
-            "vote": -1.0,
+            "vote": -2.5,
             "literals": [
               "morning_range_low",
+              "NOT morning_up",
               "NOT morning_range_high"
+            ]
+          },
+          {
+            "vote": -2.5,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -853,16 +795,16 @@
       "exit": 766.94,
       "tm_net_return": 0.001687,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989066,
-      "baseline_value": 0.99001,
+      "tm_value": 0.994577,
+      "baseline_value": 0.991078,
       "explanation": {
         "votes": {
-          "0": -3.0,
-          "1": 5.5
+          "0": -7.5,
+          "1": 2.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -873,15 +815,17 @@
           {
             "vote": 2.0,
             "literals": [
-              "morning_range_low"
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.5,
             "literals": [
-              "NOT morning_up",
+              "morning_range_low",
               "NOT morning_range_high"
             ]
           },
@@ -889,8 +833,7 @@
             "vote": -1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -906,27 +849,26 @@
       "exit": 761.04,
       "tm_net_return": 0.0,
       "baseline_net_return": -0.005461,
-      "tm_value": 0.989066,
-      "baseline_value": 0.984604,
+      "tm_value": 0.994577,
+      "baseline_value": 0.985666,
       "explanation": {
         "votes": {
-          "0": 2.5,
-          "1": -1.5
+          "0": 5.5,
+          "1": -3.5
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
               "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
             "vote": 1.0,
             "literals": [
-              "morning_up"
+              "morning_up",
+              "morning_range_high"
             ]
           }
         ],
@@ -934,16 +876,15 @@
           {
             "vote": -1.0,
             "literals": [
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "morning_up",
               "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "morning_range_high"
             ]
           }
         ]
@@ -959,33 +900,31 @@
       "exit": 765.375,
       "tm_net_return": -0.001294,
       "baseline_net_return": -0.001294,
-      "tm_value": 0.987786,
-      "baseline_value": 0.98333,
+      "tm_value": 0.99329,
+      "baseline_value": 0.984391,
       "explanation": {
         "votes": {
-          "0": -5.0,
-          "1": 0.0
+          "0": -2.5,
+          "1": 6.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           },
           {
-            "vote": 1.0,
+            "vote": 2.5,
             "literals": [
-              "morning_range_high"
+              "morning_range_high",
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -3.0,
+            "vote": -2.5,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -995,8 +934,7 @@
           {
             "vote": -1.5,
             "literals": [
-              "morning_up",
-              "NOT morning_range_low"
+              "morning_up"
             ]
           }
         ]
@@ -1012,42 +950,42 @@
       "exit": 773.2,
       "tm_net_return": 0.005981,
       "baseline_net_return": 0.005981,
-      "tm_value": 0.993694,
-      "baseline_value": 0.989211,
+      "tm_value": 0.999231,
+      "baseline_value": 0.990278,
       "explanation": {
         "votes": {
-          "0": -5.0,
-          "1": -0.5
+          "0": -1.5,
+          "1": 3.0
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 3.5,
             "literals": [
-              "morning_up",
-              "morning_range_high"
+              "NOT morning_range_low"
             ]
           },
           {
-            "vote": 1.0,
+            "vote": 2.0,
             "literals": [
               "morning_up",
               "morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -2.0,
             "literals": [
               "morning_up",
-              "NOT morning_range_low"
+              "NOT morning_volume_high"
             ]
           },
           {
             "vote": -1.0,
             "literals": [
-              "morning_range_high"
+              "NOT morning_range_low"
             ]
           }
         ]
@@ -1063,25 +1001,27 @@
       "exit": 769.92,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.993694,
-      "baseline_value": 0.989211,
+      "tm_value": 0.999231,
+      "baseline_value": 0.990278,
       "explanation": {
         "votes": {
-          "0": 11.5,
-          "1": -9.5
+          "0": 13.5,
+          "1": -9.0
         },
         "for": [
           {
             "vote": 3.0,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_volume_high"
             ]
           }
         ],
@@ -1089,14 +1029,14 @@
           {
             "vote": -1.5,
             "literals": [
+              "NOT morning_up",
               "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1112,22 +1052,25 @@
       "exit": 766.82,
       "tm_net_return": -0.001183,
       "baseline_net_return": 0.0,
-      "tm_value": 0.992519,
-      "baseline_value": 0.989211,
+      "tm_value": 0.998049,
+      "baseline_value": 0.990278,
       "explanation": {
         "votes": {
-          "0": 1.5,
-          "1": 3.5
+          "0": -1.5,
+          "1": 10.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 4.0,
             "literals": [
-              "morning_range_low"
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 3.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -1138,17 +1081,15 @@
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -2.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high"
+              "morning_range_low"
             ]
           }
         ]
@@ -1164,40 +1105,46 @@
       "exit": 762.805,
       "tm_net_return": -0.001891,
       "baseline_net_return": 0.0,
-      "tm_value": 0.990642,
-      "baseline_value": 0.989211,
+      "tm_value": 0.996162,
+      "baseline_value": 0.990278,
       "explanation": {
         "votes": {
-          "0": 3.0,
-          "1": 4.0
+          "0": -3.0,
+          "1": -2.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
               "morning_range_low",
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -3.0,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -2.5,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -1207,29 +1154,31 @@
       "day": "2026-09-10",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
       "entry": 758.92,
       "exit": 758.08,
-      "tm_net_return": 0.0,
+      "tm_net_return": -0.002107,
       "baseline_net_return": -0.002107,
-      "tm_value": 0.990642,
-      "baseline_value": 0.987127,
+      "tm_value": 0.994064,
+      "baseline_value": 0.988192,
       "explanation": {
         "votes": {
-          "0": 9.0,
-          "1": -8.0
+          "0": -5.0,
+          "1": 11.5
         },
         "for": [
           {
             "vote": 2.5,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up",
+              "morning_range_high"
             ]
           },
           {
             "vote": 2.5,
             "literals": [
+              "morning_up",
               "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
@@ -1238,16 +1187,15 @@
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "morning_range_high"
+              "morning_up"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
+              "morning_up"
             ]
           }
         ]
@@ -1257,52 +1205,50 @@
       "day": "2026-09-11",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
       "entry": 764.67,
       "exit": 765.01,
-      "tm_net_return": 0.0,
+      "tm_net_return": -0.000555,
       "baseline_net_return": -0.000555,
-      "tm_value": 0.990642,
-      "baseline_value": 0.986578,
+      "tm_value": 0.993512,
+      "baseline_value": 0.987643,
       "explanation": {
         "votes": {
-          "0": 8.5,
-          "1": -9.0
+          "0": -4.0,
+          "1": 2.0
         },
         "for": [
           {
-            "vote": 3.0,
-            "literals": [
-              "morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 3.0,
+            "vote": 2.5,
             "literals": [
               "morning_up",
               "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": 2.5,
+            "literals": [
+              "morning_up",
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.5,
             "literals": [
-              "morning_range_high",
+              "morning_up",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
               "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -1312,24 +1258,24 @@
       "day": "2026-09-14",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
       "entry": 759.085,
       "exit": 761.575,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.00228,
       "baseline_net_return": 0.0,
-      "tm_value": 0.990642,
-      "baseline_value": 0.986578,
+      "tm_value": 0.995777,
+      "baseline_value": 0.987643,
       "explanation": {
         "votes": {
-          "0": 6.0,
-          "1": -6.5
+          "0": 1.0,
+          "1": 7.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
-              "NOT morning_up",
+              "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
@@ -1337,23 +1283,21 @@
           {
             "vote": 1.5,
             "literals": [
-              "NOT morning_up",
+              "morning_range_high",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_low"
             ]
           }
@@ -1370,44 +1314,41 @@
       "exit": 756.71,
       "tm_net_return": -0.001838,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988821,
-      "baseline_value": 0.986578,
+      "tm_value": 0.993946,
+      "baseline_value": 0.987643,
       "explanation": {
         "votes": {
-          "0": -4.0,
-          "1": 1.5
+          "0": -3.5,
+          "1": 8.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           },
           {
             "vote": -1.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1423,44 +1364,45 @@
       "exit": 752.09,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988821,
-      "baseline_value": 0.986578,
+      "tm_value": 0.993946,
+      "baseline_value": 0.987643,
       "explanation": {
         "votes": {
-          "0": 5.5,
-          "1": -11.5
+          "0": 13.0,
+          "1": -15.5
         },
         "for": [
           {
-            "vote": 5.5,
+            "vote": 3.0,
             "literals": [
+              "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
               "NOT morning_up",
+              "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -4.0,
+            "vote": -2.5,
             "literals": [
+              "NOT morning_up",
               "NOT morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1470,38 +1412,22 @@
       "day": "2026-09-17",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
       "entry": 762.005,
       "exit": 763.09,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.000424,
       "baseline_net_return": 0.0,
-      "tm_value": 0.988821,
-      "baseline_value": 0.986578,
+      "tm_value": 0.994368,
+      "baseline_value": 0.987643,
       "explanation": {
         "votes": {
-          "0": 4.5,
-          "1": -2.5
+          "0": -6.0,
+          "1": 3.5
         },
         "for": [
           {
             "vote": 3.0,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 2.5,
-            "literals": [
-              "NOT morning_up"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -3.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -1509,11 +1435,25 @@
             ]
           },
           {
-            "vote": -1.5,
+            "vote": 1.5,
+            "literals": [
+              "NOT morning_up"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "morning_range_low"
             ]
           }
         ]
@@ -1529,38 +1469,40 @@
       "exit": 761.425,
       "tm_net_return": 0.001904,
       "baseline_net_return": 0.0,
-      "tm_value": 0.990704,
-      "baseline_value": 0.986578,
+      "tm_value": 0.996261,
+      "baseline_value": 0.987643,
       "explanation": {
         "votes": {
-          "0": -4.5,
-          "1": 8.0
+          "0": -8.5,
+          "1": 3.0
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
+              "morning_range_low",
               "NOT morning_up",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -4.0,
             "literals": [
               "NOT morning_up",
+              "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high",
@@ -1574,30 +1516,31 @@
       "day": "2026-09-21",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
       "entry": 769.18,
       "exit": 774.435,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.005832,
       "baseline_net_return": 0.005832,
-      "tm_value": 0.990704,
-      "baseline_value": 0.992332,
+      "tm_value": 1.002071,
+      "baseline_value": 0.993403,
       "explanation": {
         "votes": {
-          "0": 8.0,
-          "1": -6.0
+          "0": -10.5,
+          "1": 5.5
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.5,
             "literals": [
               "morning_up",
               "morning_range_high",
+              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 3.0,
+            "vote": 1.0,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -1608,16 +1551,15 @@
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -0.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
+              "morning_up"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "morning_range_high"
+              "NOT morning_range_low"
             ]
           }
         ]
@@ -1633,16 +1575,16 @@
       "exit": 774.6,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.990704,
-      "baseline_value": 0.992332,
+      "tm_value": 1.002071,
+      "baseline_value": 0.993403,
       "explanation": {
         "votes": {
-          "0": 13.5,
-          "1": -10.0
+          "0": 8.5,
+          "1": -7.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
               "NOT morning_range_high",
               "NOT morning_range_low",
@@ -1650,25 +1592,81 @@
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -2.5,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-23",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
+      "baseline_action": "cash",
+      "entry": 769.41,
+      "exit": 767.53,
+      "tm_net_return": -0.003443,
+      "baseline_net_return": 0.0,
+      "tm_value": 0.998621,
+      "baseline_value": 0.993403,
+      "explanation": {
+        "votes": {
+          "0": -14.5,
+          "1": 19.5
+        },
+        "for": [
+          {
+            "vote": 3.5,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_range_high"
+            ]
+          },
+          {
+            "vote": 3.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -0.5,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_up",
+              "NOT morning_range_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ]
