@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tsetlin Trader Studio (live)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F3; --surface:#FFFFFF; --surface2:#E7EEEA; --ink:#12201A; --muted:#55665E; --line:#CFD9D3;
+  --accent:#0B7A5E; --accent-soft:#D5EEE4; --accent-ink:#FFFFFF;
+  --good:#1B7F4B; --good-soft:#D8EFE1; --bad:#B3261E; --bad-soft:#F8DAD7; --warn:#94560A; --warn-soft:#F7E8CB;
+  --c-blend:#2F63C8; --c-filter:#A86400; --c-tm:#0B7A5E; --c-spy:#66746E; --c-def:#B5476B;
+  --a-SPY:#2F63C8; --a-QQQ:#0E8A8A; --a-IWM:#B7791F; --a-TLT:#B5476B; --a-cash:#A5B0AA;
+  --code-bg:#12201A; --code-ink:#DDEBE3;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0E1512; --surface:#151F1A; --surface2:#1C2924; --ink:#E4EEE8; --muted:#94A79D; --line:#2A3932;
+  --accent:#3FCF9F; --accent-soft:#12352A; --accent-ink:#06130E;
+  --good:#4FD08A; --good-soft:#123522; --bad:#FF8A80; --bad-soft:#3B1815; --warn:#E6A94B; --warn-soft:#38290F;
+  --c-blend:#7BA6FF; --c-filter:#E6A94B; --c-tm:#3FCF9F; --c-spy:#9AA8A2; --c-def:#F08BAE;
+  --a-SPY:#7BA6FF; --a-QQQ:#4FC9C9; --a-IWM:#E6A94B; --a-TLT:#F08BAE; --a-cash:#5C6B64; --code-bg:#0A100D;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;padding:0 16px 60px}
+.app{max-width:1240px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.6rem,4vw,2.2rem);letter-spacing:-.02em} h2{font-size:1.1rem} h3{font-size:.98rem}
+p{margin:0} code,.mono{font-family:var(--mono);font-size:.86em}
+.muted{color:var(--muted)} .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+button:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:flex-end;justify-content:space-between;padding-block:24px 10px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.72rem;padding:3px 10px;border-radius:999px;background:var(--surface2);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.accent{background:var(--accent);color:var(--accent-ink)}
+.btn{display:inline-flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--muted)} .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)} .btn[disabled]{opacity:.5;cursor:not-allowed}
+select.sm{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);margin:8px 0 18px}
+.tab{background:none;border:none;border-bottom:3px solid transparent;padding:9px 13px;cursor:pointer;color:var(--muted);font-weight:500}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:0}
+.panel>header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.note{background:var(--warn-soft);border-radius:10px;padding:12px 15px;font-size:.9rem}
+.note.bad{background:var(--bad-soft);color:var(--bad)} .note.good{background:var(--good-soft)} .note.info{background:var(--accent-soft)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-family:var(--mono);font-weight:500;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td.r,th.r{text-align:right} .scroll{overflow-x:auto}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.wp{display:inline-flex;gap:4px;flex-wrap:wrap} .wp span{font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:4px;color:#fff;background:var(--c)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;background:var(--c)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.9rem} .kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right}
+.why{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;font-size:.88rem}
+.why li{display:grid;grid-template-columns:86px 1fr;gap:10px}.why b{font-family:var(--mono);font-weight:500;font-size:.78rem;color:var(--muted)}
+.chart{position:relative} .chart svg{width:100%;height:auto;display:block}
+.grid{stroke:var(--line);stroke-width:1} .ax{fill:var(--muted);font:11px var(--mono)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 10px;font-size:.78rem;line-height:1.45;z-index:5;max-width:250px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:8px;font-size:.82rem}
+.legend i{display:inline-block;width:14px;height:0;border-top:3px solid var(--c);margin-right:6px;vertical-align:middle}
+pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:11px 13px;overflow:auto;margin:0;font-family:var(--mono);font-size:.78rem;line-height:1.55;max-height:340px;white-space:pre-wrap}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.check{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.check small{display:block;color:var(--muted)}
+.skel{color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div><p class="eyebrow">tsetlin-trader &middot; live &middot; real data</p><h1>Tsetlin Trader Studio</h1></div>
+    <div class="badges" id="strip"></div>
+  </header>
+  <div class="row" style="margin-bottom:6px">
+    <button class="btn" data-act="refresh-prices">Refresh prices</button>
+    <button class="btn" data-act="reload">Reload everything</button>
+    <span class="muted" style="font-size:.85rem">This page only reads. It has no way to place, change or cancel an order.</span>
+  </div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <main id="view"></main>
+</div>
+
+<script>
+'use strict';
+var ASSETS=['SPY','QQQ','IWM','TLT'];
+var ACOL={SPY:'var(--a-SPY)',QQQ:'var(--a-QQQ)',IWM:'var(--a-IWM)',TLT:'var(--a-TLT)',cash:'var(--a-cash)'};
+var TABS=[['overview','Overview'],['signals','Signals'],['account','Account'],['market','Market & backtest'],['record','Bot record'],['research','Research'],['ready','Readiness']];
+var S={tab:'overview',d:{},busy:{},bt:{start:'2008-01-01',cost:'2',years:'3'}};
+
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function money(x){return x==null?'n/a':'$'+Number(x).toLocaleString('en-US',{maximumFractionDigits:2})}
+function pct(x,d){return x==null?'n/a':(x*100).toFixed(d==null?1:d)+'%'}
+function spct(x,d){return x==null?'n/a':(x>=0?'+':'−')+Math.abs(x*100).toFixed(d==null?1:d)+'%'}
+function clamp(x,a,b){return Math.min(b,Math.max(a,x))}
+function api(path,post){return fetch(path,{method:post?'POST':'GET',headers:post?{'X-Studio':'1'}:{}}).then(function(r){return r.json()})}
+function get(k){return S.d[k]||{}}
+function ok(k){var x=get(k);return x.data&&x.data.ok!==false}
+function dat(k){return get(k).data}
+function load(k,path,post){
+  S.busy[k]=true;render();
+  return api(path,post).then(function(j){S.d[k]={data:j}}).catch(function(e){S.d[k]={data:{ok:false,error:'Could not reach the studio server: '+e}}}).then(function(){S.busy[k]=false;render()});
+}
+function wpills(w){var o='';ASSETS.forEach(function(a){if((w&&w[a]||0)>0.0005)o+='<span style="--c:'+ACOL[a]+'">'+a+' '+Math.round(w[a]*100)+'%</span>'});return o?'<span class="wp">'+o+'</span>':'<span class="muted">cash</span>'}
+function niceTicks(min,max,count){var span=(max-min)||1,step0=span/count,mag=Math.pow(10,Math.floor(Math.log10(step0))),n=step0/mag,step=(n<1.5?1:n<3?2:n<7?5:10)*mag,t=[];for(var v=Math.ceil(min/step)*step;v<=max+1e-9;v+=step)t.push(+v.toFixed(10));return t}
+function errBox(x,what){return '<div class="note bad"><b>'+esc(what||'Problem')+'</b><br>'+esc(x&&x.error||'Unknown error')+'</div>'}
+function skel(k,label){return get(k).data?'':'<p class="skel">'+(S.busy[k]?'Loading '+esc(label)+'...':'Not loaded yet')+'</p>'}
+
+/* ---------------- charts ---------------- */
+function lineChart(el,o){
+  var W=820,Hh=o.h||300,L=54,R=14,Tp=12,B=26,iw=W-L-R,ih=Hh-Tp-B,vis=o.series.filter(function(s){return s.ys.length}),lo=Infinity,hi=-Infinity;
+  vis.forEach(function(s){s.ys.forEach(function(y){if(y<lo)lo=y;if(y>hi)hi=y})});
+  if(!isFinite(lo)){el.innerHTML='<p class="skel">No data</p>';return}
+  var pad=(hi-lo)*0.06||1;lo-=pad;hi+=pad;var n=vis[0].ys.length;
+  function X(i){return L+i/(Math.max(n-1,1))*iw} function Y(y){return Tp+(1-(y-lo)/(hi-lo))*ih}
+  var g='';niceTicks(lo,hi,5).forEach(function(v){g+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v).toFixed(1)+'" y2="'+Y(v).toFixed(1)+'"/><text class="ax" x="'+(L-7)+'" y="'+(Y(v)+4).toFixed(1)+'" text-anchor="end">'+esc(o.yfmt(v))+'</text>'});
+  var ticks=6;for(var t=0;t<ticks;t++){var i=Math.round(t*(n-1)/(ticks-1));g+='<text class="ax" x="'+X(i).toFixed(1)+'" y="'+(Hh-8)+'" text-anchor="middle">'+esc(o.dates[i].slice(0,o.dates.length>400?7:10))+'</text>'}
+  vis.forEach(function(s){g+='<polyline points="'+s.ys.map(function(y,i){return X(i).toFixed(1)+','+Y(y).toFixed(1)}).join(' ')+'" fill="none" style="stroke:'+s.c+'" stroke-width="'+(s.w||1.8)+'" stroke-linejoin="round"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>'});
+  g+='<line class="hl" x1="0" x2="0" y1="'+Tp+'" y2="'+(Tp+ih)+'" style="stroke:var(--muted)" visibility="hidden"/><rect class="ov" x="'+L+'" y="'+Tp+'" width="'+iw+'" height="'+ih+'" fill="transparent"/>';
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="'+esc(o.aria)+'">'+g+'</svg><div class="tip" hidden></div>';
+  var svg=el.querySelector('svg'),tip=el.querySelector('.tip'),hl=svg.querySelector('.hl'),ov=svg.querySelector('.ov');
+  ov.addEventListener('pointermove',function(ev){var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*(W/r.width),i=clamp(Math.round((sx-L)/iw*(n-1)),0,n-1);
+    hl.setAttribute('x1',X(i));hl.setAttribute('x2',X(i));hl.setAttribute('visibility','visible');
+    tip.innerHTML='<div>'+esc(o.dates[i])+'</div>'+vis.map(function(s){return '<div><b>'+esc(o.tipfmt(s.ys[i]))+'</b> '+esc(s.name)+'</div>'}).join('');tip.hidden=false;
+    var er=el.getBoundingClientRect();tip.style.left=clamp(ev.clientX-er.left+14,6,Math.max(6,er.width-260))+'px';tip.style.top='8px'});
+  ov.addEventListener('pointerleave',function(){tip.hidden=true;hl.setAttribute('visibility','hidden')});
+}
+function stackedBars(el,rows,aria){
+  var W=760,Hh=190,L=34,R=6,Tp=8,B=22,iw=W-L-R,ih=Hh-Tp-B,n=rows.length,bw=iw/Math.max(n,1),g='';
+  [0,50,100].forEach(function(v){var y=Tp+(1-v/100)*ih;g+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text class="ax" x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end">'+v+'%</text>'});
+  rows.forEach(function(r,i){var y=Tp+ih,tot=0;ASSETS.forEach(function(a){var v=r.w[a]||0;if(v<=0)return;tot+=v;var h=v*ih;y-=h;g+='<rect x="'+(L+i*bw).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+Math.max(1,bw-1).toFixed(1)+'" height="'+h.toFixed(1)+'" style="fill:'+ACOL[a]+'"/>'});
+    if(tot<0.999){var h2=(1-tot)*ih;y-=h2;g+='<rect x="'+(L+i*bw).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+Math.max(1,bw-1).toFixed(1)+'" height="'+h2.toFixed(1)+'" style="fill:'+ACOL.cash+';opacity:.5"/>'}});
+  if(n){g+='<text class="ax" x="'+L+'" y="'+(Hh-6)+'">'+esc(rows[0].date)+'</text><text class="ax" x="'+(W-R)+'" y="'+(Hh-6)+'" text-anchor="end">'+esc(rows[n-1].date)+'</text>'}
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="'+esc(aria)+'">'+g+'</svg>';
+}
+function legendHtml(items){return '<div class="legend">'+items.map(function(i){return '<span><i style="--c:'+i[1]+'"></i>'+esc(i[0])+'</span>'}).join('')+'</div>'}
+
+/* ---------------- views ---------------- */
+function renderStrip(){
+  var st=dat('status'),a=dat('account'),h='';
+  if(st&&st.ok!==false){var d=st.data;h+='<span class="pill '+(d.fresh?'good':'warn')+'">Prices '+esc(d.last_date)+(d.fresh?' · fresh':' · '+d.age_days+' days old')+'</span>'}
+  else h+='<span class="pill bad">Prices: unavailable</span>';
+  h+=(a&&a.ok)?'<span class="pill good">Alpaca paper · '+esc(a.account.status)+'</span>':'<span class="pill bad">Alpaca: not connected</span>';
+  h+='<span class="pill accent">Controller: plain blend</span><span class="pill">Read-only</span>';
+  $('#strip').innerHTML=h;
+}
+function vOverview(){
+  var s=dat('signals'),h='<div class="grid2"><div class="stack">';
+  h+='<section class="panel"><header><h2>Today’s signals on real prices</h2><span class="muted mono" style="font-size:.8rem">'+(s&&s.as_of?'as of '+esc(s.as_of):'')+'</span></header>';
+  if(!s)h+=skel('signals','signals');else if(s.ok===false)h+=errBox(s,'Could not compute signals');else{
+    var tm=(s.recorded.shadows||{}).tmu,br=s.recorded.controller;
+    h+='<div class="scroll"><table><thead><tr><th>Trader</th><th>Says</th><th>Target</th></tr></thead><tbody>';
+    h+='<tr><td><span class="dot" style="--c:var(--c-blend)"></span>Plain blend <span class="pill accent">controls the account</span></td><td>equal mix of three rules</td><td>'+wpills(s.blend)+'</td></tr>';
+    h+='<tr><td><span class="dot" style="--c:var(--c-filter)"></span>Blend + stress filter</td><td>'+(s.stress.on?'stress: halved':'no stress: full size')+'</td><td>'+wpills(s.filter)+'</td></tr>';
+    h+='<tr><td><span class="dot" style="--c:var(--c-tm)"></span>Tsetlin Machine <span class="pill">shadow</span></td><td>'+(tm?esc(tm.strategy)+' <span class="muted">(recorded '+esc(tm.as_of)+')</span>':'<span class="muted">no record yet</span>')+'</td><td>'+(tm?'<span class="muted">not traded</span>':'')+'</td></tr></tbody></table></div>';
+    h+='<h3 style="margin:16px 0 8px">Why, with today’s real numbers</h3><ul class="why">'+s.sleeves.map(function(x){return '<li><b>'+esc(x.name)+'</b><span>'+esc(x.why)+'</span></li>'}).join('')+'<li><b>stress</b><span>SPY 60-day '+spct(s.stress.spy_60d)+'; volatility 20-day '+pct(s.stress.vol_20d,2)+' vs 60-day '+pct(s.stress.vol_60d,2)+' → '+(s.stress.on?'stress is ON, so the blend is halved':'stress is off')+'</span></li></ul>';
+    if(br)h+='<p class="muted" style="font-size:.82rem;margin-top:10px">The bot’s own last record: <b>'+esc(br.strategy)+'</b> as of '+esc(br.as_of)+' ('+esc(br.status)+(br.plan_only?', plan only':'')+', provider '+esc(br.signal_provider)+'). Note that it predates the switch to the blend controller.</p>';
+  }
+  h+='</section>';
+  h+='<section class="panel"><header><h2>What a cycle would do to the paper account</h2><span class="pill">preview only</span></header>'+planHtml()+'</section>';
+  h+='</div><div class="stack">'+accountCard()+dataCard()+'</div></div>';
+  return h;
+}
+function planHtml(){
+  var p=dat('plan');if(!p)return skel('plan','plan preview');
+  if(!p.ok){var t=p.target_fractions||{},keys=Object.keys(t);
+    return errBox(p,'Account not readable')+(keys.length?'<p style="margin-top:10px;font-size:.9rem">Without the account I can still show the target: at the '+pct(p.cap,0)+' position cap, the blend asks for '+keys.map(function(k){return pct(t[k],0)+' in '+k}).join(', ')+' of equity.</p>':'')}
+  var h='<p style="font-size:.9rem;margin-bottom:10px">Equity <b class="num">'+money(p.equity)+'</b>, position cap '+pct(p.cap,0)+', no-trade band '+pct(p.band,1)+' of equity.</p>';
+  h+='<div class="scroll"><table><thead><tr><th>Symbol</th><th class="r">Held now</th><th class="r">Target</th></tr></thead><tbody>'+ASSETS.map(function(a){return '<tr><td class="mono">'+a+'</td><td class="r num">'+money(p.held[a]||0)+'</td><td class="r num">'+money(p.target[a]||0)+'</td></tr>'}).join('')+'</tbody></table></div>';
+  h+=p.trades.length?'<h3 style="margin:14px 0 6px">Trades it would plan (sells first)</h3><ul class="why">'+p.trades.map(function(t){return '<li><b>'+esc(t.side)+'</b><span class="num">'+esc(t.symbol)+' '+money(t.notional)+(t.close_all?' (close all)':'')+'</span></li>'}).join('')+'</ul>':'<p class="note good" style="margin-top:12px">Already at target: no trades.</p>';
+  if(p.ignored&&p.ignored.length)h+='<p class="note" style="margin-top:10px">Holdings outside the four ETFs, left untouched: '+esc(p.ignored.join(', '))+'</p>';
+  h+='<p class="muted" style="font-size:.82rem;margin-top:10px">'+(p.agrees_with_bot_record==null?'No bot record for '+esc(p.as_of)+' to compare against. ':p.agrees_with_bot_record?'The bot’s own record for '+esc(p.as_of)+' agrees with these weights. ':'<b class="neg">The bot’s own record for '+esc(p.as_of)+' DISAGREES with these weights: investigate.</b> ')+esc(p.note)+'</p>';
+  return h;
+}
+function accountCard(){
+  var a=dat('account'),h='<section class="panel"><header><h2>Paper account</h2>'+(a&&a.ok?'<span class="pill good">'+esc(a.account.status)+'</span>':'')+'</header>';
+  if(!a)return h+skel('account','account')+'</section>';
+  if(!a.ok)return h+errBox(a,'Not connected')+'</section>';
+  var ac=a.account,day=ac.last_equity?ac.equity/ac.last_equity-1:null;
+  h+='<dl class="kv"><dt>Account</dt><dd class="num">'+esc(ac.number||ac.id)+'</dd><dt>Equity</dt><dd class="num">'+money(ac.equity)+'</dd><dt>Since last close</dt><dd class="num '+(day>=0?'pos':'neg')+'">'+spct(day,2)+'</dd><dt>Cash</dt><dd class="num">'+money(ac.cash)+'</dd><dt>Positions</dt><dd class="num">'+(a.positions.length?a.positions.map(function(p){return esc(p.symbol)+' '+money(p.market_value)}).join(', '):'none (cash)')+'</dd><dt>Open orders</dt><dd class="num">'+a.open_orders.length+'</dd></dl>';
+  return h+'</section>';
+}
+function dataCard(){
+  var s=dat('status'),h='<section class="panel"><header><h2>Real data</h2></header>';
+  if(!s)return h+skel('status','status')+'</section>';
+  if(s.ok===false)return h+errBox(s,'No price data')+'</section>';
+  var d=s.data,g=s.git;
+  return h+'<dl class="kv"><dt>Source</dt><dd class="mono">'+esc(d.source)+'</dd><dt>Range</dt><dd class="num">'+esc(d.first_date)+' to '+esc(d.last_date)+'</dd><dt>Trading days</dt><dd class="num">'+d.rows.toLocaleString()+'</dd><dt>Newest price</dt><dd class="num '+(d.fresh?'pos':'neg')+'">'+d.age_days+' days old</dd><dt>Code</dt><dd class="mono">'+esc(g.branch)+' @ '+esc(g.commit)+(g.dirty?' (uncommitted changes)':'')+'</dd></dl><p class="muted" style="font-size:.8rem;margin-top:8px">'+esc(d.note)+'</p></section>';
+}
+function vSignals(){
+  var s=dat('signals'),h='<div class="stack">';
+  if(!s)return skel('signals','signals');if(s.ok===false)return errBox(s,'Could not compute signals');
+  h+='<section class="panel"><header><h2>The three rules, today</h2><span class="muted mono" style="font-size:.8rem">as of '+esc(s.as_of)+'</span></header><div class="scroll"><table><thead><tr><th>Rule</th><th>Holds</th><th>Because</th></tr></thead><tbody>'+s.sleeves.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td>'+wpills(x.weights)+'</td><td>'+esc(x.why)+'</td></tr>'}).join('')+'<tr><td><b>blend</b></td><td>'+wpills(s.blend)+'</td><td>one third of each rule</td></tr></tbody></table></div></section>';
+  var st=s.stress;
+  h+='<section class="panel"><header><h2>Stress filter</h2><span class="pill '+(st.on?'bad':'good')+'">'+(st.on?'ON: halve the blend':'off')+'</span></header><dl class="kv" style="max-width:520px"><dt>SPY down over 60 days?</dt><dd class="num">'+(st.spy_down?'yes':'no')+' ('+spct(st.spy_60d)+')</dd><dt>Volatility rising?</dt><dd class="num">'+(st.vol_rising?'yes':'no')+' (20-day '+pct(st.vol_20d,2)+' vs 60-day '+pct(st.vol_60d,2)+')</dd></dl><p class="muted" style="font-size:.84rem;margin-top:8px">Both must be true. Then the blend is cut to half size.</p></section>';
+  h+='<section class="panel"><header><h2>What the blend targeted, week by week</h2><span class="muted" style="font-size:.82rem">targets only, never performance</span></header>'+legendHtml(ASSETS.map(function(a){return [a,ACOL[a]]}).concat([['cash',ACOL.cash]]))+'<div class="chart" id="recentChart"></div><p class="muted" style="font-size:.82rem;margin-top:6px">Last 26 weeks. Weeks with the stress filter on: '+(s.recent_targets.filter(function(r){return r.filter_factor<1}).map(function(r){return esc(r.date)}).join(', ')||'none')+'.</p></section>';
+  var rec=s.recorded,tm=(rec.shadows||{}).tmu,be=(rec.shadows||{}).bernoulli;
+  h+='<section class="panel"><header><h2>Tsetlin Machine (shadow only)</h2><span class="pill">never sizes or places orders</span></header>';
+  h+='<dl class="kv" style="max-width:560px"><dt>Last recorded by the bot</dt><dd>'+(tm?esc(tm.strategy)+' as of '+esc(tm.as_of):'no record')+'</dd><dt>Bernoulli baseline, recorded</dt><dd>'+(be?esc(be.strategy)+' as of '+esc(be.as_of):'no record')+'</dd></dl>';
+  h+='<div class="row" style="margin-top:12px"><button class="btn primary" data-act="signal-preview"'+(S.busy.job_signal_preview?' disabled':'')+'>Run signal preview now</button><span class="muted" style="font-size:.84rem">Runs the bot’s own broker-free preview. The Tsetlin Machine takes about a minute.</span></div>'+jobHtml('signal_preview');
+  return h+'</section></div>';
+}
+function jobHtml(name){
+  var j=((dat('jobs')||{}).jobs||{})[name];if(!j)return '';
+  if(j.status==='running')return '<p class="note info" style="margin-top:10px">Running... '+esc(j.cmd)+'</p>';
+  var body=j.output||'';
+  if(name==='signal_preview'&&j.status==='done'){try{var r=JSON.parse(j.output);var c=r.controller,sh=r.shadows||{};
+    return '<div class="note good" style="margin-top:10px"><b>'+esc(r.mode)+'</b><br>Controller (blend) as of '+esc(c.as_of)+': '+wpills(c.target_weights)+'<br>'+Object.keys(sh).map(function(m){return esc(m)+' would say <b>'+esc(sh[m].strategy||('error: '+sh[m].error))+'</b> (not traded)'}).join('<br>')+'</div>'}catch(e){}}
+  return '<div style="margin-top:10px">'+(j.status==='failed'?'<div class="note bad"><b>The bot command failed</b><br>'+esc((j.error||[]).join(' | '))+'</div>':'')+(body?'<pre>'+esc(body)+'</pre>':'')+'</div>';
+}
+function vAccount(){
+  var a=dat('account');if(!a)return skel('account','account');if(!a.ok)return errBox(a,'Not connected');
+  var h='<div class="stack"><div class="grid2"><div class="stack">'+accountCard();
+  h+='<section class="panel"><header><h2>Positions</h2></header>'+(a.positions.length?'<div class="scroll"><table><thead><tr><th>Symbol</th><th class="r">Qty</th><th class="r">Value</th><th class="r">Avg entry</th><th class="r">P/L</th></tr></thead><tbody>'+a.positions.map(function(p){return '<tr><td class="mono">'+esc(p.symbol)+'</td><td class="r num">'+p.qty+'</td><td class="r num">'+money(p.market_value)+'</td><td class="r num">'+money(p.avg_entry)+'</td><td class="r num '+(p.unrealized_pl>=0?'pos':'neg')+'">'+money(p.unrealized_pl)+'</td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">No positions. The account is in cash.</p>')+'</section></div>';
+  h+='<div class="stack"><section class="panel"><header><h2>Equity, last month</h2></header><div class="chart" id="acctChart"></div></section></div></div>';
+  function orders(list){return list.length?'<div class="scroll"><table><thead><tr><th>Submitted</th><th>Side</th><th>Symbol</th><th class="r">Amount</th><th>Status</th><th class="r">Fill price</th></tr></thead><tbody>'+list.map(function(o){return '<tr><td class="num">'+esc((o.submitted_at||'').slice(0,16).replace('T',' '))+'</td><td>'+esc(o.side)+'</td><td class="mono">'+esc(o.symbol)+'</td><td class="r num">'+(o.notional?money(o.notional):esc(o.qty))+'</td><td>'+esc(o.status)+'</td><td class="r num">'+(o.filled_avg_price?money(o.filled_avg_price):'')+'</td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">None.</p>'}
+  h+='<section class="panel"><header><h2>Open orders</h2></header>'+orders(a.open_orders)+'</section><section class="panel"><header><h2>Recent orders</h2></header>'+orders(a.recent_orders)+'</section></div>';
+  return h;
+}
+function vMarket(){
+  var h='<div class="stack"><section class="panel"><header><h2>Real prices</h2><label class="muted" style="font-size:.85rem">Range <select class="sm" id="selYears">'+[['1','1 year'],['3','3 years'],['5','5 years'],['10','10 years'],['25','All']].map(function(o){return '<option value="'+o[0]+'"'+(S.bt.years===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></label></header>'+legendHtml(ASSETS.map(function(a){return [a,ACOL[a]]}))+'<div class="chart" id="priceChart"></div><p class="muted" style="font-size:.8rem;margin-top:6px">Adjusted closes, indexed to 100 at the start of the range. Tiingo data, internal use only.</p></section>';
+  h+='<section class="panel"><header><h2>Backtest of the rules on real history</h2><div class="row"><label class="muted" style="font-size:.85rem">Cost <select class="sm" id="selCost">'+['2','5','10'].map(function(c){return '<option value="'+c+'"'+(S.bt.cost===c?' selected':'')+'>'+c+' bps</option>'}).join('')+'</select></label></div></header>';
+  var b=dat('backtest');
+  if(!b)h+=skel('backtest','backtest');else if(b.ok===false)h+=errBox(b,'Backtest failed');else{
+    var w=b.window,P=b.portfolios,names=[['blend','Plain blend','var(--c-blend)'],['simple_risk_filter','Blend + stress filter','var(--c-filter)'],['always_defensive','Always defensive','var(--c-def)'],['SPY','Just holding SPY','var(--c-spy)']];
+    h+='<p class="muted" style="font-size:.86rem;margin-bottom:8px">Scored from '+esc(w.first_scored_return)+' to '+esc(w.end)+' ('+w.days.toLocaleString()+' days), '+w.cost_bps+' bps per trade, orders filled two sessions after the signal. '+esc(b.locked)+'</p>';
+    h+=legendHtml(names.map(function(n){return [n[1],n[2]]}))+'<div class="chart" id="btChart"></div>';
+    h+='<div class="scroll" style="margin-top:12px"><table><thead><tr><th>Portfolio</th><th class="r">Yearly return</th><th class="r">Sharpe</th><th class="r">Worst fall</th><th class="r">Invested</th><th class="r">Turnover/yr</th></tr></thead><tbody>'+names.concat([['constant_half','Blend at half size','var(--c-spy)']]).map(function(n){var m=P[n[0]];return '<tr><td><span class="dot" style="--c:'+n[2]+'"></span>'+esc(n[1])+'</td><td class="r num">'+pct(m.cagr,2)+'</td><td class="r num">'+m.sharpe.toFixed(3)+'</td><td class="r num">'+pct(m.max_drawdown,2)+'</td><td class="r num">'+pct(m.mean_exposure,0)+'</td><td class="r num">'+m.annual_turnover.toFixed(1)+'x</td></tr>'}).join('')+'</tbody></table></div>';
+    var v=b.validation;
+    h+='<h3 style="margin:18px 0 6px">Is this engine right? Check against the published research</h3>';
+    if(v.comparable){var allOk=v.rows.every(function(r){return Math.abs(r.cagr-r.cagr_pub)<0.0006&&Math.abs(r.sharpe-r.sharpe_pub)<0.0006&&Math.abs(r.max_drawdown-r.mdd_pub)<0.0006});
+      h+='<p class="note '+(allOk?'good':'bad')+'" style="margin-bottom:10px">'+(allOk?'<b>All five portfolios match your research v0.3 report to two decimals</b> (yearly return, Sharpe, worst fall).':'<b>Mismatch with the published numbers.</b> Treat these results with caution.')+' The studio’s engine is a second, independent implementation, so this is a real cross-check on real data.</p><div class="scroll"><table><thead><tr><th>Portfolio</th><th class="r">Return here</th><th class="r">Published</th><th class="r">Sharpe here</th><th class="r">Published</th><th class="r">Worst fall here</th><th class="r">Published</th></tr></thead><tbody>'+v.rows.map(function(r){return '<tr><td>'+esc(r.portfolio)+'</td><td class="r num">'+pct(r.cagr,2)+'</td><td class="r num muted">'+pct(r.cagr_pub,2)+'</td><td class="r num">'+r.sharpe.toFixed(3)+'</td><td class="r num muted">'+r.sharpe_pub.toFixed(3)+'</td><td class="r num">'+pct(r.max_drawdown,2)+'</td><td class="r num muted">'+pct(r.mdd_pub,2)+'</td></tr>'}).join('')+'</tbody></table></div>'}
+    else h+='<p class="note">Not directly comparable to the published run: '+esc((v.why||[]).join('; '))+'.</p>';
+  }
+  return h+'</section></div>';
+}
+function vRecord(){
+  var r=dat('records');if(!r)return skel('records','records');if(r.ok===false)return errBox(r,'Could not read records');
+  var h='<div class="stack">';
+  h+='<section class="panel"><header><h2>Where the bot keeps its records</h2></header><dl class="kv" style="max-width:640px"><dt>State directory</dt><dd class="mono">'+esc(r.state_dir)+'</dd><dt>Private state (TT_STATE_DIR)</dt><dd>'+(r.using_private_state_dir?'<span class="pill good">set</span>':'<span class="pill warn">not set</span>')+'</dd><dt>Risk state</dt><dd class="num">'+(r.risk_state?'peak '+money(r.risk_state.peak_equity)+', '+(r.risk_state.halted?'<b class="neg">HALTED</b>':'not halted'):'none')+'</dd><dt>Account binding</dt><dd>'+(r.account_binding.present?'present':'<span class="pill warn">missing</span>')+'</dd></dl></section>';
+  var vp=r.portfolios;
+  h+='<section class="panel"><header><h2>Virtual portfolios (the forward scoreboard)</h2></header>'+(vp&&vp.portfolios?'<p class="muted" style="font-size:.85rem;margin-bottom:8px">Started '+esc(vp.started)+', as of '+esc(vp.as_of)+'. Every book starts at 1.00.</p><dl class="kv" style="max-width:420px">'+Object.keys(vp.portfolios).map(function(k){var b=vp.portfolios[k];return '<dt>'+esc(k)+'</dt><dd class="num">'+Number(b.value).toFixed(4)+'</dd>'}).join('')+'</dl>':'<p class="muted">No virtual portfolio file yet.</p>')+'</section>';
+  var g=r.public_feed&&r.public_feed.gate;
+  h+='<section class="panel"><header><h2>Forward trial gate</h2>'+(g?'<span class="pill warn">'+esc(g.status)+'</span>':'')+'</header>'+(g?'<p style="font-size:.9rem">'+esc(g.intervals)+' of '+esc(g.minimum_intervals)+' weekly results collected (feed generated '+esc(r.public_feed.generated_at)+'). The rule is frozen in <code>docs/TRIAL_PROTOCOL.md</code>; passing only triggers a review, never real money.</p>':'<p class="muted">No public feed found.</p>')+'</section>';
+  h+='<section class="panel"><header><h2>Decision log</h2><span class="muted" style="font-size:.82rem">newest first</span></header>'+(r.decisions.length?'<div class="scroll"><table><thead><tr><th>Logged</th><th>Status</th><th>Signal</th><th>Risk</th><th>Trades</th></tr></thead><tbody>'+r.decisions.map(function(d){return '<tr><td class="num">'+esc((d.logged_at||'').slice(0,16).replace('T',' '))+'</td><td>'+esc(d.status)+(d.plan_only?' <span class="pill">plan</span>':'')+'</td><td>'+esc(d.strategy||'')+(d.as_of?' <span class="muted">'+esc(d.as_of)+'</span>':'')+'</td><td>'+esc(d.risk_decision||'')+'</td><td class="mono" style="font-size:.78rem">'+((d.trades||[]).map(function(t){return esc(t.side+' '+t.symbol)}).join(', ')||'')+'</td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">No decisions logged.</p>')+'</section>';
+  h+='<section class="panel"><header><h2>Run the bot’s own plan-only cycle</h2><span class="pill">no orders</span></header><p style="font-size:.9rem;margin-bottom:10px">This runs <code>run_cycle --broker alpaca --signal blend --plan-only</code>, the same configuration as your supervised workflow. It cannot place orders, but it does <b>append a “planned” record to the decision log</b>, and it will refuse if the state directory or account binding is missing.</p><button class="btn primary" data-act="plan-cycle"'+(S.busy.job_plan_cycle?' disabled':'')+'>Run plan-only cycle</button>'+jobHtml('plan_cycle')+'</section></div>';
+  return h;
+}
+function vResearch(){
+  var r=dat('research');if(!r)return skel('research','research');if(r.ok===false)return errBox(r,'Could not read research results');
+  if(!r.benchmarks.length)return '<p class="note">No benchmark results found under <code>results/dev-benchmark*</code>.</p>';
+  return '<div class="stack">'+r.benchmarks.map(function(b){
+    var base=b.rows.filter(function(x){return String(x.run)==='0'&&x.portfolio==='selector'}),eq=b.rows.filter(function(x){return String(x.run)==='0'&&x.portfolio==='equal_weight'})[0],spy=b.rows.filter(function(x){return String(x.run)==='0'&&x.portfolio==='SPY'})[0];
+    return '<section class="panel"><header><h2>'+esc(b.name||b.folder)+'</h2><span class="pill '+(b.gates_passed?'good':'bad')+'">'+b.gates_passed+' of '+b.gates_total+' runs passed the gate</span></header><p class="muted" style="font-size:.86rem;margin-bottom:10px">Real walk-forward results on Tiingo data, development period only. The gate: a model’s picks must beat an equal mix on Sharpe after costs. Base settings shown; every run is in <code>'+esc(b.folder)+'/comparison.csv</code>.</p><div class="scroll"><table><thead><tr><th>Portfolio</th><th class="r">Yearly return</th><th class="r">Sharpe</th><th class="r">Worst fall</th></tr></thead><tbody>'+
+      (eq?'<tr><td>Equal mix (the bar)</td><td class="r num">'+pct(+eq.cagr,1)+'</td><td class="r num">'+(+eq.sharpe).toFixed(2)+'</td><td class="r num">'+pct(+eq.max_drawdown,1)+'</td></tr>':'')+(spy?'<tr><td>Holding SPY</td><td class="r num">'+pct(+spy.cagr,1)+'</td><td class="r num">'+(+spy.sharpe).toFixed(2)+'</td><td class="r num">'+pct(+spy.max_drawdown,1)+'</td></tr>':'')+
+      base.map(function(x){return '<tr><td>'+esc(x.model)+' picks'+(x.config_feature_set?' ('+esc(x.config_feature_set)+(x.config_tmu_seed?', seed '+esc(x.config_tmu_seed):'')+')':'')+'</td><td class="r num">'+pct(+x.cagr,1)+'</td><td class="r num">'+(+x.sharpe).toFixed(2)+'</td><td class="r num">'+pct(+x.max_drawdown,1)+'</td></tr>'}).join('')+'</tbody></table></div></section>'}).join('')+'</div>';
+}
+function vReady(){
+  var r=dat('ready');if(!r)return skel('ready','readiness');if(r.ok===false)return errBox(r,'Could not run the checks');
+  var n=r.checks.filter(function(c){return c.ok===false}).length;
+  return '<div class="stack"><section class="panel"><header><h2>Supervised paper execution: what this page can see</h2><span class="pill '+(n?'warn':'good')+'">'+n+' to fix</span></header><p class="muted" style="font-size:.86rem;margin-bottom:8px">From <code>docs/RELIABILITY.md</code>. '+esc(r.verdict)+'</p>'+r.checks.map(function(c){return '<div class="check"><span class="pill '+(c.manual?'':(c.ok?'good':'bad'))+'">'+(c.manual?'manual':(c.ok?'ok':'fix'))+'</span><div>'+esc(c.label)+'<small>'+esc(c.detail)+'</small></div></div>'}).join('')+'</section><section class="panel"><header><h2>Running a cycle</h2></header><p style="font-size:.9rem;margin-bottom:8px">Order placement stays with the supervised runner, not this page. Preview without orders:</p><pre>python -m tsetlin_trader.run_cycle --broker alpaca --signal blend --plan-only</pre><p class="muted" style="font-size:.84rem;margin-top:10px">Real orders need the checklist above completed and the procedure in <code>docs/RELIABILITY.md</code>. Live-money trading is out of scope.</p></section></div>';
+}
+var VIEWS={overview:vOverview,signals:vSignals,account:vAccount,market:vMarket,record:vRecord,research:vResearch,ready:vReady};
+
+function render(){
+  renderStrip();
+  $('#tabs').innerHTML=TABS.map(function(t){return '<button class="tab" role="tab" data-tab="'+t[0]+'" aria-selected="'+(S.tab===t[0])+'">'+t[1]+'</button>'}).join('');
+  $('#view').innerHTML=VIEWS[S.tab]();
+  afterRender();
+}
+function afterRender(){
+  var s=dat('signals'),a=dat('account');
+  if(S.tab==='signals'&&s&&s.recent_targets&&$('#recentChart'))stackedBars($('#recentChart'),s.recent_targets.map(function(r){return {date:r.date,w:r.blend}}),'Blend target weights per week over the last 26 weeks');
+  if(S.tab==='account'&&a&&a.ok&&$('#acctChart')){var h=a.history;lineChart($('#acctChart'),{series:[{name:'Equity',ys:h.equity,c:'var(--accent)',w:2.4}],dates:h.dates,yfmt:function(v){return '$'+Math.round(v/1000)+'k'},tipfmt:money,h:260,aria:'Paper account equity over the last month'})}
+  if(S.tab==='market'){
+    var p=dat('prices');if(p&&p.dates&&$('#priceChart'))lineChart($('#priceChart'),{series:ASSETS.map(function(x){var base=p.series[x][0];return {name:x,ys:p.series[x].map(function(v){return v/base*100}),c:ACOL[x],w:1.6}}),dates:p.dates,yfmt:function(v){return v.toFixed(0)},tipfmt:function(v){return v.toFixed(1)},aria:'Real prices of SPY, QQQ, IWM and TLT indexed to 100'});
+    var b=dat('backtest');if(b&&b.portfolios&&$('#btChart')){var names=[['blend','Plain blend','var(--c-blend)',2.6],['simple_risk_filter','Blend + stress filter','var(--c-filter)',1.9],['always_defensive','Always defensive','var(--c-def)',1.5],['SPY','Just holding SPY','var(--c-spy)',1.5]];
+      lineChart($('#btChart'),{series:names.map(function(n){return {name:n[1],ys:b.portfolios[n[0]].curve,c:n[2],w:n[3],dash:n[0]==='SPY'?'5 4':null}}),dates:b.dates,yfmt:function(v){return v.toFixed(0)},tipfmt:function(v){return v.toFixed(1)},aria:'Growth of 100 for each rule on real history, 2008 to 2020'})}
+    var y=$('#selYears');if(y)y.onchange=function(){S.bt.years=y.value;load('prices','/api/prices?years='+y.value)};
+    var c=$('#selCost');if(c)c.onchange=function(){S.bt.cost=c.value;load('backtest','/api/backtest?start='+S.bt.start+'&end=2020-12-31&cost='+c.value)};
+  }
+}
+var LOADERS={
+  overview:function(){['status','signals','account','plan'].forEach(function(k){if(!S.d[k])load(k,{status:'/api/status',signals:'/api/signals',account:'/api/account',plan:'/api/plan-preview'}[k])})},
+  signals:function(){if(!S.d.signals)load('signals','/api/signals');pollJobs()},
+  account:function(){if(!S.d.account)load('account','/api/account')},
+  market:function(){if(!S.d.prices)load('prices','/api/prices?years='+S.bt.years);if(!S.d.backtest)load('backtest','/api/backtest?start='+S.bt.start+'&end=2020-12-31&cost='+S.bt.cost)},
+  record:function(){if(!S.d.records)load('records','/api/records');pollJobs()},
+  research:function(){if(!S.d.research)load('research','/api/research')},
+  ready:function(){if(!S.d.ready)load('ready','/api/readiness')}
+};
+var pollTimer=null;
+function pollJobs(){
+  clearTimeout(pollTimer);
+  api('/api/jobs').then(function(j){S.d.jobs={data:j};render();var running=Object.keys(j.jobs).some(function(k){return j.jobs[k].status==='running'});if(running)pollTimer=setTimeout(pollJobs,2500)});
+}
+function startJob(name,path){S.busy['job_'+name]=true;render();api(path,true).then(function(j){S.busy['job_'+name]=false;if(j.ok===false){S.d.jobs={data:{jobs:{}}};alert(j.error)}pollJobs()})}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-tab]');if(t){S.tab=t.dataset.tab;LOADERS[S.tab]();render();return}
+  var b=e.target.closest('[data-act]');if(!b)return;var act=b.dataset.act;
+  if(act==='reload'){S.d={};LOADERS[S.tab]();render()}
+  if(act==='refresh-prices'){b.disabled=true;b.textContent='Downloading from Tiingo...';api('/api/refresh-prices',true).then(function(j){if(j.ok===false)alert(j.error);S.d={};LOADERS[S.tab]();render();b.disabled=false;b.textContent='Refresh prices'})}
+  if(act==='signal-preview')startJob('signal_preview','/api/signal-preview');
+  if(act==='plan-cycle')startJob('plan_cycle','/api/plan-cycle');
+});
+LOADERS.overview();render();
+</script>
+</body>
+</html>
