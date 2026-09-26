@@ -4,11 +4,11 @@
   "fill_assumption": "next scheduled bar open proxy; not confirmed broker fills",
   "symbol": "SPY",
   "feed": "IEX",
-  "generated_at": "2026-09-25T00:40:21.042178+00:00",
+  "generated_at": "2026-09-26T00:45:58.399294+00:00",
   "cost_bps_per_side": 5.0,
   "training_sessions": 30,
-  "sessions": 62,
-  "tm_final_value": 0.977488,
+  "sessions": 63,
+  "tm_final_value": 0.980915,
   "baseline_final_value": 0.997221,
   "trades": [
     {
@@ -1679,6 +1679,56 @@
               "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-25",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "buy_SPY",
+      "baseline_action": "cash",
+      "entry": 767.76,
+      "exit": 771.22,
+      "tm_net_return": 0.003507,
+      "baseline_net_return": 0.0,
+      "tm_value": 0.980915,
+      "baseline_value": 0.997221,
+      "explanation": {
+        "votes": {
+          "0": -13.5,
+          "1": 10.0
+        },
+        "for": [
+          {
+            "vote": 2.0,
+            "literals": [
+              "NOT morning_up"
+            ]
+          },
+          {
+            "vote": 1.5,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -1.5,
+            "literals": [
+              "morning_range_high",
+              "NOT morning_up"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
+              "morning_range_low",
+              "NOT morning_up"
             ]
           }
         ]
