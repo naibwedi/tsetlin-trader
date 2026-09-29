@@ -4,117 +4,13 @@
   "fill_assumption": "next scheduled bar open proxy; not confirmed broker fills",
   "symbol": "SPY",
   "feed": "IEX",
-  "generated_at": "2026-09-26T00:45:58.399294+00:00",
+  "generated_at": "2026-09-29T02:10:05.656935+00:00",
   "cost_bps_per_side": 5.0,
   "training_sessions": 30,
-  "sessions": 63,
-  "tm_final_value": 0.980915,
+  "sessions": 62,
+  "tm_final_value": 1.004949,
   "baseline_final_value": 0.997221,
   "trades": [
-    {
-      "day": "2026-08-11",
-      "entry_time_et": "10:35",
-      "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
-      "baseline_action": "cash",
-      "entry": 773.685,
-      "exit": 770.52,
-      "tm_net_return": -0.005091,
-      "baseline_net_return": 0.0,
-      "tm_value": 0.994909,
-      "baseline_value": 1.0,
-      "explanation": {
-        "votes": {
-          "0": -9.0,
-          "1": 20.5
-        },
-        "for": [
-          {
-            "vote": 2.5,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": 2.5,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
-            "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
-            ]
-          },
-          {
-            "vote": -1.0,
-            "literals": [
-              "NOT morning_volume_high"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "day": "2026-08-12",
-      "entry_time_et": "10:35",
-      "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
-      "baseline_action": "cash",
-      "entry": 772.03,
-      "exit": 772.855,
-      "tm_net_return": 6.9e-05,
-      "baseline_net_return": 0.0,
-      "tm_value": 0.994977,
-      "baseline_value": 1.0,
-      "explanation": {
-        "votes": {
-          "0": -4.5,
-          "1": 3.0
-        },
-        "for": [
-          {
-            "vote": 2.0,
-            "literals": [
-              "morning_range_low"
-            ]
-          },
-          {
-            "vote": 1.0,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_range_high"
-            ]
-          },
-          {
-            "vote": -1.5,
-            "literals": [
-              "NOT morning_up"
-            ]
-          }
-        ]
-      }
-    },
     {
       "day": "2026-08-13",
       "entry_time_et": "10:35",
@@ -125,40 +21,42 @@
       "exit": 777.685,
       "tm_net_return": 0.0,
       "baseline_net_return": -0.002893,
-      "tm_value": 0.994977,
+      "tm_value": 1.0,
       "baseline_value": 0.997107,
       "explanation": {
         "votes": {
-          "0": 3.5,
-          "1": -1.0
+          "0": 5.0,
+          "1": -6.5
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
               "morning_up",
-              "NOT morning_range_low"
+              "morning_range_high"
             ]
           },
           {
             "vote": 1.5,
             "literals": [
+              "morning_up",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -174,43 +72,40 @@
       "exit": 776.12,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.994977,
+      "tm_value": 1.0,
       "baseline_value": 0.997107,
       "explanation": {
         "votes": {
-          "0": 10.0,
+          "0": 1.0,
           "1": -9.5
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 2.0,
             "literals": [
-              "NOT morning_range_high",
+              "NOT morning_up",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_high",
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
             "vote": -1.5,
             "literals": [
-              "NOT morning_range_high"
+              "NOT morning_up"
             ]
           }
         ]
@@ -226,18 +121,17 @@
       "exit": 773.0,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.994977,
+      "tm_value": 1.0,
       "baseline_value": 0.997107,
       "explanation": {
         "votes": {
-          "0": 5.5,
-          "1": -12.5
+          "0": 16.5,
+          "1": -10.0
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 2.5,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
@@ -247,26 +141,22 @@
             "vote": 2.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -282,25 +172,25 @@
       "exit": 767.86,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.994977,
+      "tm_value": 1.0,
       "baseline_value": 0.997107,
       "explanation": {
         "votes": {
-          "0": 17.0,
-          "1": -20.0
+          "0": 26.0,
+          "1": -13.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 4.0,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_range_high"
             ]
           }
         ],
@@ -309,14 +199,15 @@
             "vote": -2.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -326,22 +217,37 @@
       "day": "2026-08-19",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "cash",
       "entry": 770.18,
       "exit": 768.93,
-      "tm_net_return": -0.002623,
+      "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.992368,
+      "tm_value": 1.0,
       "baseline_value": 0.997107,
       "explanation": {
         "votes": {
-          "0": -5.0,
-          "1": 6.5
+          "0": 5.5,
+          "1": 2.5
         },
         "for": [
           {
-            "vote": 4.5,
+            "vote": 2.0,
+            "literals": [
+              "NOT morning_range_high"
+            ]
+          },
+          {
+            "vote": 2.0,
+            "literals": [
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -350,28 +256,9 @@
             ]
           },
           {
-            "vote": 2.0,
+            "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -1.5,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_volume_high"
-            ]
-          },
-          {
-            "vote": -1.5,
-            "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "morning_range_low"
             ]
           }
         ]
@@ -387,37 +274,45 @@
       "exit": 763.095,
       "tm_net_return": -0.004948,
       "baseline_net_return": -0.004948,
-      "tm_value": 0.987457,
+      "tm_value": 0.995052,
       "baseline_value": 0.992173,
       "explanation": {
         "votes": {
-          "0": 2.0,
-          "1": 6.0
+          "0": -0.5,
+          "1": 4.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
+              "morning_up",
               "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 1.0,
             "literals": [
-              "morning_range_high",
+              "morning_up",
               "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
               "morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -0.5,
+            "literals": [
               "morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -433,42 +328,41 @@
       "exit": 766.43,
       "tm_net_return": 0.001564,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989001,
+      "tm_value": 0.996608,
       "baseline_value": 0.992173,
       "explanation": {
         "votes": {
-          "0": -3.5,
-          "1": 6.0
+          "0": -7.5,
+          "1": 0.0
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 1.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up"
+              "morning_range_low"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
               "morning_range_low",
+              "NOT morning_up",
               "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -3.0,
+            "vote": -3.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -484,20 +378,14 @@
       "exit": 763.68,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989001,
+      "tm_value": 0.996608,
       "baseline_value": 0.992173,
       "explanation": {
         "votes": {
-          "0": -3.5,
-          "1": -4.5
+          "0": 3.0,
+          "1": -3.5
         },
         "for": [
-          {
-            "vote": 2.5,
-            "literals": [
-              "NOT morning_range_high"
-            ]
-          },
           {
             "vote": 2.5,
             "literals": [
@@ -505,21 +393,26 @@
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
+          },
+          {
+            "vote": 1.0,
+            "literals": [
+              "morning_range_low"
+            ]
           }
         ],
         "against": [
           {
-            "vote": -3.5,
+            "vote": -2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
-              "morning_range_low",
               "NOT morning_range_high"
             ]
           }
@@ -536,16 +429,16 @@
       "exit": 765.39,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.989001,
+      "tm_value": 0.996608,
       "baseline_value": 0.992173,
       "explanation": {
         "votes": {
-          "0": 9.0,
-          "1": -10.5
+          "0": 9.5,
+          "1": -13.5
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 4.5,
             "literals": [
               "NOT morning_range_high",
               "NOT morning_range_low"
@@ -554,7 +447,7 @@
           {
             "vote": 3.0,
             "literals": [
-              "NOT morning_up",
+              "NOT morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
@@ -564,15 +457,13 @@
           {
             "vote": -1.5,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_low"
             ]
           }
         ]
@@ -582,45 +473,47 @@
       "day": "2026-08-26",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 765.125,
       "exit": 766.69,
-      "tm_net_return": 0.001045,
+      "tm_net_return": 0.0,
       "baseline_net_return": 0.001045,
-      "tm_value": 0.990035,
+      "tm_value": 0.996608,
       "baseline_value": 0.99321,
       "explanation": {
         "votes": {
-          "0": -7.5,
-          "1": 10.0
+          "0": 3.5,
+          "1": 0.0
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
-              "morning_range_high",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
               "morning_up",
+              "morning_range_high",
               "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
+              "morning_up",
+              "morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -641,42 +534,43 @@
       "exit": 770.59,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.000534,
-      "tm_value": 0.990035,
+      "tm_value": 0.996608,
       "baseline_value": 0.99374,
       "explanation": {
         "votes": {
-          "0": -0.5,
-          "1": -2.5
+          "0": 8.5,
+          "1": -13.5
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 3.0,
             "literals": [
               "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": 0.5,
+            "vote": 2.0,
             "literals": [
-              "morning_up"
+              "NOT morning_range_high",
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.5,
             "literals": [
               "morning_up",
-              "NOT morning_range_high"
-            ]
-          },
-          {
-            "vote": -1.5,
-            "literals": [
               "NOT morning_range_high",
               "NOT morning_range_low",
               "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -2.5,
+            "literals": [
+              "NOT morning_range_low"
             ]
           }
         ]
@@ -692,19 +586,18 @@
       "exit": 769.6,
       "tm_net_return": -0.004302,
       "baseline_net_return": 0.0,
-      "tm_value": 0.985776,
+      "tm_value": 0.99232,
       "baseline_value": 0.99374,
       "explanation": {
         "votes": {
-          "0": -15.0,
-          "1": 9.5
+          "0": -3.0,
+          "1": 6.0
         },
         "for": [
           {
             "vote": 3.0,
             "literals": [
               "morning_range_low",
-              "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
@@ -713,7 +606,6 @@
             "vote": 2.5,
             "literals": [
               "morning_range_low",
-              "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
@@ -721,17 +613,16 @@
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.5,
             "literals": [
-              "NOT morning_range_high"
+              "morning_range_low",
+              "NOT morning_up"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -747,16 +638,16 @@
       "exit": 766.94,
       "tm_net_return": 0.001687,
       "baseline_net_return": 0.0,
-      "tm_value": 0.987438,
+      "tm_value": 0.993994,
       "baseline_value": 0.99374,
       "explanation": {
         "votes": {
-          "0": -12.0,
-          "1": 8.0
+          "0": 0.5,
+          "1": 2.0
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 3.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -765,11 +656,10 @@
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
               "morning_range_low",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ],
@@ -778,17 +668,13 @@
             "vote": -2.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ]
@@ -798,32 +684,33 @@
       "day": "2026-09-01",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 764.45,
       "exit": 761.04,
-      "tm_net_return": -0.005461,
+      "tm_net_return": 0.0,
       "baseline_net_return": -0.005461,
-      "tm_value": 0.982046,
+      "tm_value": 0.993994,
       "baseline_value": 0.988313,
       "explanation": {
         "votes": {
-          "0": -0.5,
-          "1": 1.0
+          "0": 12.0,
+          "1": -6.0
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
               "morning_up",
-              "morning_range_high"
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
               "morning_up",
-              "morning_range_high"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
@@ -831,14 +718,15 @@
           {
             "vote": -1.0,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
+              "morning_up",
+              "morning_range_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -0.5,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -848,48 +736,46 @@
       "day": "2026-09-02",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 765.6,
       "exit": 765.375,
-      "tm_net_return": -0.001294,
+      "tm_net_return": 0.0,
       "baseline_net_return": -0.001294,
-      "tm_value": 0.980775,
+      "tm_value": 0.993994,
       "baseline_value": 0.987035,
       "explanation": {
         "votes": {
-          "0": -5.0,
-          "1": 1.5
+          "0": 2.0,
+          "1": -8.0
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low"
+              "morning_up"
             ]
           },
           {
             "vote": 1.5,
             "literals": [
-              "morning_up",
-              "NOT morning_volume_high"
+              "morning_range_high",
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -3.0,
             "literals": [
-              "morning_up",
               "morning_range_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up",
+              "morning_range_high"
             ]
           }
         ]
@@ -905,41 +791,40 @@
       "exit": 773.2,
       "tm_net_return": 0.005981,
       "baseline_net_return": 0.005981,
-      "tm_value": 0.986641,
+      "tm_value": 0.999938,
       "baseline_value": 0.992938,
       "explanation": {
         "votes": {
-          "0": -4.0,
-          "1": 12.5
+          "0": -5.5,
+          "1": 5.5
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 3.0,
             "literals": [
-              "morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "morning_up",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -3.5,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up",
+              "morning_range_high",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -2.0,
             "literals": [
-              "morning_up",
               "morning_range_high",
               "NOT morning_range_low"
             ]
@@ -957,43 +842,42 @@
       "exit": 769.92,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.986641,
+      "tm_value": 0.999938,
       "baseline_value": 0.992938,
       "explanation": {
         "votes": {
-          "0": 6.5,
-          "1": -8.0
+          "0": 3.5,
+          "1": -16.0
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_low"
+              "NOT morning_up"
             ]
           }
         ]
@@ -1009,20 +893,18 @@
       "exit": 766.82,
       "tm_net_return": -0.001183,
       "baseline_net_return": 0.0,
-      "tm_value": 0.985474,
+      "tm_value": 0.998756,
       "baseline_value": 0.992938,
       "explanation": {
         "votes": {
-          "0": -10.0,
-          "1": 5.0
+          "0": -6.0,
+          "1": 8.0
         },
         "for": [
           {
             "vote": 2.5,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           },
           {
@@ -1037,16 +919,16 @@
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -3.5,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -2.5,
+            "vote": -3.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
           }
@@ -1063,42 +945,44 @@
       "exit": 762.805,
       "tm_net_return": -0.001891,
       "baseline_net_return": 0.0,
-      "tm_value": 0.983611,
+      "tm_value": 0.996867,
       "baseline_value": 0.992938,
       "explanation": {
         "votes": {
-          "0": -7.0,
-          "1": -4.0
+          "0": 1.5,
+          "1": 5.0
         },
         "for": [
           {
-            "vote": 1.5,
+            "vote": 2.0,
+            "literals": [
+              "morning_range_low"
+            ]
+          },
+          {
+            "vote": 2.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high"
             ]
-          },
-          {
-            "vote": 1.0,
-            "literals": [
-              "NOT morning_up"
-            ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
+              "morning_range_low",
               "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "morning_range_low"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1108,48 +992,46 @@
       "day": "2026-09-10",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 758.92,
       "exit": 758.08,
-      "tm_net_return": -0.002107,
+      "tm_net_return": 0.0,
       "baseline_net_return": -0.002107,
-      "tm_value": 0.981539,
+      "tm_value": 0.996867,
       "baseline_value": 0.990846,
       "explanation": {
         "votes": {
-          "0": -4.0,
-          "1": -1.5
+          "0": -1.5,
+          "1": -3.0
         },
         "for": [
           {
-            "vote": 2.0,
-            "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low"
-            ]
-          },
-          {
-            "vote": 1.0,
-            "literals": [
-              "morning_up",
-              "NOT morning_range_low"
-            ]
-          }
-        ],
-        "against": [
-          {
-            "vote": -2.0,
+            "vote": 3.0,
             "literals": [
               "morning_range_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": 1.5,
             "literals": [
+              "morning_up"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.5,
+            "literals": [
+              "morning_up",
               "morning_range_high",
-              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -2.0,
+            "literals": [
+              "morning_up",
               "NOT morning_volume_high"
             ]
           }
@@ -1160,50 +1042,47 @@
       "day": "2026-09-11",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
       "entry": 764.67,
       "exit": 765.01,
-      "tm_net_return": 0.0,
+      "tm_net_return": -0.000555,
       "baseline_net_return": -0.000555,
-      "tm_value": 0.981539,
+      "tm_value": 0.996314,
       "baseline_value": 0.990296,
       "explanation": {
         "votes": {
-          "0": 4.0,
-          "1": -3.5
+          "0": -9.5,
+          "1": 3.5
         },
         "for": [
           {
-            "vote": 2.0,
+            "vote": 2.5,
             "literals": [
               "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
-              "NOT morning_range_low"
+              "morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -1213,47 +1092,49 @@
       "day": "2026-09-14",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
       "entry": 759.085,
       "exit": 761.575,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.00228,
       "baseline_net_return": 0.0,
-      "tm_value": 0.981539,
+      "tm_value": 0.998586,
       "baseline_value": 0.990296,
       "explanation": {
         "votes": {
-          "0": 3.0,
-          "1": -4.0
+          "0": 4.0,
+          "1": 12.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
-              "NOT morning_range_low"
+              "morning_range_high",
+              "NOT morning_up"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_up"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.0,
             "literals": [
+              "morning_range_high",
               "NOT morning_up",
               "NOT morning_volume_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -1.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ]
@@ -1269,24 +1150,25 @@
       "exit": 756.71,
       "tm_net_return": -0.001838,
       "baseline_net_return": 0.0,
-      "tm_value": 0.979734,
+      "tm_value": 0.99675,
       "baseline_value": 0.990296,
       "explanation": {
         "votes": {
           "0": -10.0,
-          "1": 13.5
+          "1": 7.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 4.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high"
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
               "morning_range_low",
               "NOT morning_up",
@@ -1297,16 +1179,17 @@
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -1.5,
             "literals": [
+              "morning_range_low",
               "NOT morning_up"
             ]
           },
           {
             "vote": -1.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1322,46 +1205,44 @@
       "exit": 752.09,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.979734,
+      "tm_value": 0.99675,
       "baseline_value": 0.990296,
       "explanation": {
         "votes": {
-          "0": 8.0,
-          "1": -13.5
+          "0": 6.0,
+          "1": -8.0
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 3.5,
             "literals": [
               "NOT morning_up",
               "NOT morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           },
           {
-            "vote": 3.0,
+            "vote": 2.5,
             "literals": [
               "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_high"
             ]
           },
           {
             "vote": -1.5,
             "literals": [
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1371,49 +1252,48 @@
       "day": "2026-09-17",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
       "entry": 762.005,
       "exit": 763.09,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.000424,
       "baseline_net_return": 0.0,
-      "tm_value": 0.979734,
+      "tm_value": 0.997172,
       "baseline_value": 0.990296,
       "explanation": {
         "votes": {
-          "0": 4.0,
-          "1": 0.0
+          "0": -5.5,
+          "1": 3.0
         },
         "for": [
           {
-            "vote": 5.0,
+            "vote": 1.5,
             "literals": [
+              "morning_range_low",
               "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": 2.0,
+            "vote": 1.5,
             "literals": [
-              "morning_range_low",
               "NOT morning_range_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.0,
+            "vote": -2.0,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_volume_high"
             ]
           },
           {
             "vote": -1.0,
             "literals": [
-              "morning_range_low",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up",
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1423,49 +1303,46 @@
       "day": "2026-09-18",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "cash",
       "entry": 759.22,
       "exit": 761.425,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.001904,
       "baseline_net_return": 0.0,
-      "tm_value": 0.979734,
+      "tm_value": 0.999071,
       "baseline_value": 0.990296,
       "explanation": {
         "votes": {
-          "0": 0.0,
-          "1": -1.5
+          "0": -4.0,
+          "1": 3.5
         },
         "for": [
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high"
+              "morning_range_low"
             ]
           },
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_up",
-              "NOT morning_range_high",
-              "NOT morning_volume_high"
+              "NOT morning_up"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -2.0,
             "literals": [
               "morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -2.0,
+            "vote": -1.0,
             "literals": [
               "NOT morning_up",
-              "NOT morning_volume_high"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1475,38 +1352,38 @@
       "day": "2026-09-21",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "cash",
+      "tm_action": "buy_SPY",
       "baseline_action": "buy_SPY",
       "entry": 769.18,
       "exit": 774.435,
-      "tm_net_return": 0.0,
+      "tm_net_return": 0.005832,
       "baseline_net_return": 0.005832,
-      "tm_value": 0.979734,
+      "tm_value": 1.004898,
       "baseline_value": 0.996071,
       "explanation": {
         "votes": {
-          "0": 8.5,
-          "1": -3.5
+          "0": -5.0,
+          "1": 2.5
         },
         "for": [
-          {
-            "vote": 2.5,
-            "literals": [
-              "morning_up",
-              "NOT morning_volume_high"
-            ]
-          },
           {
             "vote": 2.0,
             "literals": [
               "morning_range_high",
               "NOT morning_volume_high"
             ]
+          },
+          {
+            "vote": 1.0,
+            "literals": [
+              "morning_up",
+              "NOT morning_range_low"
+            ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -1.0,
             "literals": [
               "morning_up",
               "morning_range_high",
@@ -1515,11 +1392,9 @@
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
-              "morning_up",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_up"
             ]
           }
         ]
@@ -1535,44 +1410,40 @@
       "exit": 774.6,
       "tm_net_return": 0.0,
       "baseline_net_return": 0.0,
-      "tm_value": 0.979734,
+      "tm_value": 1.004898,
       "baseline_value": 0.996071,
       "explanation": {
         "votes": {
-          "0": 19.0,
-          "1": -10.0
+          "0": 6.5,
+          "1": -18.0
         },
         "for": [
           {
-            "vote": 3.5,
+            "vote": 3.0,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_high",
               "NOT morning_range_low"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 3.0,
             "literals": [
-              "NOT morning_up",
               "NOT morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "NOT morning_range_low"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.0,
+            "vote": -3.5,
             "literals": [
-              "NOT morning_up"
+              "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.0,
+            "vote": -2.5,
             "literals": [
-              "NOT morning_range_high",
-              "NOT morning_range_low"
+              "NOT morning_range_high"
             ]
           }
         ]
@@ -1588,40 +1459,40 @@
       "exit": 767.53,
       "tm_net_return": -0.003443,
       "baseline_net_return": 0.0,
-      "tm_value": 0.976361,
+      "tm_value": 1.001437,
       "baseline_value": 0.996071,
       "explanation": {
         "votes": {
-          "0": -11.0,
-          "1": 4.0
+          "0": -6.5,
+          "1": 10.0
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 3.5,
             "literals": [
               "morning_range_low",
               "NOT morning_up"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 3.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_low",
+              "NOT morning_range_high",
+              "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -2.5,
+            "vote": -2.0,
             "literals": [
               "NOT morning_range_high"
             ]
           },
           {
-            "vote": -1.5,
+            "vote": -0.5,
             "literals": [
-              "morning_range_low",
-              "NOT morning_up",
               "NOT morning_range_high"
             ]
           }
@@ -1632,53 +1503,47 @@
       "day": "2026-09-24",
       "entry_time_et": "10:35",
       "exit_time_et": "15:45",
-      "tm_action": "buy_SPY",
+      "tm_action": "cash",
       "baseline_action": "buy_SPY",
       "entry": 765.93,
       "exit": 767.58,
-      "tm_net_return": 0.001154,
+      "tm_net_return": 0.0,
       "baseline_net_return": 0.001154,
-      "tm_value": 0.977488,
+      "tm_value": 1.001437,
       "baseline_value": 0.997221,
       "explanation": {
         "votes": {
-          "0": -13.0,
-          "1": 8.5
+          "0": 4.5,
+          "1": -0.5
         },
         "for": [
           {
-            "vote": 3.0,
+            "vote": 2.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_up"
             ]
           },
           {
-            "vote": 2.5,
+            "vote": 2.0,
             "literals": [
               "morning_up",
               "morning_range_high",
-              "NOT morning_range_low",
               "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -3.5,
+            "vote": -2.0,
             "literals": [
               "morning_up",
-              "morning_range_high"
+              "NOT morning_range_low"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -1.0,
             "literals": [
-              "morning_up",
-              "morning_range_high",
-              "NOT morning_range_low",
-              "NOT morning_volume_high"
+              "morning_range_high"
             ]
           }
         ]
@@ -1694,41 +1559,94 @@
       "exit": 771.22,
       "tm_net_return": 0.003507,
       "baseline_net_return": 0.0,
-      "tm_value": 0.980915,
+      "tm_value": 1.004949,
       "baseline_value": 0.997221,
       "explanation": {
         "votes": {
-          "0": -13.5,
-          "1": 10.0
+          "0": -6.5,
+          "1": 9.0
         },
         "for": [
           {
             "vote": 2.0,
             "literals": [
-              "NOT morning_up"
+              "morning_range_high"
             ]
           },
           {
-            "vote": 1.5,
+            "vote": 2.0,
             "literals": [
+              "morning_range_high",
               "morning_range_low",
+              "NOT morning_up",
               "NOT morning_volume_high"
             ]
           }
         ],
         "against": [
           {
-            "vote": -1.5,
+            "vote": -2.5,
             "literals": [
-              "morning_range_high",
-              "NOT morning_up"
+              "morning_range_high"
             ]
           },
           {
-            "vote": -0.5,
+            "vote": -2.5,
             "literals": [
               "morning_range_low",
-              "NOT morning_up"
+              "NOT morning_up",
+              "NOT morning_volume_high"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "day": "2026-09-28",
+      "entry_time_et": "10:35",
+      "exit_time_et": "15:45",
+      "tm_action": "cash",
+      "baseline_action": "cash",
+      "entry": 767.18,
+      "exit": 765.51,
+      "tm_net_return": 0.0,
+      "baseline_net_return": 0.0,
+      "tm_value": 1.004949,
+      "baseline_value": 0.997221,
+      "explanation": {
+        "votes": {
+          "0": 4.0,
+          "1": -7.5
+        },
+        "for": [
+          {
+            "vote": 3.5,
+            "literals": [
+              "NOT morning_range_high",
+              "NOT morning_range_low"
+            ]
+          },
+          {
+            "vote": 2.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_low"
+            ]
+          }
+        ],
+        "against": [
+          {
+            "vote": -2.5,
+            "literals": [
+              "NOT morning_up",
+              "NOT morning_range_low",
+              "NOT morning_volume_high"
+            ]
+          },
+          {
+            "vote": -2.0,
+            "literals": [
+              "NOT morning_range_low"
             ]
           }
         ]
