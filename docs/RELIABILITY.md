@@ -90,6 +90,25 @@ private durable state. Missing state fails closed; the workflow never sets
 7. Operator available to reconcile uncertain orders and manually flatten via
    broker UI if automation fails. Never remove state while orders may exist.
 
+## Frozen weekly forward test
+
+After the checklist passes, start one 26-week supervised paper trial (52 weeks
+preferred). Run the blend controller once weekly with `POSITION_FRACTION=0.25`
+and `MAX_DRAWDOWN_PCT=0.15`. TM and Bernoulli remain shadow-only. Do not tune
+rules, universe, cadence or risk limits during the trial; a necessary safety
+fix must be documented and starts a new evidence version.
+
+Before Week 1, run `--plan-only --no-record` and reconcile its proposed trades
+against the studio and broker. `--no-record` is mandatory for rehearsals so
+they cannot replace the latest executed controller observation. The studio's
+preview reads the same sticky drawdown state, uses the production rebalance
+planner, and suppresses trades while broker orders are pending.
+
+For every executed week, record the final broker fills, unresolved/rejected
+orders, controller and shadow targets, return, drawdown and turnover. A paper
+return alone is not acceptance: duplicate-order count must remain zero and all
+uncertain orders must be reconciled before another cycle.
+
 ## Required before unattended paper operation
 
 Exercise restart-after-submit, submit timeout, broker outage, partial fills,

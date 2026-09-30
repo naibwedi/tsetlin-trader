@@ -60,12 +60,17 @@ paper account. The GitHub-hosted page remains a delayed read-only report.
 ```
 
 1. **Data**: about 18 years (from 2008, matching the research protocol) of adjusted daily closes for four ETFs from Tiingo. Stale data (more than 5 days old) is rejected rather than traded on.
-2. **Signal**: the research pipeline picks one of four strategies: `trend` (SPY or cash), `momentum` (rotate SPY/QQQ/IWM), `defensive` (SPY or TLT), or `cash`. The model is fit on every day whose 20-day forward label is already known, then predicts the latest day. That mirrors one fold of the research backtest, including its 20-day embargo.
-3. **Model and explanation**: by default a Tsetlin Machine ensemble (5 fixed seeds, votes averaged, so the same data always gives the same signal). Each class's vote is a weighted sum of the clauses that fired, so the strongest clauses for and against the winner are read straight out of the model and sum exactly to its vote (checked in `tests/test_tm_model.py`). Bernoulli Naive Bayes (`SIGNAL_MODEL=bernoulli`) is available as a simpler baseline with per-feature explanations.
+2. **Controller signal**: a pure-Python equal blend of `trend` (SPY or cash),
+   `momentum` (rotate SPY/QQQ/IWM) and `defensive` (SPY or TLT). It has no
+   pandas or broker-SDK dependency, so Windows native-library policy cannot
+   block the weekly controller.
+3. **Shadow models**: the Tsetlin Machine ensemble and Bernoulli baseline run
+   when their optional research stack is available. Their failure is recorded
+   but never blocks the controller or changes an order.
 4. **Risk, checked first**: the account and the drawdown breaker are checked before any data is downloaded or any model trained, so a broken data feed can never stop the breaker. Positions are scaled to `POSITION_FRACTION` of equity. On a breach the bot liquidates to cash and stays halted until a human deletes `results/state.json`. On Alpaca it refuses to run if that state file is missing (set `ALLOW_FRESH_STATE=1` once to start a history).
 5. **Three virtual portfolios**: every executed run also marks three paper portfolios on the same prices with the same costs: the plain strategy `blend`, `blend_filtered` (halved under the simple stress rule from the research repo), and `tm`. State lives in `results/portfolios.json`. Shadow signals from `SHADOW_MODELS` (default `bernoulli`) are logged too. Together these give a fair, real-time comparison nobody could have tuned against.
 6. **Operations**: the cycle skips non-trading days (exchange calendar), records a fingerprint (code commit, data hash, package versions, config) with every decision, and posts HALT, refusal and failure alerts to `ALERT_WEBHOOK_URL` if set. Dependencies are pinned in `requirements-lock.txt`.
-7. **Execution**: only `SPY/QQQ/IWM/TLT` are ever traded; anything else in the account is reported and left alone. Sells go first and the bot waits for them to fill before buying (buys are skipped if they don't). Every order carries a client id derived from the cycle, so a retry cannot place it twice. A lock file allows one cycle at a time, a no-trade band avoids churn, and pending orders skip the cycle.
+7. **Execution**: only `SPY/QQQ/IWM/TLT` are ever traded; anything else in the account is reported and left alone. The Alpaca client is a minimal JSON REST client permanently bound to the paper endpoint—`alpaca-py` and pandas are not on the order path. Sells go first and the bot waits for them to fill before buying (buys are skipped if they don't). Every order carries a client id derived from the cycle, so a retry cannot place it twice. A lock file allows one cycle at a time, a no-trade band avoids churn, and pending orders skip the cycle.
 
 Example output (Tsetlin Machine, 2026-09-17, shortened):
 
@@ -131,9 +136,13 @@ Real signal against your Alpaca paper account:
 
 ```bash
 cp .env.example .env     # add TIINGO_API_TOKEN, ALPACA_API_KEY, ALPACA_SECRET_KEY, set BROKER_PROVIDER=alpaca
-python -m tsetlin_trader.run_cycle --plan-only   # shows the trades, places nothing
+python -m tsetlin_trader.run_cycle --plan-only --no-record  # rehearsal: no orders and no trial record
 python -m tsetlin_trader.run_cycle               # places them
 ```
+
+The first command is the required observe-only rehearsal. The second is only
+for a supervised paper session after the private state and account binding
+have been reviewed. Never leave `ALLOW_FRESH_STATE=1` after initialization.
 
 GitHub Actions has two intentionally different paths:
 
@@ -177,6 +186,9 @@ state setup in [RELIABILITY.md](docs/RELIABILITY.md) before using Alpaca.
 - **Order submissions are not confirmed fills.** The live page labels pending
   orders as unconfirmed. Verify final broker fills before using execution data
   to assess the model.
+- **Native research libraries are optional to execution.** If Windows policy
+  blocks pandas/TMU, the blend controller and paper REST client still operate;
+  TM/Bernoulli shadows report an error until run on a compatible host.
 - **Tsetlin Machine votes are not probabilities**, so a TM signal reports no confidence figure. The clauses are readable but can be long (several conditions joined by AND).
 - **The Tsetlin Machine has not beaten the baselines.** On the 2010-2020 development benchmark no model (TM, Bernoulli, logistic, boosted trees) beat the equal-weight blend in any of 7 cost/setting variations, and in the research repo's binary risk-filter pilot the TM passed 0 of 9 seed/cost scenarios while a hand-written stress rule did better. The 2021-2025 holdout stays locked. The TM's demonstrated value here is readable rules, not returns.
 - **Alpaca paper trading omits dividends and some execution costs**, so its displayed return is not directly comparable with adjusted-price backtests. The virtual portfolios use adjusted closes for that reason.

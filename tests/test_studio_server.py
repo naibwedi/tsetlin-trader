@@ -131,6 +131,17 @@ def test_signals_use_the_real_rules_and_read_recorded_shadows(home, monkeypatch)
     assert len(s["recent_targets"]) > 20
 
 
+def test_plan_only_records_do_not_replace_executed_controller(home):
+    (home / "results").mkdir()
+    executed = {"logged_at": "2026-09-20T00:00:00Z", "status": "executed", "plan_only": False,
+                "signal": {"as_of": "2026-09-19", "strategy": "blend", "target_weights": {"SPY": 1.0}}}
+    preview = {"logged_at": "2026-09-21T00:00:00Z", "status": "planned", "plan_only": True,
+               "signal": {"as_of": "2026-09-20", "strategy": "blend", "target_weights": {"TLT": 1.0}}}
+    (home / "results" / "decisions.jsonl").write_text(
+        json.dumps(executed) + "\n" + json.dumps(preview) + "\n", encoding="utf-8")
+    assert studio.recorded_signals()["controller"]["as_of"] == "2026-09-19"
+
+
 def fake_account(equity, positions):
     return {"ok": True, "account": {"equity": equity, "status": "ACTIVE", "blocked": False},
             "positions": [{"symbol": k, "market_value": v} for k, v in positions.items()], "open_orders": []}
@@ -163,6 +174,28 @@ def test_plan_preview_flags_disagreement_with_the_bot_record(home, monkeypatch):
         "as_of": "2026-09-24", "blend": {"SPY": 1.0, "QQQ": 0.0, "IWM": 0.0, "TLT": 0.0},
         "recorded": {"controller": {"as_of": "2026-09-24", "target_weights": {"TLT": 1.0}}, "shadows": {}}})
     assert studio.plan_preview()["agrees_with_bot_record"] is False
+
+
+def test_plan_preview_obeys_sticky_halt(home, monkeypatch):
+    (home / "results").mkdir(exist_ok=True)
+    (home / "results" / "state.json").write_text(
+        json.dumps({"peak_equity": 100_000, "halted": True}), encoding="utf-8")
+    monkeypatch.setattr(studio, "account_snapshot", lambda: fake_account(90_000, {"SPY": 20_000}))
+    monkeypatch.setattr(studio, "compute_signals", lambda: {
+        "as_of": "d", "blend": {"SPY": 1.0, "QQQ": 0.0, "IWM": 0.0, "TLT": 0.0},
+        "recorded": {"controller": None, "shadows": {}}})
+    p = studio.plan_preview()
+    assert p["risk_decision"] == "halt" and p["target"] == {}
+    assert p["trades"] == [{"symbol": "SPY", "side": "sell", "notional": 20000.0, "close_all": True}]
+
+
+def test_plan_preview_never_proposes_trades_over_pending_orders(home, monkeypatch):
+    snap = fake_account(100_000, {})
+    snap["open_orders"] = [{"symbol": "SPY"}]
+    monkeypatch.setattr(studio, "account_snapshot", lambda: snap)
+    p = studio.plan_preview()
+    assert p["status"] == "skipped_open_orders_pending"
+    assert p["pending_symbols"] == ["SPY"] and p["trades"] == []
 
 
 def test_plan_preview_still_reports_targets_when_the_account_is_unreachable(home, monkeypatch):

@@ -97,14 +97,14 @@ def build_signal_provider(provider: str) -> SignalProvider:
 
 def shadow_signals(main_model: str) -> dict:
     """What the other models would have said today. Logged for later comparison, never traded."""
-    from .signal.logic_alpha_provider import LogicAlphaProvider
-
     wanted = [m.strip() for m in os.environ.get("SHADOW_MODELS", "bernoulli").split(",") if m.strip()]
     results = {}
     for model in wanted:
         if model == main_model:
             continue
         try:
+            from .signal.logic_alpha_provider import LogicAlphaProvider
+
             signal = LogicAlphaProvider(
                 prices_csv=PRICES_PATH, model=model,
                 history_start=os.environ.get("SIGNAL_HISTORY_START", "2008-01-01"),
@@ -238,6 +238,7 @@ def run(
     broker_provider: str | None = None,
     signal_provider: str | None = None,
     plan_only: bool = False,
+    record: bool = True,
 ) -> dict:
     broker_name = broker_provider or os.environ.get("BROKER_PROVIDER", "simulated")
     signal_name = signal_provider or os.environ.get("SIGNAL_PROVIDER", "logic_alpha")
@@ -258,13 +259,15 @@ def run(
         entry = {"broker_provider": broker_name, "signal_provider": signal_name,
                  "plan_only": plan_only, "status": "skipped_locked", "reason": str(exc)}
     except Exception as exc:
-        log.append({"broker_provider": broker_name, "signal_provider": signal_name, "plan_only": plan_only,
-                    "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
-        refresh_page()
+        if record:
+            log.append({"broker_provider": broker_name, "signal_provider": signal_name, "plan_only": plan_only,
+                        "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+            refresh_page()
         alert(f"tsetlin-trader FAILED: {type(exc).__name__}: {exc}")
         raise
-    log.append(entry)
-    refresh_page()
+    if record:
+        log.append(entry)
+        refresh_page()
     return entry
 
 
@@ -274,8 +277,13 @@ def main() -> None:
     parser.add_argument("--broker", choices=["simulated", "alpaca"], default=None)
     parser.add_argument("--signal", choices=["blend", "logic_alpha", "mock"], default=None)
     parser.add_argument("--plan-only", action="store_true", help="Compute and print trades without placing them")
+    parser.add_argument("--no-record", action="store_true",
+                        help="Do not append this preview to the trial record (requires --plan-only)")
     args = parser.parse_args()
-    result = run(broker_provider=args.broker, signal_provider=args.signal, plan_only=args.plan_only)
+    if args.no_record and not args.plan_only:
+        parser.error("--no-record requires --plan-only")
+    result = run(broker_provider=args.broker, signal_provider=args.signal,
+                 plan_only=args.plan_only, record=not args.no_record)
 
     print(f"status:   {result['status']}")
     if result["status"] in ("skipped_open_orders_pending", "skipped_locked", "refused_missing_state", "skipped_market_closed"):
