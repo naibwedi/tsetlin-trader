@@ -40,6 +40,13 @@ def test_plan_only_places_no_orders_and_saves_no_state(tmp_path):
     assert not (tmp_path / "results" / "state.json").exists()
 
 
+def test_ephemeral_preview_writes_no_decision_record(tmp_path):
+    result = run(broker_provider="simulated", signal_provider="mock",
+                 plan_only=True, record=False)
+    assert result["status"] == "planned"
+    assert not (tmp_path / "results" / "decisions.jsonl").exists()
+
+
 def test_rejects_unknown_broker():
     with pytest.raises(ValueError, match="BROKER_PROVIDER"):
         run(broker_provider="nope", signal_provider="mock")
@@ -51,16 +58,15 @@ def test_rejects_unknown_signal_provider():
 
 
 def test_blend_controls_account_and_tmu_is_shadow(tmp_path, monkeypatch):
-    from logic_alpha_tm.data import synthetic_prices
-    import tsetlin_trader.signal.blend_provider as blend_module
-    import tsetlin_trader.signal.logic_alpha_provider as logic_module
     import tsetlin_trader.run_cycle as cycle_module
-    (tmp_path / "data").mkdir()
-    synthetic_prices().rename_axis("date").to_csv(tmp_path / "data" / "tiingo-prices.csv")
+    class BlendForTest:
+        def get_current_signal(self):
+            return cycle_module.MockSignalProvider().get_current_signal().model_copy(
+                update={"strategy": "blend"})
     monkeypatch.setenv("SHADOW_MODELS", "tmu")
-    monkeypatch.setattr(logic_module, "MAX_DATA_AGE_DAYS", 10000)
-    monkeypatch.setattr(cycle_module, "build_signal_provider", lambda name:
-                        blend_module.BlendSignalProvider("data/tiingo-prices.csv", max_data_age_days=10000))
+    monkeypatch.setattr(cycle_module, "build_signal_provider", lambda name: BlendForTest())
+    monkeypatch.setattr(cycle_module, "shadow_signals", lambda main: {
+        "tmu": {"strategy": "cash", "target_weights": {}, "as_of": "2026-09-01"}})
     result = run(broker_provider="simulated", signal_provider="blend", plan_only=True)
     assert result["signal"]["strategy"] == "blend"
     assert "tmu" in result["shadow_signals"]
@@ -225,7 +231,10 @@ def test_load_dotenv_reads_values_but_never_overrides(tmp_path, monkeypatch):
 
 
 def test_shadow_signals_and_virtual_portfolios_are_logged(tmp_path, monkeypatch):
-    from logic_alpha_tm.data import synthetic_prices
+    try:
+        from logic_alpha_tm.data import synthetic_prices
+    except ImportError as exc:
+        pytest.skip(f"research native extensions unavailable: {exc}")
 
     import tsetlin_trader.signal.logic_alpha_provider as provider_module
 

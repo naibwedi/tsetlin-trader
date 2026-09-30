@@ -32,6 +32,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from . import studio_core as core
+from .broker.rebalance import plan_rebalance
+from .risk.manager import Decision, RiskManager
+from .signal.base import UNIVERSE
 
 DEV_END = "2020-12-31"          # the research repo keeps 2021-2025 as a locked holdout
 DEV_START = "2008-01-01"
@@ -311,7 +314,7 @@ def recorded_signals() -> dict:
     recs = [_clean(r) for r in read_jsonl_tail(state_dir() / "decisions.jsonl", 200)]
     out = {"controller": None, "shadows": {}}
     for r in reversed(recs):
-        if out["controller"] is None and r["strategy"]:
+        if out["controller"] is None and r["strategy"] and not r["plan_only"]:
             out["controller"] = {k: r[k] for k in ("logged_at", "as_of", "strategy", "target_weights", "status", "plan_only", "signal_provider")}
         for m, v in r["shadows"].items():
             if m not in out["shadows"] and v.get("strategy"):
@@ -320,7 +323,7 @@ def recorded_signals() -> dict:
 
 
 def plan_preview() -> dict:
-    """What a cycle would do to the real account, using the studio's own rules. Preview only."""
+    """Risk-aware approximation of a production cycle. Never writes state or orders."""
     snap = account_snapshot()
     sig = compute_signals()
     cap = float(os.environ.get("POSITION_FRACTION", "0.25"))
@@ -329,24 +332,29 @@ def plan_preview() -> dict:
                 "target_fractions": {a: sig["blend"][a] * cap for a in core.ASSETS if sig["blend"][a] * cap > 0}}
     equity = snap["account"]["equity"]
     held = {p["symbol"]: p["market_value"] for p in snap["positions"]}
-    target = {a: equity * sig["blend"][a] * cap for a in core.ASSETS if sig["blend"][a] * cap > 0}
-    band, thr = 0.005, 0.005 * equity
-    sells, buys = [], []
-    for s in sorted((set(held) | set(target)) & set(core.ASSETS)):
-        h, w = held.get(s, 0.0), target.get(s, 0.0)
-        d = w - h
-        if w <= 0 and h > 0:
-            sells.append({"side": "sell", "symbol": s, "notional": round(h, 2), "close_all": True})
-        elif d > thr:
-            buys.append({"side": "buy", "symbol": s, "notional": round(d, 2)})
-        elif -d > thr:
-            sells.append({"side": "sell", "symbol": s, "notional": round(-d, 2)})
+    risk = RiskManager.from_state_file(
+        state_dir() / "state.json",
+        max_drawdown_pct=float(os.environ.get("MAX_DRAWDOWN_PCT", "0.15")),
+        position_fraction=cap,
+    )
+    halt = risk.size_order({}, equity)
+    pending = sorted({o["symbol"] for o in snap.get("open_orders", []) if o.get("symbol")})
+    if halt.decision == Decision.HALT:
+        decision = halt
+    else:
+        decision = risk.size_order(sig["blend"], equity)
+    target = {a: equity * w for a, w in decision.sized_weights.items() if w > 0}
+    plan = plan_rebalance(held, target, equity, UNIVERSE)
+    trades = [] if pending else [t.__dict__ for t in plan.trades]
     rec = sig["recorded"]["controller"]
     agree = None
     if rec and rec.get("target_weights") and rec.get("as_of") == sig["as_of"]:
         agree = all(abs((rec["target_weights"].get(a, 0) or 0) - sig["blend"][a]) < 1e-4 for a in core.ASSETS)
-    return {"ok": True, "as_of": sig["as_of"], "equity": equity, "cap": cap, "band": band, "held": held,
-            "target": target, "trades": sells + buys, "ignored": sorted(s for s in held if s not in core.ASSETS),
+    return {"ok": True, "as_of": sig["as_of"], "equity": equity, "cap": cap, "band": 0.005, "held": held,
+            "target": target, "trades": trades, "ignored": plan.ignored_symbols,
+            "risk_decision": decision.decision.value, "risk_reason": decision.reason,
+            "pending_symbols": pending,
+            "status": "skipped_open_orders_pending" if pending else "planned",
             "agrees_with_bot_record": agree, "bot_record_as_of": rec.get("as_of") if rec else None,
             "note": "Preview from the studio's own engine. The bot's plan-only cycle is the authority."}
 
@@ -598,7 +606,8 @@ class Handler(BaseHTTPRequestHandler):
             if not alpaca():
                 return self._json({"ok": False, "error": "Alpaca keys are not configured"})
             return self._guard(lambda: {"ok": True, "job": start_job(
-                "plan_cycle", [py, "-m", "tsetlin_trader.run_cycle", "--broker", "alpaca", "--signal", "blend", "--plan-only"],
+                "plan_cycle", [py, "-m", "tsetlin_trader.run_cycle", "--broker", "alpaca", "--signal", "blend",
+                               "--plan-only", "--no-record"],
                 {"SHADOW_MODELS": "tmu,bernoulli"}, 900)})
         return self._send(404, b"not found", "text/plain")
 

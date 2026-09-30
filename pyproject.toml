@@ -5,7 +5,6 @@ description = "Interpretable ML trading engine — Tsetlin Machine rule-based si
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "alpaca-py>=0.30",
     "pandas>=2.0",
     "numpy>=1.26",
     "pydantic>=2.0",
