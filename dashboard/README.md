@@ -12,9 +12,9 @@ reconciliation.
 
 ## Vercel
 
-Create one Vercel project from this repository and set its Root Directory to
-`dashboard`. Use `codex/dashboard` as the production branch while the dashboard
-is isolated; every push then updates the public site.
+The Vercel project uses this repository's `dashboard` directory as its root and
+deploys `main` to production. Feature branches receive preview deployments;
+every verified dashboard update merged into `main` refreshes the public site.
 
 ## Local preview
 
@@ -34,5 +34,6 @@ From the repository root, with the existing ignored `.env` configured:
 .\.venv\Scripts\python.exe -m tsetlin_trader.dashboard_snapshot
 ```
 
-Review `dashboard/data/status.json`, then commit and push it to the dashboard
-branch. Vercel redeploys the static site automatically.
+Review `dashboard/data/status.json`, then commit it through the normal branch and
+pull-request workflow. Vercel redeploys the static site automatically after the
+change reaches `main`.
