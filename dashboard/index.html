@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A transparent, read-only record of the supervised Tsetlin Trader paper trial.">
+  <title>Tsetlin Trader Observatory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Tsetlin Trader Observatory home">
+      <span class="brand-mark" aria-hidden="true">TT</span>
+      <span>Tsetlin Trader <b>Observatory</b></span>
+    </a>
+    <nav aria-label="Dashboard sections">
+      <a href="#portfolio">Portfolio</a><a href="#decision">Decision</a><a href="#safety">Safety</a><a href="#evidence">Evidence</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Supervised paper trial · real prices, simulated money</p>
+        <h1>Build trust first.<br><span>Test profit second.</span></h1>
+        <p class="lede">A public, read-only record of whether an interpretable trading system can operate reliably—and whether its Tsetlin Machine challenger adds value over simple rules.</p>
+      </div>
+      <div class="trial-dial" aria-label="Trial progress">
+        <div class="dial" id="trial-dial"><strong id="week-number">—</strong><span>of 26 weeks</span></div>
+        <p id="trial-status">Loading verified state…</p>
+      </div>
+    </section>
+
+    <div id="alert" class="alert" role="status" hidden></div>
+
+    <section class="metrics" aria-label="Current account metrics">
+      <article><span>Paper equity</span><strong id="equity">—</strong><small id="equity-change">—</small></article>
+      <article><span>Cash</span><strong id="cash">—</strong><small id="cash-share">—</small></article>
+      <article><span>Market exposure</span><strong id="exposure">—</strong><small>25% target at rebalance</small></article>
+      <article><span>Risk state</span><strong id="risk-state">—</strong><small id="risk-detail">—</small></article>
+    </section>
+
+    <section class="panel chart-panel" aria-labelledby="equity-title">
+      <div class="section-head"><div><p class="eyebrow">Account record</p><h2 id="equity-title">Equity since trial start</h2></div><div class="legend"><span><i class="account-dot"></i>Paper account</span><span><i class="baseline-dot"></i>Starting equity</span></div></div>
+      <svg id="equity-chart" viewBox="0 0 900 280" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Paper account equity chart</title><desc id="chart-desc">Equity snapshots compared with starting equity.</desc></svg>
+    </section>
+
+    <section id="portfolio" class="two-column">
+      <article class="panel">
+        <div class="section-head"><div><p class="eyebrow">Current portfolio</p><h2>Allocation</h2></div><span id="open-orders" class="status-pill">—</span></div>
+        <div id="allocation-bar" class="allocation-bar" role="img" aria-label="Current portfolio allocation"></div>
+        <div id="positions" class="position-list"></div>
+      </article>
+      <article id="decision" class="panel">
+        <div class="section-head"><div><p class="eyebrow">Latest verified cycle</p><h2 id="signal-name">—</h2></div><span id="cycle-date" class="mono">—</span></div>
+        <div id="decision-trace" class="decision-trace"></div>
+        <div class="order-summary"><span>Broker result</span><strong id="order-result">—</strong></div>
+      </article>
+    </section>
+
+    <section id="safety" class="panel">
+      <div class="section-head"><div><p class="eyebrow">Operational safety</p><h2>Checks before trust</h2></div><span id="last-update" class="mono">—</span></div>
+      <div id="safety-grid" class="safety-grid"></div>
+    </section>
+
+    <section id="evidence" class="evidence-grid">
+      <article class="panel evidence-copy">
+        <p class="eyebrow">What we know</p><h2>Promising machinery.<br>Unproven strategy.</h2>
+        <p>The first supervised cycle executed and reconciled correctly. That is evidence of operational reliability—not evidence that the strategy or Tsetlin Machine can reliably make money.</p>
+      </article>
+      <article class="panel scorecard">
+        <div><span>Operational cycles</span><strong id="cycles">—</strong></div>
+        <div><span>Confirmed fills</span><strong id="fills">—</strong></div>
+        <div><span>Safety incidents</span><strong id="incidents">—</strong></div>
+        <div><span>Tsetlin status</span><strong>Shadow only</strong></div>
+      </article>
+    </section>
+  </main>
+
+  <footer><p>Paper trading only · Not investment advice · No live-money controls exist on this site.</p><p>Updated from a sanitized, reconciled local snapshot.</p></footer>
+  <script src="app.js" defer></script>
+</body>
+</html>
