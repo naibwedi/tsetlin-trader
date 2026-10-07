@@ -8,6 +8,8 @@ venv/
 .env
 results/.run.lock
 data/
+!dashboard/data/
+!dashboard/data/status.json
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
