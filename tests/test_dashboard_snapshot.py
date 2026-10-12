@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from tsetlin_trader.broker.base import AccountSnapshot
-from tsetlin_trader.dashboard_snapshot import build_snapshot
+from tsetlin_trader.dashboard_snapshot import _completed_trial_weeks, build_snapshot
 
 
 class FakePaperBroker:
@@ -20,6 +20,7 @@ def test_snapshot_is_sanitized_and_reconciled(tmp_path: Path, monkeypatch):
     (state_dir / "account.json").write_text(json.dumps({"account_id": "paper-account"}))
     decision = {
         "signal_provider": "blend",
+        "status": "execution_pending",
         "signal": {"strategy": "blend", "as_of": "2026-10-01", "rule_trace": [
             "trend sleeve (1/3): target=SPY", "momentum sleeve (1/3): target=QQQ", "defensive sleeve (1/3): target=SPY"
         ]},
@@ -37,3 +38,40 @@ def test_snapshot_is_sanitized_and_reconciled(tmp_path: Path, monkeypatch):
     serialized = json.dumps(snapshot)
     assert "paper-account" not in serialized
     assert "ALPACA" not in serialized
+
+
+def test_completed_trial_weeks_include_successful_no_trade_cycles():
+    records = [
+        {
+            "status": "execution_pending",
+            "signal": {"as_of": "2026-09-30"},
+            "orders": [{"order_id": "one"}],
+        },
+        {
+            "status": "executed",
+            "signal": {"as_of": "2026-10-07"},
+            "orders": [],
+        },
+        {
+            "status": "planned",
+            "plan_only": True,
+            "signal": {"as_of": "2026-10-14"},
+            "orders": [],
+        },
+        {
+            "status": "skipped_market_closed",
+            "signal": {"as_of": "2026-10-21"},
+            "orders": [],
+        },
+    ]
+
+    assert _completed_trial_weeks(records) == 2
+
+
+def test_completed_trial_weeks_deduplicate_same_signal_week():
+    records = [
+        {"status": "executed", "signal": {"as_of": "2026-10-07"}, "orders": []},
+        {"status": "executed", "signal": {"as_of": "2026-10-08"}, "orders": []},
+    ]
+
+    assert _completed_trial_weeks(records) == 1

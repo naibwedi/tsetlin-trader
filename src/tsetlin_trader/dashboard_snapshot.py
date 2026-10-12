@@ -18,6 +18,7 @@ from .storage import atomic_json
 
 FINAL_FILLED = {"filled", "orderstatus.filled"}
 FINAL_REJECTED = {"rejected", "orderstatus.rejected", "canceled", "orderstatus.canceled"}
+COMPLETED_CYCLE_STATUSES = {"executed", "execution_pending"}
 
 
 def _latest_decision(state_dir: Path) -> tuple[dict, list[dict]]:
@@ -37,6 +38,21 @@ def _sleeves(signal: dict) -> list[dict[str, str]]:
                 target = line.rsplit("target=", 1)[1].strip()
                 found.append({"name": name.title(), "target": target})
     return found
+
+
+def _completed_trial_weeks(records: list[dict]) -> int:
+    """Count valid weekly decisions, including cycles that needed no orders."""
+    weeks: set[tuple[int, int]] = set()
+    for record in records:
+        if record.get("plan_only") or record.get("status") not in COMPLETED_CYCLE_STATUSES:
+            continue
+        as_of = (record.get("signal") or {}).get("as_of")
+        if not as_of:
+            continue
+        signal_day = date.fromisoformat(as_of)
+        iso = signal_day.isocalendar()
+        weeks.add((iso.year, iso.week))
+    return len(weeks)
 
 
 def build_snapshot(broker: AlpacaClient, state_dir: Path, output_path: Path) -> dict:
@@ -60,7 +76,7 @@ def build_snapshot(broker: AlpacaClient, state_dir: Path, output_path: Path) -> 
         if record is latest:
             latest_statuses = statuses
 
-    completed = [r for r in records if not r.get("plan_only") and r.get("orders")]
+    completed_weeks = _completed_trial_weeks(records)
     peak = float(risk_state.get("peak_equity", account.equity))
     drawdown = max(0.0, (peak - account.equity) / peak * 100.0) if peak else 0.0
     prior: dict = {}
@@ -87,7 +103,7 @@ def build_snapshot(broker: AlpacaClient, state_dir: Path, output_path: Path) -> 
         "generated_at": datetime.now(UTC).isoformat(),
         "trial": {
             "protocol_weeks": 26,
-            "completed_weeks": len(completed),
+            "completed_weeks": completed_weeks,
             "status": "halted" if risk_state.get("halted") else "collecting_evidence",
             "starting_equity": round(starting_equity, 2),
             "total_confirmed_fills": filled,
