@@ -1,34 +1,33 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-15T07:11:24.656740+00:00",
+  "generated_at": "2026-10-16T09:19:09.384171+00:00",
   "trial": {
     "protocol_weeks": 26,
-    "completed_weeks": 2,
+    "completed_weeks": 3,
     "status": "collecting_evidence",
     "starting_equity": 99994.29,
-    "total_confirmed_fills": 2,
+    "total_confirmed_fills": 4,
     "safety_incidents": 0
   },
   "account": {
-    "equity": 99769.75,
-    "cash": 74995.73,
+    "equity": 99987.5,
+    "cash": 74794.41,
     "positions": {
-      "QQQ": 8076.21,
-      "SPY": 16697.81
+      "SPY": 25193.09
     },
     "open_orders": []
   },
   "risk": {
     "halted": false,
-    "current_drawdown_pct": 0.5641,
+    "current_drawdown_pct": 0.3471,
     "max_drawdown_pct": 15.0,
     "position_fraction_pct": 25.0
   },
   "latest_cycle": {
     "signal": "blend",
-    "signal_as_of": "2026-10-07",
+    "signal_as_of": "2026-10-14",
     "status": "reconciled",
-    "confirmed_fills": 0,
+    "confirmed_fills": 2,
     "rejected_orders": 0,
     "sleeves": [
       {
@@ -37,7 +36,7 @@
       },
       {
         "name": "Momentum",
-        "target": "QQQ"
+        "target": "SPY"
       },
       {
         "name": "Defensive",
@@ -88,6 +87,10 @@
     {
       "at": "2026-10-15",
       "equity": 99769.75
+    },
+    {
+      "at": "2026-10-16",
+      "equity": 99987.5
     }
   ],
   "alert": null
