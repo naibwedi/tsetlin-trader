@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-11T08:08:21.333137+00:00",
+  "generated_at": "2026-11-12T08:10:08.760933+00:00",
   "trial": {
     "protocol_weeks": 26,
     "completed_weeks": 6,
@@ -10,16 +10,16 @@
     "safety_incidents": 0
   },
   "account": {
-    "equity": 99371.04,
+    "equity": 99426.18,
     "cash": 74885.47,
     "positions": {
-      "SPY": 24485.57
+      "SPY": 24540.71
     },
     "open_orders": []
   },
   "risk": {
     "halted": false,
-    "current_drawdown_pct": 0.9615,
+    "current_drawdown_pct": 0.9065,
     "max_drawdown_pct": 15.0,
     "position_fraction_pct": 25.0
   },
@@ -159,6 +159,10 @@
     {
       "at": "2026-11-11",
       "equity": 99371.04
+    },
+    {
+      "at": "2026-11-12",
+      "equity": 99426.18
     }
   ],
   "alert": null
